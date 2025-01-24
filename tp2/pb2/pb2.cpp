@@ -5,19 +5,12 @@
 // Correcteur : CORRECTEUR
 // ----------------------------------------------------------
 // Développeurs : Edelina Alieva, Kyle Bouchard
-// Description du pb2.cpp : Lorsque le programme commence, on est dans l'état initial
-//                          INIT qui allume la DEL en rouge. Ensuite, lorsque qu'on retient
-//                          le bouton poussoir, l'état devient AMBER ce qui rend la DEL de
-//                          couleur ambre, et, lorsque qu'il est décliqué, l'état devient
-//                          GREEN_COLOUR, ce qui rend la DEL en vert. Après, le prochain
-//                          appui du bouton rend la DEL rouge avec l'état RED_COLOUR, et le
-//                          déclic du bouton la ferme, à l'aide de l'état LIGHT_OFF.
-//                          Finalement, lorsque qu'on retient encore le bouton, la couleur
-//                          devient verte, à l'aide de l'état GREEN_COLOUR_2, et puis la détente
-//                          du bouton réinitialise la machine à états en retournant à l'état initial INIT.
+// Description du pb2.cpp : La DEL principale change de couleur à chaque clic et déclic
+//                          du bouton, et après trois clics et déclics, le cycle recommence.
 // Identification matérielles : Boutton poussoir connecté au port D2 de l'Atmega324PA
-//                              DEL côté positive connecté à la broche A2
-//                              DEL côté négative connecté à la broche A1
+//                              DEL bidirectionelle sur la carte mère:
+//                                  DEL côté positive connecté à la broche A2
+//                                  DEL côté négative connecté à la broche A1
 // Table des états :
 // +----------------+---------+----------------+-----------+-------------+-------------+
 // | Current State  | pressed | Next State     | color_red | color_green | color_amber |

@@ -32,10 +32,10 @@ PROJECTNAME=pb2
 PRJSRC=pb2.cpp
 
 # Inclusions additionnels (ex: -I/path/to/mydir)
-INC=-I../../lib/include
+INC=-I../../libutil/include
 
 # Libraires a lier (ex: -lmylib)
-LIBS=-L../../lib/release -lutil
+LIBS=-L../../libutil/release -lutil
 
 # Niveau d'optimization
 # Utilisez s (size opt), 1, 2, 3 ou 0 (off)
