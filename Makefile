@@ -23,19 +23,19 @@ MCU=atmega324pa
 
 # Nom de votre projet
 # (utilisez un seul mot, exemple: 'monprojet')
-PROJECTNAME=pb1
+PROJECTNAME=robut
 
 # Fichiers sources
 # Utilisez le suffixe .cpp pour les fichiers C++
 # Listez tous les fichiers a compiler, separes par
 # un espace. exemple: 'tp1.c tp2.cpp':
-PRJSRC=pb1.cpp
+PRJSRC= pb2.cpp sleep.cpp
 
 # Inclusions additionnels (ex: -I/path/to/mydir)
-INC=-I../../lib/include
+INC=-I/usr/include/simavr
 
 # Libraires a lier (ex: -lmylib)
-LIBS=-L../../lib/release -lutil
+LIBS=
 
 # Niveau d'optimization
 # Utilisez s (size opt), 1, 2, 3 ou 0 (off)
@@ -67,17 +67,18 @@ OBJCOPY=avr-objcopy
 #pour permettre le transfert vers le microcontroleur
 AVRDUDE=avrdude
 #pour supprimer les fichiers lorsque l'on appel make clean
-REMOVE=rm -f
+REMOVE=rm -rf
 # HEXFORMAT -- format pour les fichiers produient .hex
 HEXFORMAT=ihex
 
-
+RELEASE_DIR=release
+SIM_DIR=sim
 
 ####### Options de compilation #######
 
 # Flags pour le compilateur en C
-CFLAGS=-I. -I/usr/include/simavr -MMD $(INC) -g -mmcu=$(MCU) -O$(OPTLEVEL) \
-	-std=c++14 -fpack-struct -fshort-enums \
+CFLAGS = -I. -I/usr/include/simavr -MMD $(INC) -g -mmcu=$(MCU) -O$(OPTLEVEL) \
+	-fpack-struct -fshort-enums \
 	-funsigned-bitfields -funsigned-char \
 	-Wall
 
@@ -89,12 +90,18 @@ ifeq "$(GCCVERSION)" "1"
 endif
 
 # Flags pour le compilateur en C++
-CXXFLAGS=-fno-exceptions
+CXXFLAGS = -fno-exceptions -std=c++14
 
 # Linker pour lier les librairies utilisees
-LDFLAGS=-Wl,-Map,$(TRG).map -mmcu=$(MCU)
+LDFLAGS = -Wl,-Map,$(OUTDIR)/$(TRG).map -mmcu=$(MCU)
 
-
+# Build configurations
+ifeq ($(config), sim)
+	CFLAGS += -DSIMULATION=1
+	OUTDIR := $(SIM_DIR)
+else ifeq ($(config), release)
+	OUTDIR := $(RELEASE_DIR)
+endif
 
 ####### Cible (Target) #######
 
@@ -102,8 +109,6 @@ LDFLAGS=-Wl,-Map,$(TRG).map -mmcu=$(MCU)
 TRG=$(PROJECTNAME).elf
 HEXROMTRG=$(PROJECTNAME).hex
 HEXTRG=$(HEXROMTRG) $(PROJECTNAME).ee.hex
-
-
 
 ####### Definition de tout les fichiers objets #######
 
@@ -115,9 +120,9 @@ CFILES=$(filter %.c, $(PRJSRC))
 CPPFILES=$(filter %.cpp, $(PRJSRC))
 
 # Liste de tout les fichiers objet que nous devons creer
-OBJDEPS=$(CFILES:.c=.o) \
-	$(CPPFILES:.cpp=.o)
-	
+OBJDEPS=$(patsubst %.c,$(OUTDIR)/%.o,$(CFILES)) \
+	$(patsubst %.cpp,$(OUTDIR)/%.o,$(CPPFILES))
+
 # Pour plus d'information sur cette section, consulter :
 # http://bit.ly/257R53E	
 # Les fonctions $(filter pattern…,text) &
@@ -131,25 +136,37 @@ OBJDEPS=$(CFILES:.c=.o) \
 # En plus de la commande make qui permet de compiler
 # votre projet, vous pouvez utilisez les commandes
 # make all, make install et make clean
-.PHONY: all install clean
+.PHONY: all install clean sim release
 
 # Make all permet simplement de compiler le projet
 #
-all: $(TRG) $(HEXROMTRG)
+ifdef config
+all: $(OUTDIR)/$(TRG) $(OUTDIR)/$(HEXROMTRG)
+sim release:
+	$(error Cannot build sim or release targets directly with config variables)
+else
+all: sim release
+sim:
+	make config=sim
+release:
+	make config=release
+endif
+
 
 # Implementation de la cible
-$(TRG): $(OBJDEPS)
-	make -C ../../lib release
-	$(CC) $(LDFLAGS) -o $(TRG) $(OBJDEPS) \
+$(OUTDIR)/$(TRG): $(OBJDEPS)
+	$(CC) $(LDFLAGS) -o $(OUTDIR)/$(TRG) $(OBJDEPS) \
 	-lm $(LIBS)
 
 # Production des fichiers object
 # De C a objet
-%.o: %.c
-	$(CC) $(CFLAGS) -c $<
+$(OUTDIR)/%.o: %.c
+	mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 # De C++ a objet
-%.o: %.cpp
-	$(CC) $(CFLAGS) $(CXXFLAGS) -c $<
+$(OUTDIR)/%.o: %.cpp
+	mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # Verification des dependances (header dependencies)
 -include *.d
@@ -164,14 +181,22 @@ $(TRG): $(OBJDEPS)
 # Make install permet de compiler le projet puis
 # d'ecrire le programme en memoire flash dans votre
 # microcontroleur. Celui-ci doit etre branche par cable USB
-install: $(HEXROMTRG)
+ifeq ($(config), release)
+install: $(RELEASE_DIR)/$(HEXROMTRG)
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMERID) \
-	-p $(MCU) -P usb -e -U flash:w:$(HEXROMTRG)
+	-p $(MCU) -P usb -e -U flash:w:$(RELEASE_DIR)/$(HEXROMTRG)
+else ifdef config
+install:
+	$(error Must be in release mode to install)
+else
+install:
+	make config=release install
+endif
 
 # Make clean permet d'effacer tout les fichiers generes
 # lors de la compilation
 clean:
-	$(REMOVE) $(TRG) $(TRG).map $(OBJDEPS) $(HEXTRG) *.d
+	$(REMOVE) $(TRG) $(TRG).map $(OBJDEPS) $(HEXTRG) *.d $(RELEASE_DIR)/ $(SIM_DIR)/
 
 # Pour plus d'information sur les phony target, consulter:
 # http://bit.ly/1WBQe61

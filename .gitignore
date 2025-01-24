@@ -1,8 +1,10 @@
 ## INF1900
 # AVR
 *.elf
-*.elf.map
+*.map
 *.hex
+sim/
+release/
 
 # TP9 - bytecode
 *.bin
