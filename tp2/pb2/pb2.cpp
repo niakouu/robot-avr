@@ -1,3 +1,15 @@
+// 
+// Travail : TP2
+// Section # : 4
+// Équipe # : 82
+// Correcteur : CORRECTEUR
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard
+// Description du pb2.cpp : 
+// Identification matérielles : Button poussoir connecté à port D2 de l'Atmega324PA
+//                              DEL côté positive connecté à broche A2
+//                              DEL côté négative connecté à broche A1
+// Table des états :
 // +----------------+---------+----------------+-----------+-------------+-------------+
 // | Current State  | pressed | Next State     | color_red | color_green | color_amber |
 // +----------------+---------+----------------+-----------+-------------+-------------+
@@ -24,7 +36,7 @@
 enum class State { INIT, AMBER_COLOUR, GREEN_COLOUR, RED_COLOUR, LIGHT_OFF, GREEN_COLOUR_2 };
 
 constexpr uint8_t RED_LED = _BV(PORTA1) & ~(_BV(PORTA0));
-constexpr uint8_t GREEN_LED = _BV(PORTA0) & ~(_BV(PORTA1));
+constexpr uint8_t LED_GREEN = _BV(PORTA0) & ~(_BV(PORTA1));
 constexpr uint8_t BUTTON_BIT_MASK = _BV(PIND2);
 constexpr float SWITCH_DELAY = 7.5;
 
@@ -56,7 +68,7 @@ int main() {
             break;
         case State::AMBER_COLOUR:
             while (PIND & BUTTON_BIT_MASK) {
-                PORTA = GREEN_LED;
+                PORTA = LED_GREEN;
                 _delay_ms(SWITCH_DELAY);
                 PORTA = RED_LED;
                 _delay_ms(SWITCH_DELAY);
@@ -64,7 +76,7 @@ int main() {
             curState = State::GREEN_COLOUR;
             break;
         case State::GREEN_COLOUR:
-            PORTA = GREEN_LED;
+            PORTA = LED_GREEN;
             waitForButtonPress();
             curState = State::RED_COLOUR;
             break;
@@ -79,7 +91,7 @@ int main() {
             curState = State::GREEN_COLOUR_2;
             break;
         case State::GREEN_COLOUR_2:
-            PORTA = GREEN_LED;
+            PORTA = LED_GREEN;
             waitForButtonRelease();
             curState = State::INIT;
             break;
