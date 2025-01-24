@@ -35,35 +35,44 @@
 #include <util/delay.h>
 #include "sleep.h"
 
-enum class State { INIT, AMBER_COLOUR, GREEN_COLOUR, RED_COLOUR, LIGHT_OFF, GREEN_COLOUR_2 };
+#define PORT_LED PORTA
+constexpr uint8_t PORT_LED_NEG = PORTA0;
+constexpr uint8_t PORT_LED_POS = PORTA1;
+constexpr uint8_t BUTTON_STATE_BITMASK = _BV(PIND2);
+constexpr float AMBER_SWITCH_DELAY = 7;
 
-constexpr uint8_t LED_RED = _BV(PORTA1) & ~(_BV(PORTA0));
-constexpr uint8_t LED_GREEN = _BV(PORTA0) & ~(_BV(PORTA1));
-constexpr uint8_t LED_OFF = 0;
-constexpr uint8_t BUTTON_BIT_MASK = _BV(PIND2);
-constexpr float SWITCH_DELAY = 7.5;
+enum class State { INIT, AMBER_COLOUR, GREEN_COLOUR, RED_COLOUR, LIGHT_OFF, GREEN_COLOUR_2 };
+enum class LedState : uint8_t {
+    RED = _BV(PORT_LED_POS) & ~(_BV(PORT_LED_NEG)),
+    GREEN = _BV(PORT_LED_NEG) & ~(_BV(PORT_LED_POS)),
+    OFF = 0
+};
 
 bool isButtonDown() {
-    if ((PIND & BUTTON_BIT_MASK) != 0) {
+    if ((PIND & BUTTON_STATE_BITMASK) != 0) {
         sleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
-        return (PIND & BUTTON_BIT_MASK) != 0;
+        return (PIND & BUTTON_STATE_BITMASK) != 0;
     }
     return false;
 }
 
 bool isButtonUp() {
-    if ((PIND & BUTTON_BIT_MASK) == 0) {
+    if ((PIND & BUTTON_STATE_BITMASK) == 0) {
         sleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
-        return (PIND & BUTTON_BIT_MASK) == 0;
+        return (PIND & BUTTON_STATE_BITMASK) == 0;
     }
     return false;
 }
 
+void setLedState(LedState state) {
+    PORT_LED = static_cast<uint8_t>(state) | (PORT_LED & ~(_BV(PORT_LED_POS) | _BV(PORT_LED_NEG)));
+}
+
 void executeAmberCycle() {
-    PORTA = LED_GREEN;
-    _delay_ms(SWITCH_DELAY);
-    PORTA = LED_RED;
-    _delay_ms(SWITCH_DELAY);
+    setLedState(LedState::GREEN);
+    _delay_ms(AMBER_SWITCH_DELAY);
+    setLedState(LedState::RED);
+    _delay_ms(AMBER_SWITCH_DELAY);
 }
 
 int main() {
@@ -76,7 +85,7 @@ int main() {
         switch (curState)
         {
         case State::INIT:
-            PORTA = LED_RED;
+            setLedState(LedState::RED);
             if (isButtonDown())
                 curState = State::AMBER_COLOUR;
             break;
@@ -86,22 +95,22 @@ int main() {
                 curState = State::GREEN_COLOUR;
             break;
         case State::GREEN_COLOUR:
-            PORTA = LED_GREEN;
+            setLedState(LedState::GREEN);
             if (isButtonDown())
                 curState = State::RED_COLOUR;
             break;
         case State::RED_COLOUR:
-            PORTA = LED_RED;
+            setLedState(LedState::RED);
             if (isButtonUp())
                 curState = State::LIGHT_OFF;
             break;
         case State::LIGHT_OFF:
-            PORTA = LED_OFF;
+            setLedState(LedState::OFF);
             if (isButtonDown())
                 curState = State::GREEN_COLOUR_2;
             break;
         case State::GREEN_COLOUR_2:
-            PORTA = LED_GREEN;
+            setLedState(LedState::GREEN);
             if (isButtonUp())
                 curState = State::INIT;
             break;
