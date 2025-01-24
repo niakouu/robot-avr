@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "lib/include"
+                "libutil/include"
             ],
             "defines": [
                 "__AVR_ATmega324PA__"
