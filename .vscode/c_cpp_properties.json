@@ -2,6 +2,9 @@
     "configurations": [
         {
             "name": "Linux",
+            "includePath": [
+                "lib/include"
+            ],
             "defines": [
                 "__AVR_ATmega324PA__"
             ],
