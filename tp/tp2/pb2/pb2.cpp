@@ -65,7 +65,8 @@ bool isButtonUp() {
 }
 
 void setLedState(LedState state) {
-    PORT_LED = static_cast<uint8_t>(state) | (PORT_LED & ~(_BV(PORT_LED_POS) | _BV(PORT_LED_NEG)));
+    constexpr uint8_t led_mask = _BV(PORT_LED_POS) | _BV(PORT_LED_NEG); 
+    PORT_LED = (static_cast<uint8_t>(state) & led_mask) | (PORT_LED & ~led_mask);
 }
 
 void executeAmberCycle() {
