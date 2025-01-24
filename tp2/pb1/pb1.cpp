@@ -29,19 +29,26 @@
 #include <avr/wdt.h>
 #include "sleep.h"
 
-enum class State { INIT, PRESSED_ONCE, PRESSED_TWICE, LIGHT_ON };
+enum class State { INIT, PRESSED_ONCE, RELEASED_ONCE, PRESSED_TWICE,
+                   RELEASED_TWICE, PRESSED_THRICE, LIGHT_ON };
 constexpr uint8_t BUTTON_BIT_MASK = _BV(PIND2);
 constexpr uint8_t LED_GREEN = _BV(PORTA0) & ~(_BV(PORTA1));
 constexpr uint8_t LED_OFF = 0;
 
-void waitForButtonPress() {
-    while (!(PIND & BUTTON_BIT_MASK)) {
+bool isButtonDown() {
+    if ((PIND & BUTTON_BIT_MASK) != 0) {
         sleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
+        return (PIND & BUTTON_BIT_MASK) != 0;
     }
+    return false;
+}
 
-    while (PIND & BUTTON_BIT_MASK) {
+bool isButtonUp() {
+    if ((PIND & BUTTON_BIT_MASK) == 0) {
         sleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
+        return (PIND & BUTTON_BIT_MASK) == 0;
     }
+    return false;
 }
 
 int main() {
@@ -55,16 +62,28 @@ int main() {
         {
         case State::INIT:
             PORTA = LED_OFF;
-            waitForButtonPress();
-            curState = State::PRESSED_ONCE;
+            if (isButtonDown())
+                curState = State::PRESSED_ONCE;
             break;
         case State::PRESSED_ONCE:
-            waitForButtonPress();
-            curState = State::PRESSED_TWICE;
+            if (isButtonUp())
+                curState = State::RELEASED_ONCE;
+            break;
+        case State::RELEASED_ONCE:
+            if (isButtonDown())
+                curState = State::PRESSED_TWICE;
             break;
         case State::PRESSED_TWICE:
-            waitForButtonPress();
-            curState = State::LIGHT_ON;
+            if (isButtonUp())
+                curState = State::RELEASED_TWICE;
+            break;
+        case State::RELEASED_TWICE:
+            if (isButtonDown())
+                curState = State::PRESSED_THRICE;
+            break;
+        case State::PRESSED_THRICE:
+            if (isButtonUp())
+                curState = State::LIGHT_ON;
             break;
         case State::LIGHT_ON:
             PORTA = LED_GREEN;
