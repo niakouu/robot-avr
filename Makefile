@@ -8,11 +8,7 @@
 #####  Psychogenic Inc (www.psychogenic.com) #####
 ##################################################
 
-# Ce Makefile vous permet de compiler des projets
-# pour les microcontroleurs Atmel AVR sur 
-# Linux ou Unix, en utilisant l'outil AVR-GCC. 
-# Ce Makefile supporte C & C++
-
+# Makefile modifie pour avoir sim/release
 
 #####      Details specifique a la cible       #####
 #####  Vous devez les adapter a votre projet   #####
