@@ -139,7 +139,7 @@ all: $(TRG) $(HEXROMTRG)
 
 # Implementation de la cible
 $(TRG): $(OBJDEPS)
-	make -C ../../lib release
+	make -C ../../libutil release
 	$(CC) $(LDFLAGS) -o $(TRG) $(OBJDEPS) \
 	-lm $(LIBS)
 
