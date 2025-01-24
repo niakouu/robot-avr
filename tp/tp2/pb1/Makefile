@@ -23,19 +23,19 @@ MCU=atmega324pa
 
 # Nom de votre projet
 # (utilisez un seul mot, exemple: 'monprojet')
-PROJECTNAME=pb2
+PROJECTNAME=pb1
 
 # Fichiers sources
 # Utilisez le suffixe .cpp pour les fichiers C++
 # Listez tous les fichiers a compiler, separes par
 # un espace. exemple: 'tp1.c tp2.cpp':
-PRJSRC=pb2.cpp
+PRJSRC=pb1.cpp
 
 # Inclusions additionnels (ex: -I/path/to/mydir)
-INC=-I../../libutil/include
+INC=-I../../../libutil/include
 
 # Libraires a lier (ex: -lmylib)
-LIBS=-L../../libutil/release -lutil
+LIBS=-L../../../libutil/release -lutil
 
 # Niveau d'optimization
 # Utilisez s (size opt), 1, 2, 3 ou 0 (off)
@@ -139,7 +139,7 @@ all: $(TRG) $(HEXROMTRG)
 
 # Implementation de la cible
 $(TRG): $(OBJDEPS)
-	make -C ../../libutil release
+	make -C ../../../libutil release
 	$(CC) $(LDFLAGS) -o $(TRG) $(OBJDEPS) \
 	-lm $(LIBS)
 

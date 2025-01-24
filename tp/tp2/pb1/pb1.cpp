@@ -13,17 +13,23 @@
 //                                  DEL côté positive connecté à la broche A2
 //                                  DEL côté négative connecté à la broche A1
 // Table des états :
-// +---------------+---------+---------------+-----+
-// | Current State | pressed | Next State    | led |
-// +---------------+---------+---------------+-----+
-// | INIT          | 0       | INIT          | 0   |
-// | INIT          | 1       | PRESSED_ONCE  | 0   |
-// | PRESSED_ONCE  | 0       | PRESSED_ONCE  | 0   |
-// | PRESSED_ONCE  | 1       | PRESSED_TWICE | 0   |
-// | PRESSED_TWICE | 0       | PRESSED_TWICE | 0   |
-// | PRESSED_TWICE | 1       | LIGHT_ON      | 0   |
-// | LIGHT_ON      | X       | INIT          | 1   |
-// +---------------+---------+---------------+-----+
+// +----------------+---------+----------------+-----+
+// | Current State  | pressed | Next State     | led |
+// +----------------+---------+----------------+-----+
+// | INIT           | 0       | INIT           | 0   |
+// | INIT           | 1       | PRESSED_ONCE   | 0   |
+// | PRESSED_ONCE   | 0       | RELEASED_ONCE  | 0   |
+// | PRESSED_ONCE   | 1       | PRESSED_ONCE   | 0   |
+// | RELEASED_ONCE  | 0       | RELEASED_ONCE  | 0   |
+// | RELEASED_ONCE  | 1       | PRESSED_TWICE  | 0   |
+// | PRESSED_TWICE  | 0       | RELEASED_TWICE | 0   |
+// | PRESSED_TWICE  | 1       | PRESSED_TWICE  | 0   |
+// | RELEASED_TWICE | 0       | RELEASED_TWICE | 0   |
+// | RELEASED_TWICE | 1       | PRESSED_THRICE | 0   |
+// | PRESSED_THRICE | 0       | LIGHT_ON       | 0   |
+// | PRESSED_THRICE | 1       | PRESSED_THRICE | 0   |
+// | LIGHT_ON       | X       | INIT           | 1   |
+// +----------------+---------+----------------+-----+
 
 #include <avr/io.h>
 #include <avr/wdt.h>
