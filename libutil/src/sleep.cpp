@@ -48,12 +48,15 @@ void sleep(const uint8_t duration, const uint8_t sleep_mode) {
 #include <avr/interrupt.h>
 #include <avr/power.h>
 
+/// @brief WDT interrupt handler. Disables WDT to continue execution from last point.
 ISR (WDT_vect)  {
    wdt_disable();
 }
 
-void wdt_enable_fix(const uint8_t value) {
-    uint8_t flags = _BV(WDIE) | (value & 0x08 ? _BV(WDP3) : 0x00) | (value & 0x07);
+/// @brief Enables the WDT timer on interrupt mode with a specific timer.
+/// @param duration Duration to enable the WDT timer for. Select from `avr/wdt.h`: One of the `WDTO_*` constants.
+static void wdt_enable_interrupt(const uint8_t duration) {
+    uint8_t flags = _BV(WDIE) | (duration & 0x08 ? _BV(WDP3) : 0x00) | (duration & 0x07);
     cli(); // Disable interrupts before time critical section
     MCUSR &= ~_BV(WDRF); // Turn off WDRF (required to turn off WDE)
     WDTCSR = _BV(WDCE) | _BV(WDE); // Start change operation
@@ -62,7 +65,7 @@ void wdt_enable_fix(const uint8_t value) {
 }
 
 void sleep(const uint8_t duration, const uint8_t sleep_mode) {
-    wdt_enable_fix(duration);
+    wdt_enable_interrupt(duration);
     set_sleep_mode (sleep_mode);
     sleep_enable();
     sleep_cpu ();  

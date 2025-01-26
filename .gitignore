@@ -3,6 +3,7 @@
 *.elf
 *.map
 *.hex
+build/
 sim/
 release/
 
