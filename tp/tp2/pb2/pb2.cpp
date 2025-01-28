@@ -7,10 +7,10 @@
 // Développeurs : Edelina Alieva, Kyle Bouchard
 // Description du pb2.cpp : La DEL principale change de couleur à chaque clic et déclic
 //                          du bouton, et après trois clics et déclics, le cycle recommence.
-// Identification matérielles : Boutton poussoir connecté au port D2 de l'Atmega324PA
+// Identification matérielles : Boutton poussoir connecté au port D2 de l'Atmega324PA (entré)
 //                              DEL bidirectionelle sur la carte mère:
-//                                  DEL côté positive connecté à la broche A2
-//                                  DEL côté négative connecté à la broche A1
+//                                  DEL côté positive connecté à la broche A2 (sortie)
+//                                  DEL côté négative connecté à la broche A1 (sortie)
 // Table des états :
 // +----------------+---------+----------------+-----------+-------------+-------------+
 // | Current State  | pressed | Next State     | color_red | color_green | color_amber |

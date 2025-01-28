@@ -8,10 +8,10 @@
 // Description du pb1.cpp : Après avoir appuyer 3 fois sur le bouton poussoir 
 //                          de la carte mère, la DEL tourne verte pendant 2 secondes.
 //                          Ensuite, la del retourne à son état initial.
-// Identification matérielles : Boutton poussoir connecté au port D2 de l'Atmega324PA
+// Identification matérielles : Boutton poussoir connecté au port D2 de l'Atmega324PA (entré)
 //                              DEL bidirectionelle sur la carte mère:
-//                                  DEL côté positive connecté à la broche A2
-//                                  DEL côté négative connecté à la broche A1
+//                                  DEL côté positive connecté à la broche A2 (sortie)
+//                                  DEL côté négative connecté à la broche A1 (sortie)
 // Table des états :
 // +----------------+---------+----------------+-----+
 // | Current State  | pressed | Next State     | led |
