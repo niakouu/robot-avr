@@ -177,7 +177,7 @@ $(OUTDIR)/%.o: %.cpp
 ifeq ($(config), release)
 install: $(OUTDIR)/$(HEXROMTRG)
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMERID) \
-	-p $(MCU) -P usb -e -U flash:w:$(RELEASE_DIR)/$(HEXROMTRG)
+	-p $(MCU) -P usb -e -U flash:w:$(OUTDIR)/$(HEXROMTRG)
 else ifdef config
 install:
 	$(error Must be in release mode to install)
