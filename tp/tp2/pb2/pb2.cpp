@@ -38,6 +38,7 @@
 #define PORT_LED PORTA
 constexpr uint8_t PORT_LED_NEG = PORTA0;
 constexpr uint8_t PORT_LED_POS = PORTA1;
+
 constexpr uint8_t BUTTON_STATE_BITMASK = _BV(PIND2);
 constexpr float AMBER_SWITCH_DELAY = 7;
 

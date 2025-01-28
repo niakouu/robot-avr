@@ -45,7 +45,7 @@ constexpr uint8_t PORT_LED_POS = PORTA1;
 constexpr uint8_t BUTTON_BIT_MASK = _BV(PIND2);
 
 enum class LedState : uint8_t {
-    GREEN = _BV(PORT_LED_POS) & ~(_BV(PORT_LED_NEG)),
+    GREEN = _BV(PORT_LED_NEG) & ~(_BV(PORT_LED_POS)),
     OFF = 0
 };
 
