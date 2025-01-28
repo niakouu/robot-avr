@@ -37,9 +37,17 @@
 
 enum class State { INIT, PRESSED_ONCE, RELEASED_ONCE, PRESSED_TWICE,
                    RELEASED_TWICE, PRESSED_THRICE, LIGHT_ON };
+
+#define PORT_LED PORTA
+constexpr uint8_t PORT_LED_NEG = PORTA0;
+constexpr uint8_t PORT_LED_POS = PORTA1;
+
 constexpr uint8_t BUTTON_BIT_MASK = _BV(PIND2);
-constexpr uint8_t LED_GREEN = _BV(PORTA0) & ~(_BV(PORTA1));
-constexpr uint8_t LED_OFF = 0;
+
+enum class LedState : uint8_t {
+    GREEN = _BV(PORT_LED_POS) & ~(_BV(PORT_LED_NEG)),
+    OFF = 0
+};
 
 bool isButtonDown() {
     if ((PIND & BUTTON_BIT_MASK) != 0) {
@@ -57,6 +65,11 @@ bool isButtonUp() {
     return false;
 }
 
+void setLedState(LedState state) {
+    constexpr uint8_t led_mask = _BV(PORT_LED_POS) | _BV(PORT_LED_NEG); 
+    PORT_LED = (static_cast<uint8_t>(state) & led_mask) | (PORT_LED & ~led_mask);
+}
+
 int main() {
     DDRA |= _BV(DDA1) | _BV(DDA0);
     DDRD &= ~(_BV(DDD2));
@@ -67,7 +80,7 @@ int main() {
         switch (curState)
         {
         case State::INIT:
-            PORTA = LED_OFF;
+            setLedState(LedState::OFF);
             if (isButtonDown())
                 curState = State::PRESSED_ONCE;
             break;
@@ -92,7 +105,7 @@ int main() {
                 curState = State::LIGHT_ON;
             break;
         case State::LIGHT_ON:
-            PORTA = LED_GREEN;
+            setLedState(LedState::GREEN);
             sleep(WDTO_2S, SLEEP_MODE_PWR_DOWN);
             curState = State::INIT;
             break;

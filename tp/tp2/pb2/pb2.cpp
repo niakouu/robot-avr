@@ -29,7 +29,7 @@
 // | GREEN_COLOUR_2 | 1       | GREEN_COLOUR_2 | 0         | 1           | 0           |
 // +----------------+---------+----------------+-----------+-------------+-------------+
 
-#define F_CPU 8000000
+#define F_CPU 8000000UL
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include <util/delay.h>

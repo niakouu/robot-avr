@@ -2,7 +2,7 @@
 #include <avr/wdt.h>
 
 #ifdef SIMULATION
-#define F_CPU 8000000
+#define F_CPU 8000000UL
 #include <util/delay.h>
 
 void sleep(const uint8_t duration, const uint8_t sleep_mode) {
