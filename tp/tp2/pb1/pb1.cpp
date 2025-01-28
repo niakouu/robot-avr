@@ -41,6 +41,8 @@ enum class State { INIT, PRESSED_ONCE, RELEASED_ONCE, PRESSED_TWICE,
 #define PORT_LED PORTA
 constexpr uint8_t PORT_LED_NEG = PORTA0;
 constexpr uint8_t PORT_LED_POS = PORTA1;
+constexpr uint8_t DATADIR_LED_NEG = DDA0;
+constexpr uint8_t DATADIR_LED_POS = DDA1;
 
 constexpr uint8_t BUTTON_BIT_MASK = _BV(PIND2);
 
@@ -71,7 +73,7 @@ void setLedState(LedState state) {
 }
 
 int main() {
-    DDRA |= _BV(DDA1) | _BV(DDA0);
+    DDRA |= _BV(DATADIR_LED_NEG) | _BV(DATADIR_LED_POS);
     DDRD &= ~(_BV(DDD2));
 
     State curState = State::INIT;
