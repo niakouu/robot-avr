@@ -3,11 +3,14 @@
 #include <avr/io.h>
 
 #define PORT_LED PORTA
+
+constexpr uint8_t DELAY_US = 100;
+
 constexpr uint8_t PORT_LED_NEG = PORTA0;
 constexpr uint8_t PORT_LED_POS = PORTA1;
 
-constexpr uint8_t BUTTON_STATE_BITMASK = _BV(PIND2);
-constexpr float AMBER_SWITCH_DELAY = 7;
+constexpr uint8_t LED_ON_DURATION_SEC = 3;
+constexpr uint16_t FREQ = 1000;
 
 enum class LedState : uint8_t
 {
@@ -16,10 +19,13 @@ enum class LedState : uint8_t
     OFF = 0
 };
 
-constexpr uint16_t PRECISION = 1000;
-constexpr float MAX_RATIO = 1.0f;
-constexpr float MIN_RATIO = 0.0f;
-constexpr float RATIO_DELTA = 1.0f/1000.0f;
+inline float secToMicro(float seconds) {
+    return seconds * 1'000'000.0f;
+}
+
+inline float freqToSec(float freq) {
+    return 1.0f / freq;
+}
 
 void setLedState(LedState state)
 {
@@ -27,23 +33,28 @@ void setLedState(LedState state)
     PORT_LED = (static_cast<uint8_t>(state) & led_mask) | (PORT_LED & ~led_mask);
 }
 
-void powerOffLed(LedState color)
+void powerOffLed(LedState color, uint16_t freq, float duration)
 {
-    float ratio = MAX_RATIO;
-    while (ratio >= MIN_RATIO)
+    uint32_t cycleCount = static_cast<uint32_t>(duration * static_cast<float>(freq));
+    uint16_t iterationsPerCycle = static_cast<uint16_t>(secToMicro(freqToSec(static_cast<float>(freq))) / DELAY_US);
+    
+    uint16_t onIterations;
+    for (uint32_t i = 0; i < cycleCount; i++)
     {
-        uint16_t onCycles = static_cast<uint16_t>(ratio * static_cast<float>(PRECISION));
+        onIterations = static_cast<uint16_t>(
+            static_cast<float>(i)/static_cast<float>(cycleCount) *
+                static_cast<float>(iterationsPerCycle));
+        
         setLedState(color);
-        for (uint16_t i = 0; i < onCycles; i++)
+        for (uint16_t j = 0; j < onIterations; j++)
         {
-            _delay_us(1);
+            _delay_us(DELAY_US);
         }
         setLedState(LedState::OFF);
-        for (uint16_t i = 0; i < PRECISION - onCycles; i++)
+        for (uint16_t j = 0; j < iterationsPerCycle - onIterations; j++)
         {
-            _delay_us(1);
+            _delay_us(DELAY_US);
         }
-        ratio -= 1.0f/1000.0f;
     }
 }
 
@@ -54,8 +65,8 @@ int main(void)
 
     while (true)
     {
-        powerOffLed(LedState::RED);
-        powerOffLed(LedState::GREEN);
+        powerOffLed(LedState::RED, FREQ, LED_ON_DURATION_SEC);
+        powerOffLed(LedState::GREEN, FREQ, LED_ON_DURATION_SEC);
     }
 
     return 0;
