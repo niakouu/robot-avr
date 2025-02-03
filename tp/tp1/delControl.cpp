@@ -1,15 +1,11 @@
 #define F_CPU 8000000
-#include <util/delay.h>
 #include <avr/io.h>
 #include <avr/wdt.h>
+#include <util/delay.h>
+
 #include "sleep.h"
 
-typedef enum states {
-    STATE_RED,
-    STATE_GREEN,
-    STATE_AMBER,
-    STATE_MAX
-} states_t;
+typedef enum states { STATE_RED, STATE_GREEN, STATE_AMBER, STATE_MAX } states_t;
 
 #define SWITCH_DELAY 7.5
 #define CYCLE_COUNT 66.66
@@ -23,8 +19,7 @@ int main(void) {
     uint8_t cycles = 0;
 
     for (;;) {
-        switch (state)
-        {
+        switch (state) {
             case STATE_RED:
                 PORTA = _BV(PORTA0);
                 sleep(WDTO_15MS, SLEEP_MODE_IDLE);
