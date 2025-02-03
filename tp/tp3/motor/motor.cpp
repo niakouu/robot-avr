@@ -16,7 +16,7 @@ constexpr uint8_t PORT_RIGHT_DIR = PORTD7;
 
 constexpr uint8_t SPIN_TIME_SECS = 1;
 constexpr uint16_t FREQS[] = {60, 400};
-constexpr float RATIOS[] = {0.0f, .25f, .50f, .75f, 1.0f};
+constexpr float RATIOS[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
 
 inline float secToMicro(float seconds) { return seconds * 1'000'000.0f; }
 

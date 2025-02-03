@@ -48,7 +48,7 @@ constexpr uint8_t DATADIR_LED_NEG = DDA0;
 constexpr uint8_t DATADIR_LED_POS = DDA1;
 
 constexpr uint8_t BUTTON_STATE_BITMASK = _BV(PIND2);
-constexpr float AMBER_SWITCH_DELAY = 7;
+constexpr float AMBER_SWITCH_DELAY = 7.0f;
 
 enum class State {
     INIT,
