@@ -15,6 +15,7 @@ IndentCaseLabels: true
 EmptyLineBeforeMethods: true
 EmptyLineBeforeFunctions: true
 CommentStyle: Inline
+AllowShortFunctionsOnASingleLine: Empty
 
 PointerAlignment: Left
 FloatConstantStyle: LeadingZero

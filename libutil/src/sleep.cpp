@@ -50,7 +50,9 @@ void sleep(const uint8_t duration, const uint8_t sleep_mode) {
 
 /// @brief WDT interrupt handler. Disables WDT to continue execution from last
 /// point.
-ISR(WDT_vect) { wdt_disable(); }
+ISR(WDT_vect) {
+    wdt_disable();
+}
 
 /// @brief Enables the WDT timer on interrupt mode with a specific timer.
 /// @param duration Duration to enable the WDT timer for. Select from
