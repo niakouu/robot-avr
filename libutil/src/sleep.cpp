@@ -48,10 +48,13 @@ void sleep(const uint8_t duration, const uint8_t sleep_mode) {
 #include <avr/power.h>
 #include <avr/sleep.h>
 
+volatile bool g_sleepDone = false;
+
 /// @brief WDT interrupt handler. Disables WDT to continue execution from last
 /// point.
 ISR(WDT_vect) {
     wdt_disable();
+    ::g_sleepDone = true;
 }
 
 /// @brief Enables the WDT timer on interrupt mode with a specific timer.
@@ -68,10 +71,16 @@ static void wdt_enable_interrupt(const uint8_t duration) {
 }
 
 void sleep(const uint8_t duration, const uint8_t sleep_mode) {
+    uint8_t sregInitState = SREG; // Save Status Register if we are in interrupt handler.
     wdt_enable_interrupt(duration);
     set_sleep_mode(sleep_mode);
     sleep_enable();
-    sleep_cpu();
+
+    ::g_sleepDone = false;
+    while (!::g_sleepDone)
+        sleep_cpu();
+    
     sleep_disable(); // cancel sleep as a precaution
+    SREG = sregInitState; // Restore Status Register to previous state.
 }
 #endif /* SIMULATION */

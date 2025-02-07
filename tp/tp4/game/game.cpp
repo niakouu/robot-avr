@@ -15,6 +15,10 @@ constexpr uint8_t DATADIR_LED_POS = DDA1;
 
 constexpr uint8_t BUTTON_STATE_BITMASK = _BV(PIND2);
 
+constexpr uint16_t BLINK_TIME_MS = 1000;
+constexpr uint16_t TIMER1_PRESCALER = 1024;
+constexpr uint8_t INTERRUPT_DELAY_TIME_MS = 30;
+
 enum class State : uint8_t { INIT, BLINK, WAIT_BUTTON, FINISH };
 enum class LedState : uint8_t {
     RED = _BV(PORT_LED_POS) & ~(_BV(PORT_LED_NEG)),
@@ -25,14 +29,13 @@ enum class LedState : uint8_t {
 volatile uint8_t g_timerExpired = 0;
 volatile uint8_t g_buttonPressed = 0;
 
-void setLedState(LedState ledState);
 ISR(TIMER1_COMPA_vect) {
-    g_timerExpired = 1;
+    ::g_timerExpired = 1;
 }
 
 ISR(INT0_vect) {
-    sleep(WDTO_15MS, SLEEP_MODE_IDLE);
-    g_buttonPressed |= (PIND & BUTTON_STATE_BITMASK) != 0;
+    _delay_ms(INTERRUPT_DELAY_TIME_MS);
+    ::g_buttonPressed |= (PIND & BUTTON_STATE_BITMASK) != 0;
 }
 
 void setLedState(LedState ledState) {
@@ -41,11 +44,15 @@ void setLedState(LedState ledState) {
         (static_cast<uint8_t>(ledState) & led_mask) | (PORT_LED & ~led_mask);
 }
 
-void startTimer(uint16_t time) {
-    g_timerExpired = 0;
+uint16_t calculateTicksForTimer(uint16_t milliseconds, uint16_t prescaler) {
+    return static_cast<uint16_t>((F_CPU / prescaler) * static_cast<float>(milliseconds) / 1000);
+}
+
+void startTimer(uint16_t ticks) {
+    ::g_timerExpired = 0;
     // mode CTC timer 1 with clock 1024
     TCNT1 = 0;
-    OCR1A = time;
+    OCR1A = ticks;
     TCCR1A = _BV(COM1A1) | (TCCR1A & ~_BV(COM1A0));
     TCCR1B = _BV(CS12) | _BV(CS10) | (TCCR1B & ~_BV(CS11));
     TCCR1C = 0;
@@ -71,20 +78,20 @@ int main() {
     initialization();
 
     setLedState(LedState::OFF);
-    _delay_ms(10000);
+    sleep(WDTO_8S, SLEEP_MODE_IDLE);
 
-    g_buttonPressed = 0;
-    startTimer(7812);
+    ::g_buttonPressed = 0;
+    startTimer(calculateTicksForTimer(BLINK_TIME_MS, TIMER1_PRESCALER));
     do {
         setLedState(LedState::RED);
         sleep(WDTO_30MS, SLEEP_MODE_IDLE);
         setLedState(LedState::OFF);
         sleep(WDTO_30MS, SLEEP_MODE_IDLE);
-    } while (g_timerExpired == 0 && g_buttonPressed == 0);
+    } while (::g_timerExpired == 0 && ::g_buttonPressed == 0);
 
     cli();
 
-    if (g_buttonPressed && !g_timerExpired)
+    if (::g_buttonPressed && !::g_timerExpired)
         setLedState(LedState::GREEN);
     else
         setLedState(LedState::RED);

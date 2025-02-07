@@ -48,37 +48,37 @@ void executeAmberCycle(void) {
 }
 
 void handleButtonEvent(void) {
-    switch (g_curState) {
+    switch (::g_curState) {
         case State::INIT:
-            if (g_buttonPressed)
-                g_curState = State::AMBER_COLOUR;
+            if (::g_buttonPressed)
+                ::g_curState = State::AMBER_COLOUR;
             break;
         case State::AMBER_COLOUR:
-            if (!g_buttonPressed)
-                g_curState = State::GREEN_COLOUR;
+            if (!::g_buttonPressed)
+                ::g_curState = State::GREEN_COLOUR;
             break;
         case State::GREEN_COLOUR:
-            if (g_buttonPressed)
-                g_curState = State::RED_COLOUR;
+            if (::g_buttonPressed)
+                ::g_curState = State::RED_COLOUR;
             break;
         case State::RED_COLOUR:
-            if (!g_buttonPressed)
-                g_curState = State::LIGHT_OFF;
+            if (!::g_buttonPressed)
+                ::g_curState = State::LIGHT_OFF;
             break;
         case State::LIGHT_OFF:
-            if (g_buttonPressed)
-                g_curState = State::GREEN_COLOUR_2;
+            if (::g_buttonPressed)
+                ::g_curState = State::GREEN_COLOUR_2;
             break;
         case State::GREEN_COLOUR_2:
-            if (!g_buttonPressed)
-                g_curState = State::INIT;
+            if (!::g_buttonPressed)
+                ::g_curState = State::INIT;
             break;
         default:;
     }
 }
 
 void updateStateLed(void) {
-    switch (g_curState) {
+    switch (::g_curState) {
         case State::INIT:
         case State::RED_COLOUR:
             setLedState(LedState::RED);
@@ -98,7 +98,7 @@ void updateStateLed(void) {
 ISR(INT0_vect) {
     sleep(WDTO_30MS, SLEEP_MODE_PWR_DOWN); // anti-rebound
 
-    g_buttonPressed = (PIN_BTN & BUTTON_STATE_BITMASK) != 0;
+    ::g_buttonPressed = (PIN_BTN & BUTTON_STATE_BITMASK) != 0;
     handleButtonEvent();
     updateStateLed();
 
@@ -126,7 +126,7 @@ int main() {
     initialization();
     while (true) {
         cli();
-        if (g_curState == State::AMBER_COLOUR) {
+        if (::g_curState == State::AMBER_COLOUR) {
             executeAmberCycle();
             sei();
         } else {
