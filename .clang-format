@@ -16,6 +16,7 @@ EmptyLineBeforeMethods: true
 EmptyLineBeforeFunctions: true
 CommentStyle: Inline
 AllowShortFunctionsOnASingleLine: Empty
+AccessModifierOffset: -4
 
 PointerAlignment: Left
 FloatConstantStyle: LeadingZero
