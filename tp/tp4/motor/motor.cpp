@@ -26,10 +26,10 @@ void adjustPwmRatio(float ratio) {
 
     // clock division by 8 -> freq = 1960 Hz
     // mode #1 -> PWM 8 bit, correct phase
-    TCCR1A |= _BV(WGM10) | _BV(COM1A1) | _BV(COM1B1)
+    TCCR1A = _BV(WGM10) | _BV(COM1A1) | _BV(COM1B1)
               | (TCCR1A & ~(_BV(WGM11) | _BV(COM1A0) | _BV(COM1B0)));
 
-    TCCR1B |= _BV(CS11)
+    TCCR1B = _BV(CS11)
               | (TCCR1B & ~(_BV(WGM13) | _BV(WGM12) | _BV(CS12) | _BV(CS10)));
 
     TCCR1C = 0;
