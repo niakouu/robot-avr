@@ -53,7 +53,7 @@ int main() {
                 spinMotor(freq, ratio, SPIN_TIME_SECS);
             }
             PORT_MOTORS &= ~(_BV(PORT_LEFT_EN));
-            sleep(WDTO_1S, SLEEP_MODE_PWR_DOWN);
+            rawSleep(WDTO_1S, SLEEP_MODE_PWR_DOWN);
         }
     }
 

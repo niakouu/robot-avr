@@ -67,7 +67,7 @@ enum class LedState : uint8_t {
 
 bool isButtonDown() {
     if ((PIND & BUTTON_STATE_BITMASK) != 0) {
-        sleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
+        rawSleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
         return (PIND & BUTTON_STATE_BITMASK) != 0;
     }
 
@@ -76,7 +76,7 @@ bool isButtonDown() {
 
 bool isButtonUp() {
     if ((PIND & BUTTON_STATE_BITMASK) == 0) {
-        sleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
+        rawSleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
         return (PIND & BUTTON_STATE_BITMASK) == 0;
     }
 

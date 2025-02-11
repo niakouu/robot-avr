@@ -22,11 +22,11 @@ int main(void) {
         switch (state) {
             case STATE_RED:
                 PORTA = _BV(PORTA0);
-                sleep(WDTO_15MS, SLEEP_MODE_IDLE);
+                sleep(15, SLEEP_MODE_IDLE);
                 break;
             case STATE_GREEN:
                 PORTA = _BV(PORTA1);
-                sleep(WDTO_15MS, SLEEP_MODE_IDLE);
+                sleep(15, SLEEP_MODE_IDLE);
                 break;
             case STATE_AMBER:
                 PORTA = _BV(PORTA0);
@@ -40,7 +40,7 @@ int main(void) {
 
         if (!buttonClicked) {
             if (PIND & _BV(PIND2)) {
-                sleep(WDTO_15MS, SLEEP_MODE_IDLE);
+                rawSleep(WDTO_15MS, SLEEP_MODE_IDLE);
                 buttonClicked = (PIND & _BV(PIND2)) != 0;
             } else if (cycles++ > CYCLE_COUNT) {
                 cycles = 0;

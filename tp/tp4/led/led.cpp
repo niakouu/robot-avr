@@ -96,7 +96,7 @@ void updateStateLed(void) {
 }
 
 ISR(INT0_vect) {
-    sleep(WDTO_30MS, SLEEP_MODE_PWR_DOWN); // anti-rebound
+    rawSleep(WDTO_30MS, SLEEP_MODE_PWR_DOWN); // anti-rebound
 
     ::g_buttonPressed = (PIN_BTN & BUTTON_STATE_BITMASK) != 0;
     handleButtonEvent();
@@ -131,7 +131,7 @@ int main() {
             sei();
         } else {
             sei();
-            sleep(WDTO_120MS, SLEEP_MODE_PWR_DOWN);
+            rawSleep(WDTO_120MS, SLEEP_MODE_PWR_DOWN);
         }
     }
     return 0;

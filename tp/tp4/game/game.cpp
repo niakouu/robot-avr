@@ -78,15 +78,15 @@ int main() {
     initialization();
 
     setLedState(LedState::OFF);
-    sleep(WDTO_8S, SLEEP_MODE_IDLE);
+    rawSleep(WDTO_8S, SLEEP_MODE_IDLE);
 
     ::g_buttonPressed = 0;
     startTimer(calculateTicksForTimer(BLINK_TIME_MS, TIMER1_PRESCALER));
     do {
         setLedState(LedState::RED);
-        sleep(WDTO_30MS, SLEEP_MODE_IDLE);
+        rawSleep(WDTO_30MS, SLEEP_MODE_IDLE);
         setLedState(LedState::OFF);
-        sleep(WDTO_30MS, SLEEP_MODE_IDLE);
+        rawSleep(WDTO_30MS, SLEEP_MODE_IDLE);
     } while (::g_timerExpired == 0 && ::g_buttonPressed == 0);
 
     cli();
@@ -96,7 +96,7 @@ int main() {
     else
         setLedState(LedState::RED);
 
-    while (true) { sleep(WDTO_8S, SLEEP_MODE_PWR_DOWN); }
+    while (true) { rawSleep(WDTO_8S, SLEEP_MODE_PWR_DOWN); }
 
     return 0;
 }

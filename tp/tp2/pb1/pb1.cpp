@@ -64,7 +64,7 @@ enum class LedState : uint8_t {
 
 bool isButtonDown() {
     if ((PIND & BUTTON_BIT_MASK) != 0) {
-        sleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
+        rawSleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
         return (PIND & BUTTON_BIT_MASK) != 0;
     }
 
@@ -73,7 +73,7 @@ bool isButtonDown() {
 
 bool isButtonUp() {
     if ((PIND & BUTTON_BIT_MASK) == 0) {
-        sleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
+        rawSleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
         return (PIND & BUTTON_BIT_MASK) == 0;
     }
 
@@ -120,7 +120,7 @@ int main() {
                 break;
             case State::LIGHT_ON:
                 setLedState(LedState::GREEN);
-                sleep(WDTO_2S, SLEEP_MODE_PWR_DOWN);
+                rawSleep(WDTO_2S, SLEEP_MODE_PWR_DOWN);
                 curState = State::INIT;
                 break;
             default:;
