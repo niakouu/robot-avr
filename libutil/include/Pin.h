@@ -20,11 +20,11 @@ public:
     Pin(Region region, Direction direction, Id id);
     ~Pin();
 
-    inline bool read() const;
+    bool read() const;
 
-    inline void write(bool set) const;
-    inline void set() const;
-    inline void unset() const;
+    void write(bool set) const;
+    void set() const;
+    void unset() const;
 
 private:
     static const Mappings* getMappings(const Region& region, const Id& id);
