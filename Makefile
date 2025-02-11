@@ -12,7 +12,8 @@ clean:
 .PHONY: all clean
 
 # Project definitions
-PROJECTS=tp1 tp2pb1 tp2pb2 tp3led tp3motor tp4led tp4game tp4motor tp5eeprom_storage
+PROJECTS=tp1 tp2pb1 tp2pb2 tp3led tp3motor tp4led tp4game tp4motor \
+		 tp5eeprom_storage tp5rs232
 tp1%: SRCS=tp/tp1/delControl.cpp
 tp2pb1%: SRCS=tp/tp2/pb1/pb1.cpp
 tp2pb2%: SRCS=tp/tp2/pb2/pb2.cpp
@@ -22,6 +23,7 @@ tp4led%: SRCS=tp/tp4/led/led.cpp
 tp4game%: SRCS=tp/tp4/game/game.cpp
 tp4motor%: SRCS=tp/tp4/motor/motor.cpp
 tp5eeprom_storage%: SRCS=tp/tp5/eeprom_storage/eeprom_storage.cpp
+tp5rs232%: SRCS=tp/tp5/rs232/rs232.cpp
 
 %: PROJ=$(firstword $(subst -, ,$@))
 

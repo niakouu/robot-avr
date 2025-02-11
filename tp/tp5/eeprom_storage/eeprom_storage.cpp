@@ -1,7 +1,4 @@
-#define F_CPU 8000000UL
-#include <avr/io.h>
 #include <avr/wdt.h>
-#include <util/delay.h>
 #include <string.h>
 #include "sleep.h"
 #include "memory_24.h"
