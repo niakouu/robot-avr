@@ -7,6 +7,7 @@ all:
 
 clean:
 	rm -rf build
+	make -C libutil clean
 
 .PHONY: all clean
 

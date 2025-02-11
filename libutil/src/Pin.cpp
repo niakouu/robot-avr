@@ -40,15 +40,23 @@ Pin::Pin(Region region, Direction direction, Id id)
 
 Pin::~Pin() {}
 
-uint8_t Pin::read() const {
+bool Pin::read() const {
     return (*this->pinPort_ & this->mappings_->pinBit) != 0;
 }
 
-void Pin::write(uint8_t value) const {
-    if (value == 0)
-        *this->pinPort_ &= ~this->mappings_->portBit;
+void Pin::write(bool set) const {
+    if (set)
+        this->set();
     else
-        *this->pinPort_ |= this->mappings_->portBit;
+        this->unset();
+}
+
+void Pin::set() const {
+    *this->pinPort_ |= this->mappings_->portBit;
+}
+
+void Pin::unset() const {
+    *this->pinPort_ &= ~this->mappings_->portBit;
 }
 
 void Pin::updateDirection(volatile uint8_t* dataDirectionRegister,
