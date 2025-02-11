@@ -16,12 +16,12 @@ void BidirectionalLed::setColor(Color color) {
             this->negative_.write(0);
             break;
         case BidirectionalLed::Color::GREEN:
-            this->positive_.write(1);
-            this->negative_.write(0);
-            break;
-        case BidirectionalLed::Color::RED:
             this->positive_.write(0);
             this->negative_.write(1);
+            break;
+        case BidirectionalLed::Color::RED:
+            this->positive_.write(1);
+            this->negative_.write(0);
             break;
         default:
             break;

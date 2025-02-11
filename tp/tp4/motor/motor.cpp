@@ -14,6 +14,7 @@ constexpr uint8_t PORT_RIGHT_DIR = PORTD7;
 
 constexpr float RATIOS[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
 constexpr uint8_t TOP = 0xFF;
+constexpr uint16_t TWO_SEC_MS = 1800;
 
 void adjustPwmRatio(float ratio) {
     OCR1A = static_cast<uint16_t>(ratio * static_cast<float>(TOP));
@@ -47,7 +48,7 @@ int main() {
     while (true) {
         for (float ratio : RATIOS) {
             adjustPwmRatio(ratio);
-            rawSleep(WDTO_2S, SLEEP_MODE_IDLE);
+            sleep(TWO_SEC_MS, SLEEP_MODE_IDLE);
         }
     }
     return 0;

@@ -387,7 +387,7 @@ uint8_t Memoire24CXXX::write(const uint16_t address, const uint8_t data)
 }
 
 
-uint8_t Memoire24CXXX::write(const uint16_t address, uint8_t *data,
+uint8_t Memoire24CXXX::write(const uint16_t address, const uint8_t *data,
                                 const uint8_t length)
 {
   uint8_t rv;
@@ -406,7 +406,7 @@ uint8_t Memoire24CXXX::write(const uint16_t address, uint8_t *data,
 }
 
 
-uint8_t Memoire24CXXX::write_page(const uint16_t address, uint8_t *data,
+uint8_t Memoire24CXXX::write_page(const uint16_t address, const uint8_t *data,
                                    const uint8_t length)
 {
   uint16_t endAddress;

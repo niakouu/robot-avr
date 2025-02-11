@@ -54,12 +54,12 @@ public:
    // une donnee a la fois
    uint8_t write(const uint16_t address, const uint8_t data);
    // bloc de donnees : longueur doit etre de 127 et moins
-   uint8_t write(const uint16_t address, uint8_t *data,
+   uint8_t write(const uint16_t address, const uint8_t *data,
                     const uint8_t length);
 
 private:
    // pour l'ecriture
-   uint8_t write_page(const uint16_t address, uint8_t *data,
+   uint8_t write_page(const uint16_t address, const uint8_t *data,
                        const uint8_t length);
 
 private:

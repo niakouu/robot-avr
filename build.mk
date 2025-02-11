@@ -175,7 +175,7 @@ $(OUTDIR)/%.o: %.cpp
 # d'ecrire le programme en memoire flash dans votre
 # microcontroleur. Celui-ci doit etre branche par cable USB
 ifeq ($(config), release)
-install: $(OUTDIR)/$(HEXROMTRG)
+install: libutil $(OUTDIR)/$(HEXROMTRG)
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMERID) \
 	-p $(MCU) -P usb -e -U flash:w:$(OUTDIR)/$(HEXROMTRG)
 else ifdef config
