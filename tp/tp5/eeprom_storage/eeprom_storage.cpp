@@ -19,6 +19,4 @@ int main() {
         led.setColor(BidirectionalLed::Color::GREEN);
     else
         led.setColor(BidirectionalLed::Color::RED);
-
-    while (true){rawSleep(WDTO_8S, SLEEP_MODE_PWR_DOWN);}
 }
