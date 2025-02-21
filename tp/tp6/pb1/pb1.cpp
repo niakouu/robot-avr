@@ -5,8 +5,11 @@
 // Correcteur : CORRECTEUR
 // ----------------------------------------------------------
 // Développeurs : Edelina Alieva, Kyle Bouchard
-// Description du pb1.cpp :
-// Identification matérielles : Boutton poussoir noir connecté au port D2 de
+// Description du pb1.cpp : Programme qui configure le nombre de fois que la DEL
+//                          bicolore devrait clignoter, en prenant en compte
+//                          combien de temps le bouton poussoir externe a été
+//                          appuyé.
+// Identification matérielles : Boutton poussoir blanc connecté au port D2 de
 //                              l'Atmega324PA (entré)
 //                              DEL bidirectionelle sur la carte mère:
 //                                  - DEL côté positive connecté à la broche A2
@@ -46,7 +49,7 @@ volatile uint8_t gTicks = 0;
 
 ISR(INT0_vect) {
     _delay_ms(INTERRUPT_DELAY_TIME_MS); // anti-rebound
-    ::gButtonDown = !gButton.read();
+    ::gButtonDown = !::gButton.read();
     printf("%d\n", ::gButtonDown);
 
     EIFR |= _BV(INTF0); // activate interrupt 0
