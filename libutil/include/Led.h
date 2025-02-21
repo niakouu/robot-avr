@@ -9,9 +9,13 @@ public:
 
     BidirectionalLed(Pin::Region positiveRegion, Pin::Id positiveId,
                      Pin::Region negativeRegion, Pin::Id negativeId);
+    BidirectionalLed(Pin::Region region, Pin::Id positiveId,
+                     Pin::Id negativeId);
     ~BidirectionalLed();
 
     void setColor(Color color);
+
+    void executeAmberCycle();
 
 private:
     Pin positive_, negative_;
