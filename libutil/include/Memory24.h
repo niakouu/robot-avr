@@ -27,12 +27,12 @@
 #include <avr/io.h>
 #include <util/twi.h>
 
-class Memoire24CXXX
+class Memory24CXXX
 {
 public:
 
-   Memoire24CXXX(); // le constructeur appelle init() decrit plus bas
-   ~Memoire24CXXX();
+   Memory24CXXX(); // le constructeur appelle init() decrit plus bas
+   ~Memory24CXXX();
 
    // procedure d'initialisation appelee par le constructeur
    // Donc, ne pas le refaire a moins de changements en cours

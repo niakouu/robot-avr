@@ -25,7 +25,7 @@
 /*                                                                            */
 /******************************************************************************/
 
-#include "memory_24.h"
+#include "Memory24.h"
 
 #ifndef F_CPU
 /* fournir un avertissement mais non une erreur */
@@ -34,10 +34,10 @@
 #endif
 
 
-uint8_t Memoire24CXXX::m_peripheral_address = 0xA0;
+uint8_t Memory24CXXX::m_peripheral_address = 0xA0;
 
 /******************************************************************************/
-/* void Memoire24CXXX::Memoire24CXXX()                                        */
+/* void Memory24CXXX::Memory24CXXX()                                        */
 /*                                                                            */
 /*      Constructeur: ajuste la taille de la page et procede a                */
 /*                    l'initialisation                                        */
@@ -45,7 +45,7 @@ uint8_t Memoire24CXXX::m_peripheral_address = 0xA0;
 /* Parametre d'entree  : aucun                                                */
 /* Parametre de sortie : aucun                                                */
 /******************************************************************************/
-Memoire24CXXX::Memoire24CXXX()
+Memory24CXXX::Memory24CXXX()
   : PAGE_SIZE(128)
 {
    init();
@@ -53,28 +53,28 @@ Memoire24CXXX::Memoire24CXXX()
 
 
 /******************************************************************************/
-/* void Memoire24CXXX::~Memoire24CXXX()                                       */
+/* void Memory24CXXX::~Memory24CXXX()                                       */
 /*                                                                            */
 /*      Destructeur: ne fait rien                                             */
 /*                                                                            */
 /* Parametre d'entree  : aucun                                                */
 /* Parametre de sortie : aucun                                                */
 /******************************************************************************/
-Memoire24CXXX::~Memoire24CXXX()
+Memory24CXXX::~Memory24CXXX()
 {
    // rien a faire... 
 }
 
 
 /******************************************************************************/
-/* void Memoire24CXXX::init(void)                                             */
+/* void Memory24CXXX::init(void)                                             */
 /*                                                                            */
 /*      Initialisation du port serie et de l'horloge de l'interface I2C       */
 /*                                                                            */
 /* Parametre d'entree  : aucun                                                */
 /* Parametre de sortie : aucun                                                */
 /******************************************************************************/
-void Memoire24CXXX::init()
+void Memory24CXXX::init()
 {
    choose_memory_bank(0);
    // Initialisation de l'horloge de l'interface I2C
@@ -85,21 +85,21 @@ void Memoire24CXXX::init()
 }
 
 /******************************************************************************/
-/* uint8_t Memoire24CXXX::choose_memory_bank(const uint8_t banc)                    */
+/* uint8_t Memory24CXXX::choose_memory_bank(const uint8_t banc)                    */
 /*                                                                            */
 /*      Choisir un banc de memoire                                            */
 /*                                                                            */
 /* Parametre d'entree  : uint8_t banc - le banc de memoire a choisir          */
 /* Parametre de sortie : uint8_t      - rv si c'est un succes, 255 si echec   */
 /******************************************************************************/
-uint8_t Memoire24CXXX::choose_memory_bank(const uint8_t bank)
+uint8_t Memory24CXXX::choose_memory_bank(const uint8_t bank)
 {
    uint8_t temp = bank & 0x03;
    uint8_t rv = 255;
    if(bank == temp)
    {
-      Memoire24CXXX::m_peripheral_address = (0xA0 | ( bank << 1 ));
-      rv = Memoire24CXXX::m_peripheral_address;
+      Memory24CXXX::m_peripheral_address = (0xA0 | ( bank << 1 ));
+      rv = Memory24CXXX::m_peripheral_address;
    }
    return rv;
 }
@@ -146,7 +146,7 @@ uint8_t Memoire24CXXX::choose_memory_bank(const uint8_t bank)
 /* Parametres de sortie : uint8_t *donnee  - donnees lues                     */
 /*                                                                            */
 /******************************************************************************/
-uint8_t Memoire24CXXX::read(const uint16_t address, uint8_t *data)
+uint8_t Memory24CXXX::read(const uint16_t address, uint8_t *data)
 {
   uint8_t rv = 0;
 
@@ -214,7 +214,7 @@ uint8_t Memoire24CXXX::read(const uint16_t address, uint8_t *data)
 }
 
 
-uint8_t Memoire24CXXX::read(const uint16_t address, uint8_t *data,
+uint8_t Memory24CXXX::read(const uint16_t address, uint8_t *data,
                                uint8_t length)
 {
   uint8_t twcr;
@@ -333,7 +333,7 @@ uint8_t Memoire24CXXX::read(const uint16_t address, uint8_t *data,
 /* Parametre de sortie  : uint8_t rv       - nombre de donnees ecrites        */
 /*                                                                            */
 /******************************************************************************/
-uint8_t Memoire24CXXX::write(const uint16_t address, const uint8_t data)
+uint8_t Memory24CXXX::write(const uint16_t address, const uint8_t data)
 {
   //______________ Attente de la fin d'un cycle d'ecriture ______________
   for ( ; ; )
@@ -387,7 +387,7 @@ uint8_t Memoire24CXXX::write(const uint16_t address, const uint8_t data)
 }
 
 
-uint8_t Memoire24CXXX::write(const uint16_t address, const uint8_t *data,
+uint8_t Memory24CXXX::write(const uint16_t address, const uint8_t *data,
                                 const uint8_t length)
 {
   uint8_t rv;
@@ -406,7 +406,7 @@ uint8_t Memoire24CXXX::write(const uint16_t address, const uint8_t *data,
 }
 
 
-uint8_t Memoire24CXXX::write_page(const uint16_t address, const uint8_t *data,
+uint8_t Memory24CXXX::write_page(const uint16_t address, const uint8_t *data,
                                    const uint8_t length)
 {
   uint16_t endAddress;

@@ -35,7 +35,7 @@ void transmitUART(uint8_t data) {
 int main() {
     initializeUART();
 
-    Memoire24CXXX mem;
+    Memory24CXXX mem;
     uint8_t data[sizeof(STR)];
 
     mem.write(START_ADDR, STR, sizeof(STR));

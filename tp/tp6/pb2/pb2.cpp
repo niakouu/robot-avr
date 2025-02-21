@@ -19,27 +19,34 @@
 
 #include "Adc.h"
 #include "Led.h"
+#include "Uart.h"
 #include "sleep.h"
 
 constexpr uint8_t HIGH_LIGHT_THRESHOLD = 0xE6;
-constexpr uint8_t LOW_LIGHT_THRESHOLD = 0xA3;
+constexpr uint8_t LOW_LIGHT_THRESHOLD = 0xB5;
 
 int main() {
     Adc adc;
     BidirectionalLed bidirectionalLed{Pin::Region::B, Pin::Id::P1, Pin::Id::P0};
+    Uart uart;
+
+    stdout = uart.getStdout();
 
     uint8_t data;
     while (true) {
         data = static_cast<uint8_t>(adc.read(0) >> 2);
-
+        
+        printf("0x%02x\n", data);
+        
         if (data >= HIGH_LIGHT_THRESHOLD) {
             bidirectionalLed.setColor(BidirectionalLed::Color::RED);
             rawSleep(WDTO_15MS, SLEEP_MODE_IDLE);
         } else if (data < LOW_LIGHT_THRESHOLD) {
             bidirectionalLed.setColor(BidirectionalLed::Color::GREEN);
             rawSleep(WDTO_15MS, SLEEP_MODE_IDLE);
-        } else
+        } else {
             bidirectionalLed.executeAmberCycle();
+        }
     }
 
     return 0;

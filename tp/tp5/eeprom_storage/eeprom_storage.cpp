@@ -1,7 +1,7 @@
 #include <avr/wdt.h>
 #include <string.h>
 #include "sleep.h"
-#include "memory_24.h"
+#include "Memory24.h"
 #include "Pin.h"
 #include "Led.h"
 
@@ -10,7 +10,7 @@ constexpr uint8_t POLY_STR[] = "POLYTECHNIQUE MONTREAL\0";
 
 int main() {
     BidirectionalLed led(Pin::Region::A, Pin::Id::P1, Pin::Region::A, Pin::Id::P0);
-    Memoire24CXXX mem;
+    Memory24CXXX mem;
     uint8_t data[sizeof(POLY_STR)];
     mem.write(START_ADDR, POLY_STR, sizeof(POLY_STR));
     rawSleep(WDTO_15MS, SLEEP_MODE_PWR_DOWN);
