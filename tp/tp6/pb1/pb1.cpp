@@ -16,24 +16,15 @@
 //                                  (sortie)
 //                                  - DEL côté négative connecté à la broche A1
 //                                  (sortie)
-#define BAUD 2400
-#define F_CPU 8000000UL
+#define F_CPU 8'000'000UL
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <avr/wdt.h>
-#include <stdio.h>
 #include <util/delay.h>
-#include <util/setbaud.h>
 
 #include "Led.h"
 #include "Pin.h"
 #include "sleep.h"
-
-int transmitUART(char data, FILE* stream);
-static FILE mystdout{.flags = 0x0002,
-                     .put = transmitUART,
-                     .get = __null,
-                     .udata = 0};
 
 constexpr uint16_t PRESCALER = 1024;
 constexpr uint16_t HALF_SECOND_MS = 500;
@@ -50,7 +41,6 @@ volatile uint8_t gTicks = 0;
 ISR(INT0_vect) {
     _delay_ms(INTERRUPT_DELAY_TIME_MS); // anti-rebound
     ::gButtonDown = !::gButton.read();
-    printf("%d\n", ::gButtonDown);
 
     EIFR |= _BV(INTF0); // activate interrupt 0
 }
@@ -73,33 +63,8 @@ void stopTimer() {
     TCCR1B &= ~(_BV(CS12) | _BV(CS11) | _BV(CS10));
 }
 
-void initializeUART(void) {
-    // 2400 bauds
-    UBRR0H = UBRRH_VALUE;
-    UBRR0L = UBRRL_VALUE;
-
-    // allow reception and transmission
-    UCSR0A = _BV(UDRE0);
-    UCSR0B = _BV(RXEN0) | _BV(TXEN0);
-
-    // 8 bits, 1 stop bits, parity none
-    UCSR0C = _BV(UCSZ01) | _BV(UCSZ00)
-             | (UCSR0C
-                & ~(_BV(UPM01) | _BV(UPM00) | _BV(USBS0) | _BV(UCSZ02)
-                    | _BV(UCPOL0)));
-}
-
-int transmitUART(char data, FILE* stream) {
-    while ((UCSR0A & _BV(UDRE0)) == 0)
-        ;
-    UDR0 = data;
-    return 0;
-}
-
 void initialization(void) {
     cli();
-    initializeUART();
-    stdout = &mystdout;
 
     EIMSK |= _BV(INT0); // activate interrupt 0
 
@@ -112,21 +77,23 @@ void initialization(void) {
 
 int main() {
     initialization();
-    BidirectionalLed bidirectionalLed{Pin::Region::B, Pin::Id::P1,
-                                      Pin::Region::B, Pin::Id::P0};
+    BidirectionalLed bidirectionalLed{Pin::Region::B, Pin::Id::P1, Pin::Id::P0};
 
     bidirectionalLed.setColor(BidirectionalLed::Color::OFF);
 
+    // Wait for button to be pressed
     while (!gButtonDown) {
         rawSleep(WDTO_30MS, SLEEP_MODE_IDLE);
     }
 
+    // Start timer and wait until either timer expires or button is up
     startTimer(F_CPU / PRESCALER / TICKS_PER_SECOND);
     while (::gTicks < MAX_TICKS && ::gButtonDown) {
         rawSleep(WDTO_30MS, SLEEP_MODE_IDLE);
     }
     stopTimer();
 
+    // Flash LED green for half a second
     for (uint16_t i = 0; i < HALF_SECOND_MS / FLASH_TIME_MS / 2; i++) {
         bidirectionalLed.setColor(BidirectionalLed::Color::GREEN);
         sleep(FLASH_TIME_MS, SLEEP_MODE_IDLE);
@@ -136,15 +103,16 @@ int main() {
 
     bidirectionalLed.setColor(BidirectionalLed::Color::OFF);
     rawSleep(WDTO_2S, SLEEP_MODE_IDLE);
-    printf("ticksL: %d\n", ::gTicks);
+
+    // Flash LED red for the number of ticks.
     for (uint8_t i = 0; i < ::gTicks / 2; i++) {
         bidirectionalLed.setColor(BidirectionalLed::Color::RED);
         rawSleep(WDTO_250MS, SLEEP_MODE_IDLE);
         bidirectionalLed.setColor(BidirectionalLed::Color::OFF);
         rawSleep(WDTO_250MS, SLEEP_MODE_IDLE);
-        printf("%d / %d\n", i, ::gTicks);
     }
 
+    // Put the LED green for a second, close it and exit.
     bidirectionalLed.setColor(BidirectionalLed::Color::GREEN);
     rawSleep(WDTO_1S, SLEEP_MODE_IDLE);
     bidirectionalLed.setColor(BidirectionalLed::Color::OFF);
