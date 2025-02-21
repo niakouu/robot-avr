@@ -13,7 +13,7 @@ clean:
 
 # Project definitions
 PROJECTS=tp1 tp2pb1 tp2pb2 tp3led tp3motor tp4led tp4game tp4motor \
-		 tp5eeprom_storage tp5rs232 tp5eeprom_rs232
+		 tp5eeprom_storage tp5rs232 tp5eeprom_rs232 tp6pb1 tp6pb2
 tp1%: SRCS=tp/tp1/delControl.cpp
 tp2pb1%: SRCS=tp/tp2/pb1/pb1.cpp
 tp2pb2%: SRCS=tp/tp2/pb2/pb2.cpp
@@ -25,6 +25,8 @@ tp4motor%: SRCS=tp/tp4/motor/motor.cpp
 tp5eeprom_storage%: SRCS=tp/tp5/eeprom_storage/eeprom_storage.cpp
 tp5rs232%: SRCS=tp/tp5/rs232/rs232.cpp
 tp5eeprom_rs232%: SRCS=tp/tp5/eeprom_rs232/eeprom_rs232.cpp
+tp6pb1%: SRCS=tp/tp6/pb1/pb1.cpp
+tp6pb2%: SRCS=tp/tp6/pb2/pb2.cpp
 
 %: PROJ=$(firstword $(subst -, ,$@))
 
