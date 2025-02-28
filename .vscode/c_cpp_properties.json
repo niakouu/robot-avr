@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "libutil/include"
+                "libutil/include/tp/tp7/lib"
             ],
             "defines": [
                 "__AVR_ATmega324PA__"

@@ -22,7 +22,7 @@
 #include "Uart.h"
 #include "sleep.h"
 
-constexpr uint8_t HIGH_LIGHT_THRESHOLD = 0xE6;
+constexpr uint8_t HIGH_LIGHT_THRESHOLD = 0xE9;
 constexpr uint8_t LOW_LIGHT_THRESHOLD = 0xB5;
 
 int main() {
