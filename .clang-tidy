@@ -1,0 +1,6 @@
+Checks: >-
+  readability-identifier-naming
+
+IdentifierNaming:
+  PrivateMemberSuffix: '_'
+  PrivateMemberCase: lowerCamel

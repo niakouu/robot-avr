@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "libutil/include"
+            ],
+            "defines": [
+                "__AVR_ATmega324PA__"
+            ],
+            "cStandard": "c99",
+            "intelliSenseMode": "gcc-x86",
+            "compilerPath": "/usr/bin/avr-gcc"
+        }
+    ],
+    "version": 4
+}

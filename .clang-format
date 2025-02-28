@@ -1,0 +1,33 @@
+---
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 80
+BreakBeforeBinaryOperators: NonAssignment
+AllowAllParametersOfDeclarationOnNextLine: true
+AlignOperands: true
+AlignAfterOpenBracket: Align
+ContinuationIndentWidth: 4
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeColon
+IndentWrappedFunctionNames: false
+PenaltyBreakBeforeFirstCallParameter: 100
+IndentCaseLabels: true
+EmptyLineBeforeMethods: true
+EmptyLineBeforeFunctions: true
+CommentStyle: Inline
+AllowShortFunctionsOnASingleLine: Empty
+AccessModifierOffset: -4
+
+PointerAlignment: Left
+FloatConstantStyle: LeadingZero
+
+IncludeBlocks: Regroup
+SortIncludes: true
+IncludeCategories:
+  - Regex: '^<.*>'
+    Priority: 1
+  - Regex: '^".*"'
+    Priority: 2
+
+SortUsingDeclarations: true
+ReorderAccessModifiers: public_protected_private
