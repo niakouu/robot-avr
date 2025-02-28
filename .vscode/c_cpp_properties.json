@@ -1,14 +1,28 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "Team 82",
             "includePath": [
-                "libutil/include/tp/tp7/lib"
+                "equipe-82/libutil/include"
             ],
             "defines": [
                 "__AVR_ATmega324PA__"
             ],
             "cStandard": "c99",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-x86",
+            "compilerPath": "/usr/bin/avr-gcc"
+        },
+        {
+            "name": "TP7",
+            "includePath": [
+                "tp/tp7/lib"
+            ],
+            "defines": [
+                "__AVR_ATmega324PA__"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++14",
             "intelliSenseMode": "gcc-x86",
             "compilerPath": "/usr/bin/avr-gcc"
         }

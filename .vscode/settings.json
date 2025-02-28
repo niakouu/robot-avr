@@ -1,9 +1,3 @@
 {
-    "makefile.configureOnOpen": false,
-    "files.associations": {
-        "interrupt.h": "c",
-        "iox192a3u.h": "c",
-        "delay.h": "c",
-        "sleep.h": "c"
-    }
+    "makefile.configureOnOpen": false
 }
