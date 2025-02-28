@@ -12,9 +12,9 @@
 // Identification matérielles : Boutton poussoir blanc connecté au port D2 de
 //                              l'Atmega324PA (entré)
 //                              DEL bidirectionelle sur la carte mère:
-//                                  - DEL côté positive connecté à la broche A2
+//                                  - DEL côté positive connecté à la broche B2
 //                                  (sortie)
-//                                  - DEL côté négative connecté à la broche A1
+//                                  - DEL côté négative connecté à la broche B1
 //                                  (sortie)
 #define F_CPU 8'000'000UL
 #include <avr/interrupt.h>
