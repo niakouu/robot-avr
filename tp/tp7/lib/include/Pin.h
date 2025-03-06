@@ -5,6 +5,8 @@
 
 class Pin {
 public:
+    static constexpr uint8_t NUMBER_OF_PINS = 8;
+
     enum class Region : uint8_t { A, B, C, D };
 
     enum class Direction : uint8_t { IN, OUT };
@@ -17,22 +19,27 @@ public:
         uint8_t portBit;
     };
 
-    Pin(Region region, Direction direction, Id id);
+    struct Registers {
+        volatile uint8_t *pin, *port, *dataDirection;
+    };
+
+    Pin(Region region, Id id);
+    Pin(Region region, Id id, Direction direction);
     ~Pin();
 
-    bool read() const;
+    void updateDirection(Direction direction);
 
+    bool read() const;
     void write(bool set) const;
     void set() const;
     void unset() const;
 
 private:
-    static const Mappings* getMappings(const Region& region, const Id& id);
-    const Mappings* mappings_;
-    volatile uint8_t* pinPort_;
+    static const constexpr Mappings* getMappings(Region region, Id id);
+    static constexpr Registers getRegisters(Region region);
 
-    void updateDirection(volatile uint8_t* dataDirectionRegister,
-                         const Direction& direction);
+    const Mappings* mappings_;
+    Registers registers_;
 };
 
 #endif /* _PIN_H */

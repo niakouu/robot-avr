@@ -13,9 +13,8 @@ public:
                      Pin::Id negativeId);
     ~BidirectionalLed();
 
-    void setColor(Color color);
-
-    void executeAmberCycle();
+    void setColor(Color color) const;
+    void executeAmberCycle() const;
 
 private:
     Pin positive_, negative_;

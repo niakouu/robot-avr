@@ -6,7 +6,6 @@
 #include <util/setbaud.h>
 
 Uart::Uart() {
-    // 2400 bauds
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
 
@@ -20,33 +19,48 @@ Uart::Uart() {
                 & ~(_BV(UPM01) | _BV(UPM00) | _BV(USBS0) | _BV(UCSZ02)
                     | _BV(UCPOL0)));
 
-    this->stdout_ = {.flags = 0x0002,
+    this->emulatedFile_ = {.flags = __SWR | __SRD,
                      .put = Uart::putChar,
-                     .get = __null,
+                     .get = Uart::getChar,
                      .udata = this};
 }
 
-void Uart::transmit(char data) {
+Uart::~Uart() {
+    // TODO
+}
+
+void Uart::transmit(uint8_t data) {
     while ((UCSR0A & _BV(UDRE0)) == 0)
-    ;
+        ;
     UDR0 = data;
 }
 
+uint8_t Uart::receive() {
+    while ((UCSR0A & _BV(RXC0)) == 0)
+        ;
+    return UDR0;
+}
+
 int Uart::putChar(char data, FILE* stream) {
-    if (!stream || !stream->udata)
+    if (stream == nullptr || stream->udata == nullptr)
         return -1;
 
-    Uart *uart = reinterpret_cast<Uart *>(stream->udata);
+    Uart* uart = reinterpret_cast<Uart*>(stream->udata);
 
     uart->transmit(data);
 
     return 0;
 }
 
-char Uart::receive() {
-    return 0;
+int Uart::getChar(FILE* stream) {
+    if (stream == nullptr || stream->udata == nullptr)
+        return -1;
+
+    Uart* uart = reinterpret_cast<Uart*>(stream->udata);
+    
+    return uart->receive();
 }
 
-FILE* Uart::getStdout() {
-    return &this->stdout_;
+FILE* Uart::getEmulatedFile() {
+    return &this->emulatedFile_;
 }

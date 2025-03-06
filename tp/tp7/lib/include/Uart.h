@@ -3,19 +3,21 @@
 
 #include <stdio.h>
 
-class Uart
-{
+class Uart {
 public:
-    Uart(/* args */);
-    ~Uart();
+    Uart(Uart&) = delete;
+    void operator=(const Uart&) = delete;
 
-    void transmit(char data);
-    char receive();
-    FILE* getStdout();
+    void transmit(uint8_t data);
+    uint8_t receive();
+    FILE* getEmulatedFile();
 
 private:
-    FILE stdout_;
+    Uart();
+    ~Uart();
+    FILE emulatedFile_;
     static int putChar(char data, FILE* stream);
+    static int getChar(FILE* stream);
 };
 
 #endif /* _UART_H */

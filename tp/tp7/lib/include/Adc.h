@@ -37,7 +37,7 @@ public:
    // analogique sur le port A.  pos doit etre entre 0 et 7
    // inclusivement.  Seulement les 10 bits de poids faible
    // sont significatifs.
-   uint16_t read(uint8_t pos);
+   uint16_t read(uint8_t pos) const;
 
 private:
    // Donnees membres - aucun
