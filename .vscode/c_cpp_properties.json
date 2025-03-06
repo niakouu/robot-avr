@@ -16,7 +16,7 @@
         {
             "name": "TP7",
             "includePath": [
-                "tp/tp7/lib"
+                "tp/tp7/lib/include"
             ],
             "defines": [
                 "__AVR_ATmega324PA__"

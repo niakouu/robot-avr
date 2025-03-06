@@ -17,6 +17,7 @@ EmptyLineBeforeFunctions: true
 CommentStyle: Inline
 AllowShortFunctionsOnASingleLine: Empty
 AccessModifierOffset: -4
+AlwaysBreakTemplateDeclarations: true
 
 PointerAlignment: Left
 FloatConstantStyle: LeadingZero
