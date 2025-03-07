@@ -19,7 +19,8 @@
                 "tp/tp7/lib/include"
             ],
             "defines": [
-                "__AVR_ATmega324PA__"
+                "__AVR_ATmega324PA__",
+                "F_CPU=8000000"
             ],
             "cStandard": "c99",
             "cppStandard": "c++14",

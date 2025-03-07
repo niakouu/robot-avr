@@ -2,7 +2,9 @@ include ../common.mk
 PROJECTNAME = util
 
 SRCSDIR = src
-SRCSCLASS = Adc.cpp Button.cpp Led.cpp Memory24.cpp Pin.cpp Uart.cpp
+SRCSCLASS = Adc.cpp Board.cpp Button.cpp Led.cpp Memory24.cpp Motor.cpp \
+			MovementManager.cpp Photoresistance.cpp Pin.cpp Timer.cpp \
+			Uart.cpp WatchdogTimer.cpp
 SRCS = $(SRCSCLASS:%=$(SRCSDIR)/%)
 
 TRG = lib$(PROJECTNAME).a

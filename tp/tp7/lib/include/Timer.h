@@ -6,19 +6,11 @@
 
 #include "Pin.h"
 
-template <typename T>
+template <typename T, typename U>
 class Timer {
 public:
-    struct ConfigCounter {
-        T max;
-        uint8_t prescalar;
-    };
-
-    struct ConfigPwm {
-        T max;
-        float ratios[2];
-        uint8_t prescalar;
-    };
+    // static_assert(std::is_base_of<TimerPrescaler, U>::value, "U must inherit
+    // from TimerPrescaler");
 
     struct Registers {
         Pin waveformA, waveformB;
@@ -29,50 +21,78 @@ public:
     Timer(Timer&) = delete;
     void operator=(const Timer&) = delete;
 
-    void updateConfig(const ConfigCounter& config);
-    void updateConfig(const ConfigPwm& config);
+    void setAsCounter(T maxTicks, const U& prescaler);
+    void setAsCounterFromMilliseconds(uint16_t milliseconds,
+                                      const U& prescaler);
+    void setAsPwm(T max, float ratioA, float ratioB, const U& prescaler);
 
     void start();
     void stop();
 
 private:
     friend class Board;
-    Timer(Registers& Registers);
+    Timer(const Registers& registers);
     ~Timer();
     const Registers& registers_;
 };
 
-#define TIMER0_REGISTERS                                                       \
-    (Timer<uint8_t>::Registers){.waveformA{Pin::Region::B, Pin::Id::P3},      \
-                                 .waveformB{Pin::Region::B, Pin::Id::P4},      \
-                                 .counter = &TCNT0,                            \
-                                 .compareA = &OCR0A,                           \
-                                 .compareB = &OCR0B,                           \
-                                 .controlA = &TCCR0A,                          \
-                                 .controlB = &TCCR0B,                          \
-                                 .controlC = nullptr,                          \
-                                 .interruptMask = &TIMSK0}
+class TimerPrescaler {
+public:
+    virtual uint8_t getFlags() const = 0;
+    virtual uint16_t getDivisionFactor() const = 0;
+};
 
-#define TIMER1_REGISTERS                                                       \
-    ((Timer<uint16_t>::Registers){.waveformA{Pin::Region::D, Pin::Id::P5},     \
-                                  .waveformB{Pin::Region::D, Pin::Id::P4},     \
-                                  .counter = &TCNT1,                           \
-                                  .compareA = &OCR1A,                          \
-                                  .compareB = &OCR1B,                          \
-                                  .controlA = &TCCR1A,                         \
-                                  .controlB = &TCCR1B,                         \
-                                  .controlC = &TCCR1C,                         \
-                                  .interruptMask = &TIMSK1})
+class TimerPrescalerSynchronous : public TimerPrescaler {
+public:
+    enum class Value : uint8_t {
+        CLK_NONE_DIV = _BV(CS00),
+        CLK_DIV_8 = _BV(CS01),
+        CLK_DIV_64 = _BV(CS01) | _BV(CS00),
+        CLK_DIV_256 = _BV(CS02),
+        CLK_DIV_1024 = _BV(CS02) | _BV(CS00)
+    };
 
-#define TIMER2_REGISTERS                                                       \
-    ((Timer<uint8_t>::Registers){.waveformA{Pin::Region::D, Pin::Id::P7},      \
-                                 .waveformB{Pin::Region::D, Pin::Id::P6},      \
-                                 .counter = &TCNT2,                            \
-                                 .compareA = &OCR2A,                           \
-                                 .compareB = &OCR2B,                           \
-                                 .controlA = &TCCR2A,                          \
-                                 .controlB = &TCCR2B,                          \
-                                 .controlC = nullptr,                          \
-                                 .interruptMask = &TIMSK2})
+    static_assert(CS00 == CS10, "CS00 must match CS10");
+    static_assert(CS01 == CS11, "CS01 must match CS11");
+    static_assert(CS02 == CS12, "CS02 must match CS12");
+
+    constexpr TimerPrescalerSynchronous(Value value);
+    constexpr operator Value() const;
+
+    uint8_t getFlags() const;
+    uint16_t getDivisionFactor() const;
+
+private:
+    Value value_;
+};
+
+class TimerPrescalerAsynchronous : public TimerPrescaler {
+public:
+    enum class Value : uint8_t {
+        CLK_NONE_DIV = _BV(CS20),
+        CLK_DIV_8 = _BV(CS21),
+        CLK_DIV_32 = _BV(CS21) | _BV(CS20),
+        CLK_DIV_64 = _BV(CS22),
+        CLK_DIV_128 = _BV(CS22) | _BV(CS20),
+        CLK_DIV_256 = _BV(CS22) | _BV(CS21),
+        CLK_DIV_1024 = _BV(CS22) | _BV(CS21) | _BV(CS20)
+    };
+
+    constexpr TimerPrescalerAsynchronous(Value value);
+    constexpr operator Value() const;
+
+    uint8_t getFlags() const;
+    uint16_t getDivisionFactor() const;
+
+private:
+    const Value value_;
+};
+
+extern const Timer<uint8_t, TimerPrescalerSynchronous>::Registers
+    TIMER0_REGISTERS;
+extern const Timer<uint16_t, TimerPrescalerSynchronous>::Registers
+    TIMER1_REGISTERS;
+extern const Timer<uint8_t, TimerPrescalerAsynchronous>::Registers
+    TIMER2_REGISTERS;
 
 #endif /* _TIMER_H */

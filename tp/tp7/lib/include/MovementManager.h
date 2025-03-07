@@ -4,10 +4,10 @@
 #include "Motor.h"
 #include "Timer.h"
 
-template <typename T>
+template <typename T, typename U>
 class MovementManager {
 public:
-    MovementManager();
+    MovementManager(const Timer<T, U>& timer, Motor&& motorLeft, Motor&& motorRight);
     ~MovementManager();
 
     void moveForward(float speed) const;
@@ -17,7 +17,7 @@ public:
     void stop() const;
 
 private:
-    Timer<T>* timer_;
+    const Timer<T, U>& timer_;
     Motor motorLeft_, motorRight_;
 };
 

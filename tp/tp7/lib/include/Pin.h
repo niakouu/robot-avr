@@ -35,10 +35,10 @@ public:
     void unset() const;
 
 private:
-    static const constexpr Mappings* getMappings(Region region, Id id);
+    static const constexpr Mappings& getMappings(Region region, Id id);
     static constexpr Registers getRegisters(Region region);
 
-    const Mappings* mappings_;
+    const Mappings& mappings_;
     Registers registers_;
 };
 

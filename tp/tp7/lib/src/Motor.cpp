@@ -1,6 +1,6 @@
 #include "Motor.h"
 
-Motor::Motor(Pin&& directionPin, float offset) {
+Motor::Motor(Pin&& directionPin, float offset) : directionPin_(directionPin) {
     // TODO
 }
 

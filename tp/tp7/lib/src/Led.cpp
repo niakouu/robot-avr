@@ -1,4 +1,3 @@
-#define F_CPU 8'000'000UL
 #include <util/delay.h>
 #include "Led.h"
 

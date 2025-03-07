@@ -12,7 +12,7 @@ Pin::Pin(Region region, Id id, Direction direction) : Pin(region, id) {
 Pin::~Pin() {}
 
 bool Pin::read() const {
-    return (*this->registers_.pin & this->mappings_->pinBit) != 0;
+    return (*this->registers_.pin & this->mappings_.pinBit) != 0;
 }
 
 void Pin::write(bool set) const {
@@ -23,18 +23,18 @@ void Pin::write(bool set) const {
 }
 
 void Pin::set() const {
-    *this->registers_.port |= this->mappings_->portBit;
+    *this->registers_.port |= this->mappings_.portBit;
 }
 
 void Pin::unset() const {
-    *this->registers_.port &= ~this->mappings_->portBit;
+    *this->registers_.port &= ~this->mappings_.portBit;
 }
 
 void Pin::updateDirection(Direction direction) {
     if (direction == Direction::IN)
-        *this->registers_.dataDirection &= ~this->mappings_->directionBit;
+        *this->registers_.dataDirection &= ~this->mappings_.directionBit;
     else
-        *this->registers_.dataDirection |= this->mappings_->directionBit;
+        *this->registers_.dataDirection |= this->mappings_.directionBit;
 }
 
 #define _MAPPING_DEF(region, idx)                                              \
@@ -53,15 +53,11 @@ void Pin::updateDirection(Direction direction) {
 static constexpr Pin::Mappings mappings[][Pin::NUMBER_OF_PINS] = {
     _REGION_DEF(A), _REGION_DEF(B), _REGION_DEF(C), _REGION_DEF(D)};
 
-const constexpr Pin::Mappings* Pin::getMappings(Region region, Id id) {
+const constexpr Pin::Mappings& Pin::getMappings(Region region, Id id) {
     uint8_t regionIndex = static_cast<uint8_t>(region);
     uint8_t idIndex = static_cast<uint8_t>(id);
 
-    if (regionIndex >= sizeof(mappings) / sizeof(*mappings)
-        || idIndex >= sizeof(*mappings) / sizeof(**mappings))
-        return nullptr;
-
-    return &mappings[regionIndex][idIndex];
+    return mappings[regionIndex][idIndex];
 }
 
 #undef _REGION_DEF

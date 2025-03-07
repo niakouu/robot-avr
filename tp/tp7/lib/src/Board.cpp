@@ -3,25 +3,24 @@
 Board::Board()
     : timer0_(TIMER0_REGISTERS), timer1_(TIMER1_REGISTERS),
       timer2_(TIMER2_REGISTERS), adc_(), memory_(), uart0_(),
-      button_(Pin::Region::D, Pin::Id::P2, true), movementManager_(),
-      watchdogTimer_() {}
+      button_(Pin::Region::D, Pin::Id::P2, true), watchdogTimer_() {}
 
 Board::~Board() {}
 
-const Board& Board::getBoard() {
+const Board& Board::get() {
     return Board::board_;
 }
 
-const Timer<uint8_t>& Board::getTimer0() const {
+const Timer<uint8_t, TimerPrescalerSynchronous>& Board::getTimer0() const {
     return timer0_;
 }
 
-const Timer<uint8_t>& Board::getTimer2() const {
-    return timer2_;
+const Timer<uint16_t, TimerPrescalerSynchronous>& Board::getTimer1() const {
+    return timer1_;
 }
 
-const Timer<uint16_t>& Board::getTimer1() const {
-    return timer1_;
+const Timer<uint8_t, TimerPrescalerAsynchronous>& Board::getTimer2() const {
+    return timer2_;
 }
 
 const Adc& Board::getAdc() const {
@@ -38,10 +37,6 @@ const Uart& Board::getUart0() const {
 
 const Button& Board::getButton() const {
     return button_;
-}
-
-const MovementManager<uint8_t>& Board::getMovementManager() const {
-    return movementManager_;
 }
 
 const WatchdogTimer& Board::getWatchdogTimer() const {

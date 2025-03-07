@@ -22,8 +22,6 @@
 #ifndef MEMOIRE_24_H
 #define MEMOIRE_24_H
 
-#define F_CPU 8000000UL
-
 #include <avr/io.h>
 #include <util/twi.h>
 

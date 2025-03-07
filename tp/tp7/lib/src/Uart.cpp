@@ -1,5 +1,4 @@
 #define BAUD 2400
-#define F_CPU 8'000'000UL
 #include "Uart.h"
 
 #include <avr/io.h>

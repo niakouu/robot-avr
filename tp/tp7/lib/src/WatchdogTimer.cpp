@@ -5,10 +5,6 @@
 #include <util/atomic.h>
 #include <util/delay.h>
 
-#ifndef F_CPU
-#error F_CPU not defined
-#endif
-
 WatchdogTimer::WatchdogTimer() : sleepDone_(false) {}
 
 WatchdogTimer::~WatchdogTimer() {
@@ -68,7 +64,7 @@ void WatchdogTimer::setSleepDone() {
 #ifdef SIMULATION
 void WatchdogTimer::rawSleep(const uint8_t durationMode,
                              const SleepMode sleepMode) {
-    switch (duration) {
+    switch (durationMode) {
         case WDTO_15MS:
             _delay_ms(15);
             break;

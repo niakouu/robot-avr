@@ -17,9 +17,9 @@ RELEASE_DIR = $(OUT_DIR)/release
 
 # Utility flags
 CFLAGS = -MMD -g -mmcu=$(MCU) -O$(OPTLEVEL) \
-	-fpack-struct -fshort-enums \
+	-fshort-enums \
 	-funsigned-bitfields -funsigned-char \
-	-Wall
+	-Wall -DF_CPU=8000000
 CXXFLAGS = -fno-exceptions -std=c++14
 RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU)
 SIMULATION_LDFLAGS = -Wl,-Map,$(SIMULATION_DIR)/$(TRG).map -mmcu=$(MCU)
