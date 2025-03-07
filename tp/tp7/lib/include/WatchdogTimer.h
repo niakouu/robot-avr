@@ -36,6 +36,7 @@ private:
     /// @param sleepMode Select from `avr/io.h`: One of the `SLEEP_MODE_*`
     /// constants.
     void rawSleep(const uint8_t durationMode, const SleepMode sleepMode);
+
     static void wdtEnableInterrupt(const uint8_t durationMode);
 };
 
