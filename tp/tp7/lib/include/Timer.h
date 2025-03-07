@@ -39,7 +39,7 @@ private:
     friend class Board;
     Timer(Registers& Registers);
     ~Timer();
-    const Registers& registers;
+    const Registers& registers_;
 };
 
 #define TIMER0_REGISTERS                                                       \

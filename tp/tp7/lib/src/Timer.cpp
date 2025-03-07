@@ -4,7 +4,7 @@ template class Timer<uint8_t>;
 template class Timer<uint16_t>;
 
 template <class T>
-Timer<T>::Timer(Timer<T>::Registers&& Registers) {
+Timer<T>::Timer(Timer<T>::Registers&& Registers) : register{
     // TODO
 }
 

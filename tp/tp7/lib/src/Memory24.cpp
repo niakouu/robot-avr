@@ -34,7 +34,7 @@
 #endif
 
 
-uint8_t Memory24CXXX::m_peripheral_address = 0xA0;
+uint8_t Memory24CXXX::m_peripheral_address_ = 0xA0;
 
 /******************************************************************************/
 /* void Memory24CXXX::Memory24CXXX()                                        */
@@ -98,8 +98,8 @@ uint8_t Memory24CXXX::choose_memory_bank(const uint8_t bank)
    uint8_t rv = 255;
    if(bank == temp)
    {
-      Memory24CXXX::m_peripheral_address = (0xA0 | ( bank << 1 ));
-      rv = Memory24CXXX::m_peripheral_address;
+      Memory24CXXX::m_peripheral_address_ = (0xA0 | ( bank << 1 ));
+      rv = Memory24CXXX::m_peripheral_address_;
    }
    return rv;
 }
@@ -157,7 +157,7 @@ uint8_t Memory24CXXX::read(const uint16_t address, uint8_t *data)
     while ((TWCR & _BV(TWINT)) == 0)   // Attente de fin de transmission
       ;
 
-    TWDR = m_peripheral_address;    //controle - bit 0 a 0, ecriture
+    TWDR = m_peripheral_address_;    //controle - bit 0 a 0, ecriture
     TWCR = _BV(TWINT) | _BV(TWEN);     // R. a Z., interrupt. - Depart de transm.
     while ((TWCR & _BV(TWINT)) == 0)   // Attente de fin de transmission
       ;
@@ -171,7 +171,7 @@ uint8_t Memory24CXXX::read(const uint16_t address, uint8_t *data)
     ;
 
   //__________________ Transmission du code de controle ___________________
-  TWDR = m_peripheral_address;       // Controle - bit 0 a 0, ecriture
+  TWDR = m_peripheral_address_;       // Controle - bit 0 a 0, ecriture
   TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
   while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
     ;
@@ -197,7 +197,7 @@ uint8_t Memory24CXXX::read(const uint16_t address, uint8_t *data)
     ;
 
   //__________________ Transmission du code de controle ___________________
-  TWDR =  m_peripheral_address + 1;   // Controle - bit 0 a 1 lecture 
+  TWDR =  m_peripheral_address_ + 1;   // Controle - bit 0 a 1 lecture 
   TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
   while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
     ;
@@ -225,7 +225,7 @@ uint8_t Memory24CXXX::read(const uint16_t address, uint8_t *data,
     TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);    // Condition de depart
     while ((TWCR & _BV(TWINT)) == 0) ;   // Attente de fin de transmission
 
-    TWDR = m_peripheral_address;       // Controle - bit 0 a 0, ecriture
+    TWDR = m_peripheral_address_;       // Controle - bit 0 a 0, ecriture
     TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
     while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
        ;
@@ -239,7 +239,7 @@ uint8_t Memory24CXXX::read(const uint16_t address, uint8_t *data,
      ;
 
   //__________________ Transmission du code de controle ___________________
-  TWDR = m_peripheral_address;        // Controle - bit 0 a 0, ecriture
+  TWDR = m_peripheral_address_;        // Controle - bit 0 a 0, ecriture
   TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
   while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
      ;
@@ -262,7 +262,7 @@ uint8_t Memory24CXXX::read(const uint16_t address, uint8_t *data,
      ;
 
   //__________________ Transmission du code de controle ___________________
-  TWDR =  m_peripheral_address + 1;  // Controle - bit 0 a 1, lecture
+  TWDR =  m_peripheral_address_ + 1;  // Controle - bit 0 a 1, lecture
   TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
   while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
      ;
@@ -342,7 +342,7 @@ uint8_t Memory24CXXX::write(const uint16_t address, const uint8_t data)
     while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
        ;
 
-    TWDR = m_peripheral_address;       // Controle - bit 0 a 0, ecriture
+    TWDR = m_peripheral_address_;       // Controle - bit 0 a 0, ecriture
     TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
     while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
        ;
@@ -357,7 +357,7 @@ uint8_t Memory24CXXX::write(const uint16_t address, const uint8_t data)
      ;
 
   //__________________ Transmission du code de controle ___________________
-  TWDR = m_peripheral_address;        // Controle - bit 0 a 0, ecriture
+  TWDR = m_peripheral_address_;        // Controle - bit 0 a 0, ecriture
   TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
   while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
      ;
@@ -429,7 +429,7 @@ uint8_t Memory24CXXX::write_page(const uint16_t address, const uint8_t *data,
   {
     TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);    // Condition de depart
     while ((TWCR & _BV(TWINT)) == 0) ;   // Attente de fin de transmission
-    TWDR = m_peripheral_address;       // Controle - bit 0 a 0, ecriture
+    TWDR = m_peripheral_address_;       // Controle - bit 0 a 0, ecriture
     TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
     while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
        ;
@@ -444,7 +444,7 @@ uint8_t Memory24CXXX::write_page(const uint16_t address, const uint8_t *data,
      ;
 
   //__________________ Transmission du code de controle ___________________
-  TWDR = m_peripheral_address;        // Controle - bit 0 a 0, ecriture
+  TWDR = m_peripheral_address_;        // Controle - bit 0 a 0, ecriture
   TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
   while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
      ;

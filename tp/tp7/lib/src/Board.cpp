@@ -6,12 +6,10 @@ Board::Board()
       button_(Pin::Region::D, Pin::Id::P2, true), movementManager_(),
       watchdogTimer_() {}
 
-Board::~Board() {
-    // TODO
-}
+Board::~Board() {}
 
 const Board& Board::getBoard() {
-    // TODO: insert return statement here
+    return Board::board_;
 }
 
 const Timer<uint8_t>& Board::getTimer0() const {

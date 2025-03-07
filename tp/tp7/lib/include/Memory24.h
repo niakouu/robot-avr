@@ -56,7 +56,7 @@ public:
 
 private:
     friend class Board;
-    static uint8_t m_peripheral_address;
+    static uint8_t m_peripheral_address_;
     const uint8_t PAGE_SIZE;
 
     Memory24CXXX();

@@ -17,7 +17,7 @@ public:
     void stop() const;
 
 private:
-    Timer<T>* timer;
+    Timer<T>* timer_;
     Motor motorLeft_, motorRight_;
 };
 
