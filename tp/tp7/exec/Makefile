@@ -1,34 +1,41 @@
 include ../common.mk
-PROJECTNAME=exec
+PROJECTNAME = exec
 
-SRCS=main.cpp
-LIBS=-L../lib/build/ -lutil
-INCLUDE=-I../lib/include/
-MAKELIB=make -C ../lib/
+SRCS = main.cpp
+RELEASE_LIBS = -L../lib/$(RELEASE_DIR) -lutil
+SIMULATION_LIBS = -L../lib/$(SIMULATION_DIR) -lutil
+INCLUDE = -I../lib/include/
+MAKELIB = make -C ../lib/
 
-TRG=$(PROJECTNAME).elf
-HEXROMTRG=$(PROJECTNAME).hex
-HEXTRG=$(HEXROMTRG) $(PROJECTNAME).ee.hex
+TRG = $(PROJECTNAME).elf
+HEXROMTRG = $(PROJECTNAME).hex
+HEXTRG = $(HEXROMTRG) $(PROJECTNAME).ee.hex
 
-OBJDEPS=$(patsubst %,$(OUTDIR)/%.o,$(SRCS))
+RELEASE_OBJDEPS = $(SRCS:%=$(RELEASE_DIR)/%.o)
+SIMULATION_OBJDEPS = $(SRCS:%=$(SIMULATION_DIR)/%.o)
 
-CFLAGS+= $(INCLUDE)
+CFLAGS += $(INCLUDE)
 
-.PHONY: all install clean libutil
+.PHONY: all install clean libutil release simulation
 
-all: libutil $(OUTDIR)/$(TRG) $(OUTDIR)/$(HEXROMTRG)
+all: libutil release simulation
+release: $(RELEASE_DIR)/$(TRG) $(RELEASE_DIR)/$(HEXROMTRG)
+simulation: $(SIMULATION_DIR)/$(TRG) $(SIMULATION_DIR)/$(HEXROMTRG)
 
-$(OUTDIR)/$(TRG): $(OBJDEPS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJDEPS) \
-	-lm $(LIBS)
+$(RELEASE_DIR)/$(TRG): $(RELEASE_OBJDEPS)
+	$(CC) $(RELEASE_LDFLAGS) -o $@ $(RELEASE_OBJDEPS) -lm $(RELEASE_LIBS)
+
+$(SIMULATION_DIR)/$(TRG): $(SIMULATION_OBJDEPS)
+	$(CC) $(SIMULATION_LDFLAGS) -o $@ $(SIMULATION_OBJDEPS) -lm $(SIMULATION_LIBS)
 
 libutil:
-	$(MAKELIB)
+	$(MAKELIB) $(LIBUTIL_TRG)
 
-install: libutil $(OUTDIR)/$(HEXROMTRG)
+install: libutil $(RELEASE_DIR)/$(HEXROMTRG)
+	echo 'Make sure PB3 and PB4 are unplugged during installation'
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMER_ID) \
-	-p $(MCU) -P usb -e -U flash:w:$(OUTDIR)/$(HEXROMTRG)
+		-p $(MCU) -P usb -e -U flash:w:$(RELEASE_DIR)/$(HEXROMTRG)
 
 clean:
-	$(REMOVE) -r $(OUTDIR)
+	$(REMOVE) -r $(OUT_DIR)
 	$(MAKELIB) clean

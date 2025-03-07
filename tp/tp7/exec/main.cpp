@@ -6,14 +6,13 @@
 #include "Timer.h"
 
 int main() {
-    Uart uart;
-    stdout = uart.getEmulatedFile();
-    stdin = uart.getEmulatedFile();
-    while (true)
-    {
+    // stdout = uart.getEmulatedFile();
+    // stdin = uart.getEmulatedFile();
+    // while (true)
+    // {
 
-        printf("%c\n", getchar());
-    }
+    //     printf("%c\n", getchar());
+    // }
     
     return 0;
 }

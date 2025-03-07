@@ -1,22 +1,28 @@
 include ../common.mk
-PROJECTNAME=util
+PROJECTNAME = util
 
-SRCSDIR=src
-SRCSCLASS=Adc.cpp Button.cpp Led.cpp Memory24.cpp Pin.cpp Uart.cpp
-SRCS=$(patsubst %,$(SRCSDIR)/%,$(SRCSCLASS))
+SRCSDIR = src
+SRCSCLASS = Adc.cpp Button.cpp Led.cpp Memory24.cpp Pin.cpp Uart.cpp
+SRCS = $(SRCSCLASS:%=$(SRCSDIR)/%)
 
-TRG=lib$(PROJECTNAME).a
+TRG = lib$(PROJECTNAME).a
 
-OBJDEPS=$(patsubst %,$(OUTDIR)/%.o,$(SRCS))
+RELEASE_OBJDEPS = $(SRCS:%=$(RELEASE_DIR)/%.o)
+SIMULATION_OBJDEPS = $(SRCS:%=$(SIMULATION_DIR)/%.o)
 
-CFLAGS+= -Iinclude/
+CFLAGS += -Iinclude/
 
-.PHONY: all install clean
+.PHONY: all install clean release simulation
 
-all: $(OUTDIR)/$(TRG)
+all: release simulation
+release: $(RELEASE_DIR)/$(TRG)
+simulation: $(SIMULATION_DIR)/$(TRG)
 
-$(OUTDIR)/$(TRG): $(OBJDEPS)
-	$(AR) rcs -o $@ $(OBJDEPS)
+$(RELEASE_DIR)/$(TRG): $(RELEASE_OBJDEPS)
+	$(AR) rcs -o $@ $(RELEASE_OBJDEPS)
+
+$(SIMULATION_DIR)/$(TRG): $(SIMULATION_OBJDEPS)
+	$(AR) rcs -o $@ $(SIMULATION_OBJDEPS)
 
 clean:
-	$(REMOVE) -r $(OUTDIR)
+	$(REMOVE) -r $(OUT_DIR)
