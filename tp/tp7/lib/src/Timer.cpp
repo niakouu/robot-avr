@@ -49,6 +49,8 @@ template <typename T, typename U>
 void Timer<T, U>::setAsCounter(T maxTicks, const U& genericPrescaler) {
     const TimerPrescaler& prescaler =
         static_cast<const TimerPrescaler&>(genericPrescaler);
+    
+    (void)prescaler;
 }
 
 template <typename T, typename U>

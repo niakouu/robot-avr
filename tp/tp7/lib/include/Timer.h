@@ -9,9 +9,6 @@
 template <typename T, typename U>
 class Timer {
 public:
-    // static_assert(std::is_base_of<TimerPrescaler, U>::value, "U must inherit
-    // from TimerPrescaler");
-
     struct Registers {
         Pin waveformA, waveformB;
         volatile T *counter, *compareA, *compareB;

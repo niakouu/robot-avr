@@ -4,7 +4,11 @@
 #include <avr/io.h>
 #include <util/setbaud.h>
 
-Uart::Uart() {
+Uart::Uart()
+    : emulatedFile_({.flags = __SWR | __SRD,
+                     .put = Uart::putChar,
+                     .get = Uart::getChar,
+                     .udata = this}) {
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
 
@@ -17,11 +21,6 @@ Uart::Uart() {
              | (UCSR0C
                 & ~(_BV(UPM01) | _BV(UPM00) | _BV(USBS0) | _BV(UCSZ02)
                     | _BV(UCPOL0)));
-
-    this->emulatedFile_ = {.flags = __SWR | __SRD,
-                     .put = Uart::putChar,
-                     .get = Uart::getChar,
-                     .udata = this};
 }
 
 Uart::~Uart() {
@@ -56,7 +55,7 @@ int Uart::getChar(FILE* stream) {
         return -1;
 
     Uart* uart = reinterpret_cast<Uart*>(stream->udata);
-    
+
     return uart->receive();
 }
 
