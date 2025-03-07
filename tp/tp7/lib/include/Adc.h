@@ -16,7 +16,7 @@
 #ifndef ADC_H
 #define ADC_H
 
-#include <avr/io.h> 
+#include <avr/io.h>
 
 /*
  * Classe Adc:
@@ -26,22 +26,21 @@
  *
  */
 
-class Adc
-{
+class Adc {
 public:
+    Adc(Adc&) = delete;
+    void operator=(const Adc&) = delete;
 
-   Adc();
-   ~Adc();
-
-   // retourne la valeur numerique correspondant a la valeur
-   // analogique sur le port A.  pos doit etre entre 0 et 7
-   // inclusivement.  Seulement les 10 bits de poids faible
-   // sont significatifs.
-   uint16_t read(uint8_t pos) const;
+    // retourne la valeur numerique correspondant a la valeur
+    // analogique sur le port A.  pos doit etre entre 0 et 7
+    // inclusivement.  Seulement les 10 bits de poids faible
+    // sont significatifs.
+    uint16_t read(uint8_t pos) const;
 
 private:
-   // Donnees membres - aucun
-
+    friend class Board;
+    Adc();
+    ~Adc();
 };
 
-#endif /* CAN_H */
+#endif /* ADC_H */

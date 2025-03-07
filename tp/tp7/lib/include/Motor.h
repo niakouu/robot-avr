@@ -3,8 +3,7 @@
 
 #include "Pin.h"
 
-class Motor
-{
+class Motor {
 public:
     Motor(Pin&& directionPin, float offset);
     ~Motor();
@@ -19,6 +18,5 @@ private:
     Pin directionPin_;
     float offset_;
 };
-
 
 #endif /* _MOTOR_H */

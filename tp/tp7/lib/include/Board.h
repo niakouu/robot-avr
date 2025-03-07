@@ -1,19 +1,16 @@
 #ifndef _BOARD_H
 #define _BOARD_H
 
-#include "Timer.h"
 #include "Adc.h"
-#include "Memory24.h"
-#include "Uart.h"
 #include "Button.h"
+#include "Memory24.h"
 #include "MovementManager.h"
+#include "Timer.h"
+#include "Uart.h"
 #include "WatchdogTimer.h"
 
 class Board {
 public:
-    Board();
-    ~Board();
-
     static const Board& getBoard();
 
     const Timer<uint8_t>& getTimer0() const;
@@ -36,6 +33,8 @@ private:
     Button button_;
     MovementManager<uint8_t> movementManager_;
     WatchdogTimer watchdogTimer_;
+    Board();
+    ~Board();
 };
 
 #endif /* _BOARD_H */

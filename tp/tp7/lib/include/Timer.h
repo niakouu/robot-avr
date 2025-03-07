@@ -37,13 +37,13 @@ public:
 
 private:
     friend class Board;
-    Timer(Registers&& Registers);
+    Timer(Registers& Registers);
     ~Timer();
-    Registers registers;
+    const Registers& registers;
 };
 
 #define TIMER0_REGISTERS                                                       \
-    ((Timer<uint8_t>::Registers){.waveformA{Pin::Region::B, Pin::Id::P3},      \
+    (Timer<uint8_t>::Registers){.waveformA{Pin::Region::B, Pin::Id::P3},      \
                                  .waveformB{Pin::Region::B, Pin::Id::P4},      \
                                  .counter = &TCNT0,                            \
                                  .compareA = &OCR0A,                           \
@@ -51,7 +51,7 @@ private:
                                  .controlA = &TCCR0A,                          \
                                  .controlB = &TCCR0B,                          \
                                  .controlC = nullptr,                          \
-                                 .interruptMask = &TIMSK0})
+                                 .interruptMask = &TIMSK0}
 
 #define TIMER1_REGISTERS                                                       \
     ((Timer<uint16_t>::Registers){.waveformA{Pin::Region::D, Pin::Id::P5},     \

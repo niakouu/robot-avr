@@ -5,8 +5,7 @@
 #include "Timer.h"
 
 template <typename T>
-class MovementManager
-{
+class MovementManager {
 public:
     MovementManager();
     ~MovementManager();

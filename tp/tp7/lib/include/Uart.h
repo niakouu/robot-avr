@@ -13,6 +13,7 @@ public:
     FILE* getEmulatedFile();
 
 private:
+    friend class Board;
     Uart();
     ~Uart();
     FILE emulatedFile_;
