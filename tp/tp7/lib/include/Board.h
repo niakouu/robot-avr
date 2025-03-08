@@ -35,7 +35,7 @@ private:
     Uart uart0_;
     Button button_;
     WatchdogTimer watchdogTimer_;
-    Board();
+    Board() noexcept;
     ~Board();
 };
 

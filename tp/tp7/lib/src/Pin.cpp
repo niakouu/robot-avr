@@ -2,14 +2,14 @@
 
 #include <avr/io.h>
 
-Pin::Pin(Region region, Id id)
+Pin::Pin(Region region, Id id) noexcept
     : mappings_(getMappings(region, id)), registers_(getRegisters(region)) {}
 
 Pin::Pin(Region region, Id id, Direction direction) : Pin(region, id) {
     this->updateDirection(direction);
 }
 
-Pin::~Pin() {}
+Pin::~Pin() = default;
 
 bool Pin::read() const {
     return (*this->registers_.pin & this->mappings_.pinBit) != 0;
@@ -30,7 +30,7 @@ void Pin::unset() const {
     *this->registers_.port &= ~this->mappings_.portBit;
 }
 
-void Pin::updateDirection(Direction direction) {
+void Pin::updateDirection(Direction direction) const {
     if (direction == Direction::IN)
         *this->registers_.dataDirection &= ~this->mappings_.directionBit;
     else

@@ -1,3 +1,13 @@
 {
-    "makefile.configureOnOpen": false
+    "makefile.configureOnOpen": false,
+    "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
+        "modernize-use-trailing-return-type",
+        "misc-include-cleaner",
+        "google-readability-braces-around-statements",
+        "readability-braces-around-statements",
+        "modernize-use-auto",
+        "readability-identifier-length"
+    ],
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.clangTidy.headerFilter": "${workspaceFolder}/**",
 }

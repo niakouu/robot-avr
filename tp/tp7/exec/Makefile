@@ -31,7 +31,7 @@ $(SIMULATION_DIR)/$(TRG): $(SIMULATION_OBJDEPS)
 libutil:
 	$(MAKELIB) $(LIBUTIL_TRG)
 
-install: $(RELEASE_DIR)/$(HEXROMTRG)
+install: release
 	echo 'Make sure PB3 and PB4 are unplugged during installation'
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMER_ID) \
 		-p $(MCU) -P usb -e -U flash:w:$(RELEASE_DIR)/$(HEXROMTRG)

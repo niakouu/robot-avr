@@ -26,8 +26,8 @@ Uart::Uart(const Registers& registers)
 
 void Uart::configure(uint16_t baudRate, bool synchronous, Parity parity,
                      StopBit stopBit) const {
-    uint8_t syncBit = synchronous ? _BV(UMSEL00) : 0;
-    uint8_t characterSize = _BV(UCSZ01) | _BV(UCSZ00);
+    const uint8_t syncBit = synchronous ? _BV(UMSEL00) : 0;
+    const uint8_t characterSize = _BV(UCSZ01) | _BV(UCSZ00);
 
     this->setBaudRate(baudRate, synchronous);
 
@@ -43,9 +43,9 @@ void Uart::start(bool interruptsEnabled) const {
         *this->registers_.controlStatusB |= _BV(TXEN0) | _BV(RXEN0);
 
         if (interruptsEnabled)
-            *this->registers_.controlStatusB |= _BV(TXCIE0) | _BV(TXCIE1);
+            *this->registers_.controlStatusB |= _BV(TXCIE0) | _BV(RXCIE0);
         else
-            *this->registers_.controlStatusB &= ~(_BV(TXCIE0) | _BV(TXCIE1));
+            *this->registers_.controlStatusB &= ~(_BV(TXCIE0) | _BV(RXCIE0));
     }
 }
 
@@ -69,28 +69,34 @@ uint8_t Uart::receive() const {
     return *this->registers_.data;
 }
 
+void Uart::setBaudRate(uint16_t baudRate, bool synchronous) const {
+    const uint8_t divisionFactor = synchronous ? 2 : 16;
+
+    *this->registers_.baudRate = (F_CPU / divisionFactor) / baudRate - 1;
+}
+
 int Uart::putChar(char data, FILE* stream) {
     if (stream == nullptr || stream->udata == nullptr)
         return -1;
 
+    // We must go through reinterpret_cast because of void *.
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
     const Uart* uart = reinterpret_cast<const Uart*>(stream->udata);
+    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
     uart->transmit(data);
 
     return 0;
 }
 
-void Uart::setBaudRate(uint16_t baudRate, bool synchronous) const {
-    uint8_t divisionFactor = synchronous ? 2 : 16;
-
-    *this->registers_.baudRate = (F_CPU / divisionFactor) / baudRate - 1;
-}
-
 int Uart::getChar(FILE* stream) {
     if (stream == nullptr || stream->udata == nullptr)
         return -1;
 
+    // We must go through reinterpret_cast because of void *.
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
     Uart* uart = reinterpret_cast<Uart*>(stream->udata);
+    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
     return uart->receive();
 }

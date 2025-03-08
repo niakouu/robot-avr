@@ -34,14 +34,14 @@ public:
         U prescaler;
         CompareOutputModeA compareOutputMode;
         static ConfigCounter
-        fromMilliseconds(uint16_t milliseconds, U&& prescaler,
+        fromMilliseconds(uint16_t milliseconds, U prescaler,
                          CompareOutputModeA compareOutputMode);
     };
 
     struct ConfigPwm {
         U prescaler;
         float ratioA, ratioB;
-        CompareOutputModeA compareOutputModeA; 
+        CompareOutputModeA compareOutputModeA;
         CompareOutputModeB compareOutputModeB;
     };
 

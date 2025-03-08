@@ -23,11 +23,11 @@ public:
         volatile uint8_t *pin, *port, *dataDirection;
     };
 
-    Pin(Region region, Id id);
+    Pin(Region region, Id id) noexcept;
     Pin(Region region, Id id, Direction direction);
     ~Pin();
 
-    void updateDirection(Direction direction);
+    void updateDirection(Direction direction) const;
 
     bool read() const;
     void write(bool set) const;

@@ -2,12 +2,12 @@
 
 Board Board::board_{};
 
-Board::Board()
+Board::Board() noexcept
     : timer0_(TIMER0_REGISTERS), timer1_(TIMER1_REGISTERS),
-      timer2_(TIMER2_REGISTERS), adc_(), memory_(), uart0_(USART0_REGISTERS),
-      button_(Pin::Region::D, Pin::Id::P2, true), watchdogTimer_() {}
+      timer2_(TIMER2_REGISTERS), uart0_(USART0_REGISTERS),
+      button_(Pin::Region::D, Pin::Id::P2, true) {}
 
-Board::~Board() {}
+Board::~Board() = default;
 
 const Board& Board::get() {
     return Board::board_;

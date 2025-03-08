@@ -114,12 +114,12 @@ void Timer<T, U>::setAsPwm(const ConfigPwm& configPwm) {
 
         *this->registers_.controlA =
             static_cast<uint8_t>(configPwm.compareOutputModeA)
-            | static_cast<uint8_t>(configPwm.compareOutputModeB) | _BV(WGM00) |
-            (*this->registers_.controlA & ~(_BV(WGM01) | _BV(WGM00)));
-        
-        *this->registers_.controlB = prescaler.getFlags() | 
-            (*this->registers_.controlB & ~(_BV(WGM02)));
-        
+            | static_cast<uint8_t>(configPwm.compareOutputModeB) | _BV(WGM00)
+            | (*this->registers_.controlA & ~(_BV(WGM01) | _BV(WGM00)));
+
+        *this->registers_.controlB =
+            prescaler.getFlags() | (*this->registers_.controlB & ~(_BV(WGM02)));
+
         if (isType<T, uint16_t>::value)
             *this->registers_.controlB &= ~(_BV(WGM13));
         *this->registers_.controlC = 0;
@@ -129,7 +129,8 @@ void Timer<T, U>::setAsPwm(const ConfigPwm& configPwm) {
 template <typename T, typename U>
 typename Timer<T, U>::ConfigCounter
 Timer<T, U>::ConfigCounter::fromMilliseconds(
-    uint16_t milliseconds, U&& prescaler, CompareOutputModeA compareOutputMode) {
+    uint16_t milliseconds, U prescaler,
+    CompareOutputModeA compareOutputMode) {
     uint16_t maxTicks = static_cast<uint16_t>(
         (F_CPU / prescaler.getDivisionFactor())
         * static_cast<float>(milliseconds) / MILLIS_IN_SECONDS);

@@ -16,7 +16,7 @@ void WatchdogTimer::sleep(const uint16_t milliseconds,
 
     uint16_t timeSlept = 0;
     while (timeSlept < milliseconds) {
-        uint16_t diff = milliseconds - timeSlept;
+        const uint16_t diff = milliseconds - timeSlept;
         if (diff < 15) {
             for (uint8_t i = 0; i < diff; ++i) {
                 _delay_ms(1);
@@ -102,7 +102,7 @@ void WatchdogTimer::rawSleep(const uint8_t durationMode,
 #else  /* SIMULATION */
 void WatchdogTimer::rawSleep(const uint8_t durationMode,
                              const SleepMode sleepMode) {
-    uint8_t sregInitState =
+    const uint8_t sregInitState =
         SREG; // Save Status Register if we are in interrupt handler.
 
     WatchdogTimer::wdtEnableInterrupt(durationMode);
@@ -119,8 +119,11 @@ void WatchdogTimer::rawSleep(const uint8_t durationMode,
 #endif /* SIMULATION */
 
 void WatchdogTimer::wdtEnableInterrupt(const uint8_t durationMode) {
-    uint8_t flags = _BV(WDIE) | (durationMode & 0x08 ? _BV(WDP3) : 0x00)
-                    | (durationMode & 0x07);
+    constexpr uint8_t SLEEP_MODE_WDP3_TOGGLE_BIT = 0x08;
+    const uint8_t flags =
+        _BV(WDIE)
+        | ((durationMode & SLEEP_MODE_WDP3_TOGGLE_BIT) != 0 ? _BV(WDP3) : 0x00)
+        | (durationMode & ~SLEEP_MODE_WDP3_TOGGLE_BIT);
 
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         MCUSR &= ~_BV(WDRF); // Turn off WDRF (required to turn off WDE)
