@@ -38,9 +38,10 @@ void Pin::updateDirection(Direction direction) const {
 }
 
 #define _MAPPING_DEF(region, idx)                                              \
-    [static_cast<uint8_t>(Pin::Id::P##idx)] = {_BV(DD##region##idx),           \
-                                               _BV(PIN##region##idx),          \
-                                               _BV(PORT##region##idx)}
+    [static_cast<uint8_t>(                                                     \
+        Pin::Id::P##idx)] = {.pinBit = _BV(PIN##region##idx),                  \
+                             .portBit = _BV(PORT##region##idx),                \
+                             .directionBit = _BV(DD##region##idx)}
 
 #define _REGION_DEF(region)                                                    \
     [static_cast<uint8_t>(Pin::Region::region)] = {                            \

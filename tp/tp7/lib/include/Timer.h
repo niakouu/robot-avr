@@ -6,6 +6,20 @@
 
 #include "Pin.h"
 
+enum class TimerCompareOutputModeA {
+    NORMAL = 0,
+    TOGGLE = _BV(COM0A0),
+    CLEAR = _BV(COM0A1),
+    SET = _BV(COM0A1) | _BV(COM0A0)
+};
+
+enum class TimerCompareOutputModeB {
+    NORMAL = 0,
+    TOGGLE = _BV(COM0B0),
+    CLEAR = _BV(COM0B1),
+    SET = _BV(COM0B1) | _BV(COM0B0)
+};
+
 template <typename T, typename U>
 class Timer {
 public:
@@ -15,40 +29,21 @@ public:
         volatile uint8_t *controlA, *controlB, *controlC, *interruptMask;
     };
 
-    enum class CompareOutputModeA {
-        NORMAL = 0,
-        TOGGLE = _BV(COM0A0),
-        CLEAR = _BV(COM0A1),
-        SET = _BV(COM0A1) | _BV(COM0A0)
-    };
-
-    enum class CompareOutputModeB {
-        NORMAL = 0,
-        TOGGLE = _BV(COM0B0),
-        CLEAR = _BV(COM0B1),
-        SET = _BV(COM0B1) | _BV(COM0B0)
-    };
-
     struct ConfigCounter {
         T maxTicks;
         U prescaler;
-        CompareOutputModeA compareOutputMode;
+        TimerCompareOutputModeA compareOutputMode;
         static ConfigCounter
         fromMilliseconds(uint16_t milliseconds, U prescaler,
-                         CompareOutputModeA compareOutputMode);
+                         TimerCompareOutputModeA compareOutputMode);
     };
 
     struct ConfigPwm {
         U prescaler;
         float ratioA, ratioB;
-        CompareOutputModeA compareOutputModeA;
-        CompareOutputModeB compareOutputModeB;
+        TimerCompareOutputModeA compareOutputModeA;
+        TimerCompareOutputModeB compareOutputModeB;
     };
-
-    static_assert(COM0A0 == COM1A0 && COM0A0 == COM2A0,
-                  "COM0A0 must match COM1A0 and COM2A0.");
-    static_assert(COM0A1 == COM1A1 && COM0A1 == COM2A1,
-                  "COM0A1 must match COM1A1 and COM2A1.");
 
     Timer(Timer&) = delete;
     void operator=(const Timer&) = delete;
@@ -59,14 +54,18 @@ public:
     // PWM, Phase Correct 8-bit
     void setAsPwm(const ConfigPwm& configPwm);
 
-    void start() const;
+    void start();
     void stop() const;
+
+    bool isCounterExpired() const;
+    void setCounterExpired();
 
 private:
     friend class Board;
     static const uint16_t MILLIS_IN_SECONDS = 1000;
     const Registers& registers_;
     uint8_t prescalerFlags_;
+    volatile bool counterExpired_;
     Timer(const Registers& registers);
     ~Timer();
 };
@@ -87,8 +86,8 @@ public:
         CLK_DIV_1024 = _BV(CS02) | _BV(CS00)
     };
 
-    constexpr TimerPrescalerSynchronous(Value value);
-    constexpr operator Value() const;
+    TimerPrescalerSynchronous(Value value);
+    operator Value() const;
 
     uint8_t getFlags() const;
     uint16_t getDivisionFactor() const;
@@ -109,8 +108,8 @@ public:
         CLK_DIV_1024 = _BV(CS22) | _BV(CS21) | _BV(CS20)
     };
 
-    constexpr TimerPrescalerAsynchronous(Value value);
-    constexpr operator Value() const;
+    TimerPrescalerAsynchronous(Value value);
+    operator Value() const;
 
     uint8_t getFlags() const;
     uint16_t getDivisionFactor() const;
@@ -118,6 +117,10 @@ public:
 private:
     const Value value_;
 };
+
+typedef Timer<uint8_t, TimerPrescalerSynchronous> Timer0;
+typedef Timer<uint16_t, TimerPrescalerSynchronous> Timer1;
+typedef Timer<uint8_t, TimerPrescalerAsynchronous> Timer2;
 
 extern const Timer<uint8_t, TimerPrescalerSynchronous>::Registers
     TIMER0_REGISTERS;

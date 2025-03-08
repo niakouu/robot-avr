@@ -13,15 +13,15 @@ Board& Board::get() {
     return Board::board_;
 }
 
-const Timer<uint8_t, TimerPrescalerSynchronous>& Board::getTimer0() const {
+const Timer0& Board::getTimer0() const {
     return timer0_;
 }
 
-const Timer<uint16_t, TimerPrescalerSynchronous>& Board::getTimer1() const {
+const Timer1& Board::getTimer1() const {
     return timer1_;
 }
 
-const Timer<uint8_t, TimerPrescalerAsynchronous>& Board::getTimer2() const {
+const Timer2& Board::getTimer2() const {
     return timer2_;
 }
 
@@ -45,15 +45,15 @@ const WatchdogTimer& Board::getWatchdogTimer() const {
     return watchdogTimer_;
 }
 
-Timer<uint8_t, TimerPrescalerSynchronous>& Board::getTimer0() {
+Timer0& Board::getTimer0() {
     return this->timer0_;
 }
 
-Timer<uint16_t, TimerPrescalerSynchronous>& Board::getTimer1() {
+Timer1& Board::getTimer1() {
     return this->timer1_;
 }
 
-Timer<uint8_t, TimerPrescalerAsynchronous>& Board::getTimer2() {
+Timer2& Board::getTimer2() {
     return this->timer2_;
 }
 

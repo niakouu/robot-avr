@@ -25,10 +25,12 @@ public:
     void sleep(const uint16_t milliseconds, const SleepMode sleepMode);
     void setSleepDone();
 
-private:
+protected:
     friend class Board;
     WatchdogTimer();
     ~WatchdogTimer();
+
+private:
     volatile bool sleepDone_;
 
     /// @brief Sleep for a predefined duration and a power saving mode.

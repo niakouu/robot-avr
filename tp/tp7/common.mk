@@ -2,6 +2,7 @@
 MCU = atmega324pa
 AVRDUDE_PROGRAMMER_ID = usbasp
 HEXFORMAT = ihex
+F_CPU = 8'000'000UL
 
 # Commands and compilation variables
 CC = avr-gcc
@@ -19,7 +20,7 @@ RELEASE_DIR = $(OUT_DIR)/release
 CFLAGS = -MMD -g -mmcu=$(MCU) \
 	-fshort-enums \
 	-funsigned-bitfields -funsigned-char \
-	-Wall -DF_CPU=8000000
+	-Wall -DF_CPU=$(F_CPU)
 CXXFLAGS = -fno-exceptions -std=c++14
 RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU) -s
 RELEASE_CFLAGS = -Os -s

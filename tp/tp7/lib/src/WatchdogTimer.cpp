@@ -102,9 +102,6 @@ void WatchdogTimer::rawSleep(const uint8_t durationMode,
 #else  /* SIMULATION */
 void WatchdogTimer::rawSleep(const uint8_t durationMode,
                              const SleepMode sleepMode) {
-    const uint8_t sregInitState =
-        SREG; // Save Status Register if we are in interrupt handler.
-
     WatchdogTimer::wdtEnableInterrupt(durationMode);
     set_sleep_mode(static_cast<uint8_t>(sleepMode));
     sleep_enable();
@@ -114,7 +111,6 @@ void WatchdogTimer::rawSleep(const uint8_t durationMode,
         sleep_cpu();
 
     sleep_disable();      // cancel sleep as a precaution
-    SREG = sregInitState; // Restore Status Register to previous state.
 }
 #endif /* SIMULATION */
 

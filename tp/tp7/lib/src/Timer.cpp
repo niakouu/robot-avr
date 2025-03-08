@@ -20,7 +20,7 @@ template class Timer<uint8_t, TimerPrescalerSynchronous>;
 template class Timer<uint16_t, TimerPrescalerSynchronous>;
 template class Timer<uint8_t, TimerPrescalerAsynchronous>;
 
-const Timer<uint8_t, TimerPrescalerSynchronous>::Registers TIMER0_REGISTERS{
+const Timer0::Registers TIMER0_REGISTERS{
     .waveformA{Pin::Region::B, Pin::Id::P3},
     .waveformB{Pin::Region::B, Pin::Id::P4},
     .counter = &TCNT0,
@@ -31,7 +31,7 @@ const Timer<uint8_t, TimerPrescalerSynchronous>::Registers TIMER0_REGISTERS{
     .controlC = nullptr,
     .interruptMask = &TIMSK0};
 
-const Timer<uint16_t, TimerPrescalerSynchronous>::Registers TIMER1_REGISTERS{
+const Timer1::Registers TIMER1_REGISTERS{
     .waveformA{Pin::Region::D, Pin::Id::P5},
     .waveformB{Pin::Region::D, Pin::Id::P4},
     .counter = &TCNT1,
@@ -42,7 +42,7 @@ const Timer<uint16_t, TimerPrescalerSynchronous>::Registers TIMER1_REGISTERS{
     .controlC = &TCCR1C,
     .interruptMask = &TIMSK1};
 
-const Timer<uint8_t, TimerPrescalerAsynchronous>::Registers TIMER2_REGISTERS{
+const Timer2::Registers TIMER2_REGISTERS{
     .waveformA{Pin::Region::D, Pin::Id::P7},
     .waveformB{Pin::Region::D, Pin::Id::P6},
     .counter = &TCNT2,
@@ -130,13 +130,16 @@ template <typename T, typename U>
 typename Timer<T, U>::ConfigCounter
 Timer<T, U>::ConfigCounter::fromMilliseconds(
     uint16_t milliseconds, U prescaler,
-    CompareOutputModeA compareOutputMode) {
-    uint16_t maxTicks = static_cast<uint16_t>(
+    TimerCompareOutputModeA compareOutputMode) {
+    uint32_t maxTicks = static_cast<uint32_t>(
         (F_CPU / prescaler.getDivisionFactor())
         * static_cast<float>(milliseconds) / MILLIS_IN_SECONDS);
 
     if (isType<T, uint8_t>::value && maxTicks >= UINT8_MAX)
         maxTicks = UINT8_MAX - 1;
+    else if (isType<T, uint16_t>::value && maxTicks >= UINT16_MAX)
+        maxTicks = UINT16_MAX - 1;
+
 
     return ConfigCounter{.maxTicks = static_cast<T>(maxTicks),
                          .prescaler = prescaler,
@@ -144,8 +147,9 @@ Timer<T, U>::ConfigCounter::fromMilliseconds(
 }
 
 template <typename T, typename U>
-void Timer<T, U>::start() const {
+void Timer<T, U>::start() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        this->counterExpired_ = false;
         *this->registers_.controlB |= this->prescalerFlags_;
     }
 }
@@ -157,10 +161,20 @@ void Timer<T, U>::stop() const {
     }
 }
 
-constexpr TimerPrescalerSynchronous::TimerPrescalerSynchronous(Value value)
+template <typename T, typename U>
+bool Timer<T, U>::isCounterExpired() const {
+    return this->counterExpired_;
+}
+
+template <typename T, typename U>
+void Timer<T, U>::setCounterExpired() {
+    this->counterExpired_ = true;
+}
+
+TimerPrescalerSynchronous::TimerPrescalerSynchronous(Value value)
     : value_(value) {}
 
-constexpr TimerPrescalerSynchronous::operator Value() const {
+TimerPrescalerSynchronous::operator Value() const {
     return this->value_;
 }
 
@@ -184,10 +198,10 @@ uint16_t TimerPrescalerSynchronous::getDivisionFactor() const {
     }
 }
 
-constexpr TimerPrescalerAsynchronous::TimerPrescalerAsynchronous(Value value)
+TimerPrescalerAsynchronous::TimerPrescalerAsynchronous(Value value)
     : value_(value) {}
 
-constexpr TimerPrescalerAsynchronous::operator Value() const {
+TimerPrescalerAsynchronous::operator Value() const {
     return this->value_;
 }
 

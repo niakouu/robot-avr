@@ -14,9 +14,9 @@ public:
     enum class Id : uint8_t { P0, P1, P2, P3, P4, P5, P6, P7 };
 
     struct Mappings {
-        uint8_t directionBit;
         uint8_t pinBit;
         uint8_t portBit;
+        uint8_t directionBit;
     };
 
     struct Registers {

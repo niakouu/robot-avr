@@ -45,7 +45,7 @@ public:
     void configure(uint16_t baudRate, bool synchronous, Parity parity,
                    StopBit stopBit) const;
 
-    void start(bool interruptsEnabled) const;
+    void start(bool interruptsEnabled = false) const;
     void stop() const;
 
 private:
