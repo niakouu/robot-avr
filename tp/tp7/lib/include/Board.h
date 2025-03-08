@@ -12,7 +12,7 @@
 
 class Board {
 public:
-    static const Board& get();
+    static Board& get();
     Board(Board&) = delete;
     void operator=(const Board&) = delete;
 
@@ -24,6 +24,15 @@ public:
     const Uart& getUart0() const;
     const Button& getButton() const;
     const WatchdogTimer& getWatchdogTimer() const;
+
+    Timer<uint8_t, TimerPrescalerSynchronous>& getTimer0();
+    Timer<uint16_t, TimerPrescalerSynchronous>& getTimer1();
+    Timer<uint8_t, TimerPrescalerAsynchronous>& getTimer2();
+    Adc& getAdc();
+    Memory24CXXX& getMemory();
+    Uart& getUart0();
+    Button& getButton();
+    WatchdogTimer& getWatchdogTimer();
 
 private:
     static Board board_;

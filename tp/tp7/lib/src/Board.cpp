@@ -9,7 +9,7 @@ Board::Board() noexcept
 
 Board::~Board() = default;
 
-const Board& Board::get() {
+Board& Board::get() {
     return Board::board_;
 }
 
@@ -43,4 +43,36 @@ const Button& Board::getButton() const {
 
 const WatchdogTimer& Board::getWatchdogTimer() const {
     return watchdogTimer_;
+}
+
+Timer<uint8_t, TimerPrescalerSynchronous>& Board::getTimer0() {
+    return this->timer0_;
+}
+
+Timer<uint16_t, TimerPrescalerSynchronous>& Board::getTimer1() {
+    return this->timer1_;
+}
+
+Timer<uint8_t, TimerPrescalerAsynchronous>& Board::getTimer2() {
+    return this->timer2_;
+}
+
+Adc& Board::getAdc() {
+    return this->adc_;
+}
+
+Memory24CXXX& Board::getMemory() {
+    return this->memory_;
+}
+
+Uart& Board::getUart0() {
+    return this->uart0_;
+}
+
+Button& Board::getButton() {
+    return this->button_;
+}
+
+WatchdogTimer& Board::getWatchdogTimer() {
+    return this->watchdogTimer_;
 }
