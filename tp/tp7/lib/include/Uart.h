@@ -22,6 +22,7 @@ ASSERT_REGISTER_FLAGS_MATCH(UCSZ02, UCSZ12);
 class Uart {
 public:
     enum class Parity : uint8_t {
+        DISABLED = 0,
         EVEN = _BV(UPM01),
         ODD = _BV(UPM01) | _BV(UPM00)
     };

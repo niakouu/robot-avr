@@ -51,7 +51,6 @@ void Uart::start(bool interruptsEnabled) const {
 
 void Uart::stop() const {
     *this->registers_.controlStatusB &= ~(_BV(TXEN0) | _BV(RXEN0));
-    *this->registers_.controlStatusC &= ~(_BV(UPM00) | _BV(UPM01));
 }
 
 Uart::~Uart() {

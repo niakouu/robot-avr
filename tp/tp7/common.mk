@@ -16,15 +16,15 @@ SIMULATION_DIR = $(OUT_DIR)/simulation
 RELEASE_DIR = $(OUT_DIR)/release
 
 # Utility flags
-CFLAGS = -MMD -g -mmcu=$(MCU) -O$(OPTLEVEL) \
+CFLAGS = -MMD -g -mmcu=$(MCU) \
 	-fshort-enums \
 	-funsigned-bitfields -funsigned-char \
 	-Wall -DF_CPU=8000000
 CXXFLAGS = -fno-exceptions -std=c++14
-RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU)
+RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU) -s
 RELEASE_CFLAGS = -Os -s
 SIMULATION_LDFLAGS = -Wl,-Map,$(SIMULATION_DIR)/$(TRG).map -mmcu=$(MCU)
-SIMULATION_CFLAGS = -DSIMULATION=1
+SIMULATION_CFLAGS = -Os -DSIMULATION=1
 
 # Common target definitions
 $(SIMULATION_DIR)/%.c.o: %.c
