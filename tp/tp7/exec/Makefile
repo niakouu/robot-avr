@@ -19,8 +19,8 @@ CFLAGS += $(INCLUDE)
 .PHONY: all install clean libutil release simulation
 
 all: libutil release simulation
-release: $(RELEASE_DIR)/$(TRG) $(RELEASE_DIR)/$(HEXROMTRG)
-simulation: $(SIMULATION_DIR)/$(TRG) $(SIMULATION_DIR)/$(HEXROMTRG)
+release: libutil $(RELEASE_DIR)/$(TRG) $(RELEASE_DIR)/$(HEXROMTRG)
+simulation: libutil $(SIMULATION_DIR)/$(TRG) $(SIMULATION_DIR)/$(HEXROMTRG)
 
 $(RELEASE_DIR)/$(TRG): $(RELEASE_OBJDEPS)
 	$(CC) $(RELEASE_LDFLAGS) -o $@ $(RELEASE_OBJDEPS) -lm $(RELEASE_LIBS)
@@ -31,7 +31,7 @@ $(SIMULATION_DIR)/$(TRG): $(SIMULATION_OBJDEPS)
 libutil:
 	$(MAKELIB) $(LIBUTIL_TRG)
 
-install: libutil $(RELEASE_DIR)/$(HEXROMTRG)
+install: $(RELEASE_DIR)/$(HEXROMTRG)
 	echo 'Make sure PB3 and PB4 are unplugged during installation'
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMER_ID) \
 		-p $(MCU) -P usb -e -U flash:w:$(RELEASE_DIR)/$(HEXROMTRG)

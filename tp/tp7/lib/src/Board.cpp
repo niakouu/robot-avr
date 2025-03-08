@@ -1,8 +1,10 @@
 #include "Board.h"
 
+Board Board::board_{};
+
 Board::Board()
     : timer0_(TIMER0_REGISTERS), timer1_(TIMER1_REGISTERS),
-      timer2_(TIMER2_REGISTERS), adc_(), memory_(), uart0_(),
+      timer2_(TIMER2_REGISTERS), adc_(), memory_(), uart0_(USART0_REGISTERS),
       button_(Pin::Region::D, Pin::Id::P2, true), watchdogTimer_() {}
 
 Board::~Board() {}

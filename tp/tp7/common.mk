@@ -22,6 +22,7 @@ CFLAGS = -MMD -g -mmcu=$(MCU) -O$(OPTLEVEL) \
 	-Wall -DF_CPU=8000000
 CXXFLAGS = -fno-exceptions -std=c++14
 RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU)
+RELEASE_CFLAGS = -Os -s
 SIMULATION_LDFLAGS = -Wl,-Map,$(SIMULATION_DIR)/$(TRG).map -mmcu=$(MCU)
 SIMULATION_CFLAGS = -DSIMULATION=1
 
@@ -36,11 +37,11 @@ $(SIMULATION_DIR)/%.cpp.o: %.cpp
 
 $(RELEASE_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(RELEASE_CFLAGS) -c $< -o $@
 
 $(RELEASE_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
-	$(CXX) $(CFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CFLAGS) $(RELEASE_CFLAGS) $(CXXFLAGS) -c $< -o $@
 
 %.hex: %.elf
 	$(OBJCOPY) -j .text -j .data -O $(HEXFORMAT) $< $@

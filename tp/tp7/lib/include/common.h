@@ -1,5 +1,5 @@
-#ifndef _ASSERT_H
-#define _ASSERT_H
+#ifndef _COMMON_H
+#define _COMMON_H
 
 #include <stdint.h>
 
@@ -12,8 +12,6 @@ template <uint8_t A, uint8_t B>
 struct areAllEqual<A, B> {
     static constexpr bool value = A == B;
 };
-
-bool foo = areAllEqual<1, 1>::value;
 
 #define ASSERT_REGISTER_FLAGS_MATCH(X, Y, ...)                                 \
     static_assert(areAllEqual<X, Y, ##__VA_ARGS__>::value,                     \
@@ -32,4 +30,4 @@ struct isType<T, T> {
     static constexpr bool value = true;
 };
 
-#endif /* _ASSERT_H */
+#endif /* _COMMON_H */
