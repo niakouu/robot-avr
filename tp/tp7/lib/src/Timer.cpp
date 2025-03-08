@@ -145,33 +145,8 @@ template <typename T, typename U>
 typename Timer<T, U>::ConfigCounter
 Timer<T, U>::ConfigCounter::fromMilliseconds(
     uint16_t milliseconds, TimerCompareOutputModeA compareOutputMode) {
-    typename U::Value prescalerValue;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_NONE>) {
-        prescalerValue = U::Value::CLK_NONE_DIV;
-    } else if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_8>) {
-        prescalerValue = U::Value::CLK_DIV_8;
-    } else if (milliseconds
-               <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_64>) {
-        prescalerValue = U::Value::CLK_DIV_64;
-    } else if (milliseconds
-               <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_256>) {
-        prescalerValue = U::Value::CLK_DIV_256;
-    } else if (milliseconds
-               <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_1024>) {
-        prescalerValue = U::Value::CLK_DIV_1024;
-    }
-
-    if (isType<U, TimerPrescalerAsynchronous>::value) {
-        if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_32>) {
-            prescalerValue = U::Value::CLK_DIV_32;
-        } else if (milliseconds
-                   <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_128>) {
-            prescalerValue = U::Value::CLK_DIV_128;
-        }
-    }
-
-    U prescaler = prescalerValue;
+    U prescaler = U::prescalerForDuration(milliseconds);
 
     uint32_t maxTicks = static_cast<uint32_t>(
         (F_CPU / prescaler.getDivisionFactor())
@@ -239,6 +214,23 @@ uint16_t TimerPrescalerSynchronous::getDivisionFactor() const {
     }
 }
 
+TimerPrescalerSynchronous
+TimerPrescalerSynchronous::prescalerForDuration(uint16_t milliseconds) {
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_NONE>)
+        return Value::CLK_NONE_DIV;
+
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_8>)
+        return Value::CLK_DIV_8;
+
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_64>)
+        return Value::CLK_DIV_64;
+
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_256>)
+        return Value::CLK_DIV_256;
+
+    return Value::CLK_DIV_1024;
+}
+
 TimerPrescalerAsynchronous::TimerPrescalerAsynchronous(Value value)
     : value_(value) {}
 
@@ -268,4 +260,27 @@ uint16_t TimerPrescalerAsynchronous::getDivisionFactor() const {
         case Value::CLK_DIV_1024:
             return PRESCALE_FACTOR_1024;
     }
+}
+
+TimerPrescalerAsynchronous
+TimerPrescalerAsynchronous::prescalerForDuration(uint16_t milliseconds) {
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_NONE>)
+        return Value::CLK_NONE_DIV;
+
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_8>)
+        return Value::CLK_DIV_8;
+
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_32>)
+        return Value::CLK_DIV_32;
+
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_64>)
+        return Value::CLK_DIV_64;
+
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_128>)
+        return Value::CLK_DIV_128;
+
+    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_256>)
+        return Value::CLK_DIV_256;
+
+    return Value::CLK_DIV_1024;
 }

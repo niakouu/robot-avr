@@ -91,6 +91,8 @@ public:
 
     uint8_t getFlags() const;
     uint16_t getDivisionFactor() const;
+    static TimerPrescalerSynchronous
+    prescalerForDuration(uint16_t milliseconds);
 
 private:
     Value value_;
@@ -113,6 +115,8 @@ public:
 
     uint8_t getFlags() const;
     uint16_t getDivisionFactor() const;
+    static TimerPrescalerAsynchronous
+    prescalerForDuration(uint16_t milliseconds);
 
 private:
     const Value value_;

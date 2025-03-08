@@ -29,7 +29,7 @@ static void initialization() {
     sei();
 
     Board& board = Board::get();
-    const Uart& uart0 = board.getUart0();
+    Uart& uart0 = board.getUart0();
     uart0.configure(BAUD_RATE, false, Uart::Parity::DISABLED,
                     Uart::StopBit::ONE_BIT);
 
@@ -50,8 +50,7 @@ int main() {
 
     Timer1::ConfigCounter configCounter =
         Timer1::ConfigCounter::fromMilliseconds(
-            2000, TimerPrescalerSynchronous::Value::CLK_DIV_256,
-            TimerCompareOutputModeA::TOGGLE);
+            2000, TimerCompareOutputModeA::TOGGLE);
 
     timer1.setAsCounter(configCounter);
     printf("DDRA: %u\n", DDRA);
