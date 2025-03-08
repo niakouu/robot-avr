@@ -15,22 +15,60 @@ public:
         volatile uint8_t *controlA, *controlB, *controlC, *interruptMask;
     };
 
+    enum class CompareOutputModeA {
+        NORMAL = 0,
+        TOGGLE = _BV(COM0A0),
+        CLEAR = _BV(COM0A1),
+        SET = _BV(COM0A1) | _BV(COM0A0)
+    };
+
+    enum class CompareOutputModeB {
+        NORMAL = 0,
+        TOGGLE = _BV(COM0B0),
+        CLEAR = _BV(COM0B1),
+        SET = _BV(COM0B1) | _BV(COM0B0)
+    };
+
+    struct ConfigCounter {
+        T maxTicks;
+        U prescaler;
+        CompareOutputModeA compareOutputMode;
+        static ConfigCounter
+        fromMilliseconds(uint16_t milliseconds, U&& prescaler,
+                         CompareOutputModeA compareOutputMode);
+    };
+
+    struct ConfigPwm {
+        U prescaler;
+        float ratioA, ratioB;
+        CompareOutputModeA compareOutputModeA; 
+        CompareOutputModeB compareOutputModeB;
+    };
+
+    static_assert(COM0A0 == COM1A0 && COM0A0 == COM2A0,
+                  "COM0A0 must match COM1A0 and COM2A0.");
+    static_assert(COM0A1 == COM1A1 && COM0A1 == COM2A1,
+                  "COM0A1 must match COM1A1 and COM2A1.");
+
     Timer(Timer&) = delete;
     void operator=(const Timer&) = delete;
 
-    void setAsCounter(T maxTicks, const U& prescaler);
-    void setAsCounterFromMilliseconds(uint16_t milliseconds,
-                                      const U& prescaler);
-    void setAsPwm(T max, float ratioA, float ratioB, const U& prescaler);
+    // CTC mode with output compare match
+    void setAsCounter(const ConfigCounter& configCounter);
 
-    void start();
-    void stop();
+    // PWM, Phase Correct 8-bit
+    void setAsPwm(const ConfigPwm& configPwm);
+
+    void start() const;
+    void stop() const;
 
 private:
     friend class Board;
+    static const uint16_t MILLIS_IN_SECONDS = 1000;
+    const Registers& registers_;
+    uint8_t prescalerFlags_;
     Timer(const Registers& registers);
     ~Timer();
-    const Registers& registers_;
 };
 
 class TimerPrescaler {
@@ -48,10 +86,6 @@ public:
         CLK_DIV_256 = _BV(CS02),
         CLK_DIV_1024 = _BV(CS02) | _BV(CS00)
     };
-
-    static_assert(CS00 == CS10, "CS00 must match CS10");
-    static_assert(CS01 == CS11, "CS01 must match CS11");
-    static_assert(CS02 == CS12, "CS02 must match CS12");
 
     constexpr TimerPrescalerSynchronous(Value value);
     constexpr operator Value() const;

@@ -23,12 +23,12 @@ bool foo = areAllEqual<1, 1>::value;
 // Fake is_same implementation, based on
 // https://github.com/modm-io/avr-libstdcpp/blob/master/include/type_traits
 template <typename T, typename U>
-struct is_type {
+struct isType {
     static constexpr bool value = false;
 };
 
 template <typename T>
-struct is_type<T, T> {
+struct isType<T, T> {
     static constexpr bool value = true;
 };
 
