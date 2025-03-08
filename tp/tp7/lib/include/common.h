@@ -3,14 +3,22 @@
 
 #include <stdint.h>
 
-template <uint8_t First, uint8_t... Rest>
-constexpr bool areAllEqual = ((First == Rest) && ...);
+template <uint8_t A, uint8_t B, uint8_t... C>
+struct areAllEqual {
+    static constexpr bool value = A == B && areAllEqual<A, C...>::value;
+};
+
+template <uint8_t A, uint8_t B>
+struct areAllEqual<A, B> {
+    static constexpr bool value = A == B;
+};
+
+bool foo = areAllEqual<1, 1>::value;
 
 #define ASSERT_REGISTER_FLAGS_MATCH(X, Y, ...)                                 \
-    static_assert(areAllEqual<X, Y, ##__VA_ARGS__>,                            \
+    static_assert(areAllEqual<X, Y, ##__VA_ARGS__>::value,                     \
                   "Registers " #X ", " #Y __VA_OPT__(", ") #__VA_ARGS__        \
                   " must match")
-
 
 // Fake is_same implementation, based on
 // https://github.com/modm-io/avr-libstdcpp/blob/master/include/type_traits
