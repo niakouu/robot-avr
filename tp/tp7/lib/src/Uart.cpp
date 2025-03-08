@@ -16,10 +16,10 @@ const Uart::Registers USART1_REGISTERS{.data = &UDR1,
                                        .baudRate = &UBRR1};
 
 Uart::Uart(const Registers& registers)
-    : emulatedFile_({.flags = __SWR | __SRD,
-                     .put = Uart::putChar,
-                     .get = Uart::getChar,
-                     .udata = this}),
+    : emulatedFile_{.flags = __SWR | __SRD,
+                    .put = Uart::putChar,
+                    .get = Uart::getChar,
+                    .udata = this},
       registers_(registers) {
     this->stop();
 }
@@ -58,15 +58,15 @@ Uart::~Uart() {
 }
 
 void Uart::transmit(uint8_t data) const {
-    while ((UCSR0A & _BV(UDRE0)) == 0)
+    while ((*this->registers_.controlStatusA & _BV(UDRE0)) == 0)
         ;
-    UDR0 = data;
+    *this->registers_.data = data;
 }
 
 uint8_t Uart::receive() const {
-    while ((UCSR0A & _BV(RXC0)) == 0)
+    while ((*this->registers_.controlStatusA & _BV(RXC0)) == 0)
         ;
-    return UDR0;
+    return *this->registers_.data;
 }
 
 int Uart::putChar(char data, FILE* stream) {
