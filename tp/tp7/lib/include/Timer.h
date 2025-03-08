@@ -34,7 +34,7 @@ public:
         U prescaler;
         TimerCompareOutputModeA compareOutputMode;
         static ConfigCounter
-        fromMilliseconds(uint16_t milliseconds, U prescaler,
+        fromMilliseconds(uint16_t milliseconds,
                          TimerCompareOutputModeA compareOutputMode);
     };
 

@@ -101,6 +101,6 @@ int Uart::getChar(FILE* stream) {
     return uart->receive();
 }
 
-FILE* Uart::getEmulatedFile() const {
+FILE* Uart::getEmulatedFile() {
     return &this->emulatedFile_;
 }

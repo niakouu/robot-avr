@@ -13,46 +13,34 @@ WatchdogTimer::~WatchdogTimer() {
 
 void WatchdogTimer::sleep(const uint16_t milliseconds,
                           const SleepMode sleepMode) {
+    constexpr static struct {
+        uint8_t wdtoFlag;
+        uint16_t timeMs;
+    } TIME_BOUNDARIES[]{{WDTO_15MS, 15},   {WDTO_30MS, 30},   {WDTO_60MS, 60},
+                        {WDTO_120MS, 120}, {WDTO_250MS, 250}, {WDTO_500MS, 500},
+                        {WDTO_1S, 1000},   {WDTO_2S, 2000},   {WDTO_4S, 4000},
+                        {WDTO_8S, 8000}};
 
-    uint16_t timeSlept = 0;
-    while (timeSlept < milliseconds) {
-        const uint16_t diff = milliseconds - timeSlept;
-        if (diff < 15) {
-            for (uint8_t i = 0; i < diff; ++i) {
+    uint16_t timeLeft = milliseconds;
+    while (timeLeft != 0) {
+        if (timeLeft < TIME_BOUNDARIES[0].timeMs) {
+            static_assert(TIME_BOUNDARIES[0].timeMs <= UINT8_MAX, "First TIME_BOUNDARIES element should fit in a byte");
+            for (uint8_t i = 0; i < static_cast<uint8_t>(timeLeft); ++i) {
                 _delay_ms(1);
             }
 
-            timeSlept += milliseconds;
-        } else if (diff < 30) {
-            rawSleep(WDTO_15MS, sleepMode);
-            timeSlept += 15;
-        } else if (diff < 60) {
-            rawSleep(WDTO_30MS, sleepMode);
-            timeSlept += 30;
-        } else if (diff < 120) {
-            rawSleep(WDTO_60MS, sleepMode);
-            timeSlept += 60;
-        } else if (diff < 250) {
-            rawSleep(WDTO_120MS, sleepMode);
-            timeSlept += 120;
-        } else if (diff < 500) {
-            rawSleep(WDTO_250MS, sleepMode);
-            timeSlept += 250;
-        } else if (diff < 1000) {
-            rawSleep(WDTO_500MS, sleepMode);
-            timeSlept += 500;
-        } else if (diff < 2000) {
-            rawSleep(WDTO_1S, sleepMode);
-            timeSlept += 1000;
-        } else if (diff < 4000) {
-            rawSleep(WDTO_2S, sleepMode);
-            timeSlept += 2000;
-        } else if (diff < 8000) {
-            rawSleep(WDTO_4S, sleepMode);
-            timeSlept += 4000;
+            timeLeft = 0;
         } else {
-            rawSleep(WDTO_8S, sleepMode);
-            timeSlept += 8000;
+            static_assert(sizeof(TIME_BOUNDARIES) / sizeof(*TIME_BOUNDARIES) <= INT8_MAX, "Length of TIME_BOUNDARIES should fit in int8_t");
+            constexpr int8_t TIME_BOUNDARIES_LEN = static_cast<int8_t>(sizeof(TIME_BOUNDARIES) / sizeof(*TIME_BOUNDARIES));
+            for (int8_t i = TIME_BOUNDARIES_LEN - 1; i >= 0; --i) {
+                const uint16_t timeBoundaryMs = TIME_BOUNDARIES[i].timeMs;
+                if (timeLeft >= timeBoundaryMs) {
+                    timeLeft -= timeBoundaryMs;
+                    rawSleep(TIME_BOUNDARIES[i].wdtoFlag, sleepMode);
+                    break;
+                }
+            }
         }
     }
 }

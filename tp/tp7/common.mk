@@ -22,8 +22,8 @@ CFLAGS = -MMD -g -mmcu=$(MCU) \
 	-funsigned-bitfields -funsigned-char \
 	-Wall -DF_CPU=$(F_CPU)
 CXXFLAGS = -fno-exceptions -std=c++14
-RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU) -s
-RELEASE_CFLAGS = -Os -s
+RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU)
+RELEASE_CFLAGS = -Os
 SIMULATION_LDFLAGS = -Wl,-Map,$(SIMULATION_DIR)/$(TRG).map -mmcu=$(MCU)
 SIMULATION_CFLAGS = -Os -DSIMULATION=1
 

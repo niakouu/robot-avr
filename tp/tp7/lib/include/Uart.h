@@ -40,7 +40,7 @@ public:
 
     void transmit(uint8_t data) const;
     uint8_t receive() const;
-    FILE* getEmulatedFile() const;
+    FILE* getEmulatedFile();
 
     void configure(uint16_t baudRate, bool synchronous, Parity parity,
                    StopBit stopBit) const;
@@ -54,7 +54,7 @@ private:
     Uart(const Registers& registers);
     ~Uart();
 
-    mutable FILE emulatedFile_;
+    FILE emulatedFile_;
 
     const Registers& registers_;
 

@@ -6,8 +6,12 @@
         "google-readability-braces-around-statements",
         "readability-braces-around-statements",
         "modernize-use-auto",
-        "readability-identifier-length"
+        "readability-identifier-length",
+        "cppcoreguidelines-avoid-c-arrays",
+        "modernize-avoid-c-arrays",
+        "cppcoreguidelines-pro-bounds-array-to-pointer-decay",
+        "cppcoreguidelines-pro-bounds-constant-array-index"
     ],
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
-    "C_Cpp.codeAnalysis.clangTidy.headerFilter": "${workspaceFolder}/**",
+    "C_Cpp.codeAnalysis.clangTidy.headerFilter": "${workspaceFolder}/**"
 }
