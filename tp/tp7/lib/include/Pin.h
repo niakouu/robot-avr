@@ -25,7 +25,7 @@ public:
 
     Pin(Region region, Id id) noexcept;
     Pin(Region region, Id id, Direction direction);
-    ~Pin();
+    ~Pin() = default;
 
     void updateDirection(Direction direction) const;
 

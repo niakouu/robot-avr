@@ -9,8 +9,6 @@ Pin::Pin(Region region, Id id, Direction direction) : Pin(region, id) {
     this->updateDirection(direction);
 }
 
-Pin::~Pin() = default;
-
 bool Pin::read() const {
     return (*this->registers_.pin & this->mappings_.pinBit) != 0;
 }
@@ -56,8 +54,8 @@ static constexpr Pin::Mappings mappings[][Pin::NUMBER_OF_PINS] = {
     _REGION_DEF(A), _REGION_DEF(B), _REGION_DEF(C), _REGION_DEF(D)};
 
 const constexpr Pin::Mappings& Pin::getMappings(Region region, Id id) {
-    uint8_t regionIndex = static_cast<uint8_t>(region);
-    uint8_t idIndex = static_cast<uint8_t>(id);
+    const uint8_t regionIndex = static_cast<uint8_t>(region);
+    const uint8_t idIndex = static_cast<uint8_t>(id);
 
     return mappings[regionIndex][idIndex];
 }

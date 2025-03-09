@@ -27,6 +27,8 @@
 
 class Memory24CXXX {
 public:
+    enum class Bank : uint8_t { ZERO = 0, ONE = 1, TWO = 2, THREE = 3 };
+
     Memory24CXXX(Memory24CXXX&) = delete;
     void operator=(const Memory24CXXX&) = delete;
 
@@ -37,31 +39,36 @@ public:
 
     // la procedure init() initialize a zero le "memory bank".
     // appeler cette methode uniquement si l'adresse doit changer
-    static uint8_t choose_memory_bank(const uint8_t bank);
+    uint8_t choose_memory_bank(const Bank bank);
 
     // deux variantes pour la lecture, celle-ci et la suivante
     // une donnee a la fois
-    uint8_t read(const uint16_t address, uint8_t* data);
+    void read(const uint16_t address, uint8_t* data) const;
     // bloc de donnees : longueur doit etre de 127 et moins
-    uint8_t read(const uint16_t address, uint8_t* data, const uint8_t length);
+    void read(const uint16_t address, uint8_t* data,
+              const uint8_t length) const;
 
     // deux variantes pour la l'ecriture egalement:
     // une donnee a la fois
-    uint8_t write(const uint16_t address, const uint8_t data);
+    void write(const uint16_t address, const uint8_t data) const;
     // bloc de donnees : longueur doit etre de 127 et moins
-    uint8_t write(const uint16_t address, const uint8_t* data,
-                  const uint8_t length);
+    void write(const uint16_t address, const uint8_t* data,
+               const uint8_t length) const;
+
+protected:
+    friend class Board;
+    Memory24CXXX();
+    ~Memory24CXXX() = default;
 
 private:
-    friend class Board;
-    static uint8_t PERIPHERAL_ADDRESS;
-    const uint8_t page_size_;
-
-    Memory24CXXX();
-    ~Memory24CXXX();
+    static constexpr uint8_t PAGE_SIZE = 128;
+    static constexpr uint8_t PERIPHERAL_ADDRESS = 0xA0;
+    static constexpr uint32_t SCL_FREQUENCY = 100000UL;
+    static constexpr uint8_t SCL_OFFSET = 16;
+    uint8_t peripheral_address_;
 
     uint8_t write_page(const uint16_t address, const uint8_t* data,
-                       const uint8_t length);
+                       const uint8_t length) const;
 };
 
 #endif /* MEMOIRE_24_H */

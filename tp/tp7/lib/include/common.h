@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+static constexpr uint8_t UINT8_WITDH = 8;
+
 template <uint8_t A, uint8_t B, uint8_t... C>
 struct areAllEqual {
     static constexpr bool value = A == B && areAllEqual<A, C...>::value;

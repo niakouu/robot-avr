@@ -11,6 +11,7 @@
  */
 
 #include "Adc.h"
+#include "common.h"
 
 // constructeur: initialisation du convertisseur
 Adc::Adc() {
@@ -37,22 +38,20 @@ Adc::~Adc() {
 
 // Faire une conversion et aller retourner le resultat sur 16 bits
 // dont seulement les 10 de poids faibles sont significatifs.
-uint16_t Adc::read(uint8_t pos) const {
-    uint16_t adcVal;
-
+uint16_t Adc::read(const uint8_t pos) {
     // Garder les bits de ADMUX intacts, sauf les bit permettant
     // la selection de l'entree
     ADMUX &=
         ~((1 << MUX4) | (1 << MUX3) | (1 << MUX2) | (1 << MUX1) | (1 << MUX0));
 
     // selectionner l'entree voulue
-    ADMUX |= ((pos & 0x07) << MUX0);
+    ADMUX |= ((pos & MASK_SEVEN) << MUX0);
 
     // demarrer la conversion
     ADCSRA |= (1 << ADSC);
 
     // Attendre la fin de la conversion soit 13 cycles du convertisseur.
-    while (!(ADCSRA & (1 << ADIF)))
+    while ((ADCSRA & (1 << ADIF)) == 0)
         ;
 
     // important: remettre le bit d'indication de fin de cycle a zero
@@ -60,8 +59,8 @@ uint16_t Adc::read(uint8_t pos) const {
     ADCSRA |= (1 << ADIF);
 
     // Aller chercher le resultat sur 16 bits.
-    adcVal = ADCL;
-    adcVal += ADCH << 8;
+    uint16_t adcVal = ADCL;
+    adcVal += ADCH << UINT8_WITDH;
 
     // resultat sur 16 bits
     return adcVal;

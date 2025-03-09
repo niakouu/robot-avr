@@ -60,14 +60,16 @@ public:
     bool isCounterExpired() const;
     void setCounterExpired();
 
-private:
+protected:
     friend class Board;
+    Timer(const Registers& registers);
+    ~Timer();
+
+private:
     static const uint16_t MILLIS_IN_SECONDS = 1000;
     const Registers& registers_;
     uint8_t prescalerFlags_;
     volatile bool counterExpired_;
-    Timer(const Registers& registers);
-    ~Timer();
 };
 
 class TimerPrescaler {

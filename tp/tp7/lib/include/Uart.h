@@ -48,18 +48,16 @@ public:
     void start(bool interruptsEnabled = false) const;
     void stop() const;
 
-private:
+protected:
     friend class Board;
-
     Uart(const Registers& registers);
     ~Uart();
 
+private:
     FILE emulatedFile_;
-
     const Registers& registers_;
 
     void setBaudRate(uint16_t baudRate, bool synchronous) const;
-
     static int putChar(char data, FILE* stream);
     static int getChar(FILE* stream);
 };

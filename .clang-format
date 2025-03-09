@@ -19,6 +19,7 @@ AllowShortFunctionsOnASingleLine: Empty
 AccessModifierOffset: -4
 AlwaysBreakTemplateDeclarations: true
 SeparateDefinitionBlocks: Always
+NamespaceIndentation: All
 
 PointerAlignment: Left
 FloatConstantStyle: LeadingZero

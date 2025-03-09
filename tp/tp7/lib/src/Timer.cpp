@@ -152,10 +152,10 @@ Timer<T, U>::ConfigCounter::fromMilliseconds(
         (F_CPU / prescaler.getDivisionFactor())
         * static_cast<float>(milliseconds) / MILLIS_IN_SECONDS);
 
-    if (isType<T, uint8_t>::value && maxTicks >= UINT8_MAX)
-        maxTicks = UINT8_MAX - 1;
-    else if (isType<T, uint16_t>::value && maxTicks >= UINT16_MAX)
-        maxTicks = UINT16_MAX - 1;
+    if (isType<T, uint8_t>::value && maxTicks > UINT8_MAX)
+        maxTicks = UINT8_MAX;
+    else if (isType<T, uint16_t>::value && maxTicks > UINT16_MAX)
+        maxTicks = UINT16_MAX;
 
     return ConfigCounter{.maxTicks = static_cast<T>(maxTicks),
                          .prescaler = prescaler,

@@ -35,12 +35,15 @@ public:
     // analogique sur le port A.  pos doit etre entre 0 et 7
     // inclusivement.  Seulement les 10 bits de poids faible
     // sont significatifs.
-    uint16_t read(uint8_t pos) const;
+    static uint16_t read(const uint8_t pos);
 
-private:
+protected:
     friend class Board;
     Adc();
     ~Adc();
+
+private:
+    static constexpr uint8_t MASK_SEVEN = 0x07;
 };
 
 #endif /* ADC_H */
