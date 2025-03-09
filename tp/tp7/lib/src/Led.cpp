@@ -1,8 +1,6 @@
 #include <util/delay.h>
 #include "Led.h"
 
-constexpr uint8_t DELAY_AMBER_CYCLE_MS = 5;
-
 BidirectionalLed::BidirectionalLed(Pin::Region positiveRegion,
                                    Pin::Id positiveId,
                                    Pin::Region negativeRegion,
@@ -39,7 +37,7 @@ void BidirectionalLed::setColor(Color color) const {
 
 void BidirectionalLed::executeAmberCycle() const {
     this->setColor(BidirectionalLed::Color::RED);
-    _delay_ms(DELAY_AMBER_CYCLE_MS);
+    _delay_ms(static_cast<uint8_t>(BidirectionalLed::AMBER_CYCLE_TIME_MS / 2));
     this->setColor(BidirectionalLed::Color::GREEN);
-    _delay_ms(DELAY_AMBER_CYCLE_MS);
+    _delay_ms(static_cast<uint8_t>(BidirectionalLed::AMBER_CYCLE_TIME_MS / 2));
 }

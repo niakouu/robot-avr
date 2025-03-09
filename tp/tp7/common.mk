@@ -29,20 +29,24 @@ SIMULATION_CFLAGS = -Os -DSIMULATION=1
 
 # Common target definitions
 $(SIMULATION_DIR)/%.c.o: %.c
-	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(SIMULATION_CFLAGS) -c $< -o $@
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) $(SIMULATION_CFLAGS) -c $< -o $@
+	@echo "CC(simulation): $<"
 
 $(SIMULATION_DIR)/%.cpp.o: %.cpp
-	mkdir -p $(dir $@)
-	$(CXX) $(CFLAGS) $(SIMULATION_CFLAGS) $(CXXFLAGS) -c $< -o $@
+	@mkdir -p $(dir $@)
+	@$(CXX) $(CFLAGS) $(SIMULATION_CFLAGS) $(CXXFLAGS) -c $< -o $@
+	@echo "CXX(simulation): $<"
 
 $(RELEASE_DIR)/%.c.o: %.c
-	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(RELEASE_CFLAGS) -c $< -o $@
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) $(RELEASE_CFLAGS) -c $< -o $@
+	@echo "CC(release): $<"
 
 $(RELEASE_DIR)/%.cpp.o: %.cpp
-	mkdir -p $(dir $@)
-	$(CXX) $(CFLAGS) $(RELEASE_CFLAGS) $(CXXFLAGS) -c $< -o $@
+	@mkdir -p $(dir $@)
+	@$(CXX) $(CFLAGS) $(RELEASE_CFLAGS) $(CXXFLAGS) -c $< -o $@
+	@echo "CXX(release): $<"
 
 %.hex: %.elf
 	$(OBJCOPY) -j .text -j .data -O $(HEXFORMAT) $< $@

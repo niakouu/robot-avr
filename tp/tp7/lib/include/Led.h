@@ -5,15 +5,33 @@
 
 class BidirectionalLed {
 public:
-    enum class Color { RED, GREEN, OFF };
+    enum class Color : uint8_t { RED, GREEN, OFF };
+    static constexpr uint8_t AMBER_CYCLE_TIME_MS = 10;
 
+    /// @brief Creates a bidirectional LED with pin region settings.
+    /// @param positiveRegion Positive pin's region.
+    /// @param positiveId Positive pin's id.
+    /// @param negativeRegion Negative pin's region.
+    /// @param negativeId Negative pin's id.
     BidirectionalLed(Pin::Region positiveRegion, Pin::Id positiveId,
                      Pin::Region negativeRegion, Pin::Id negativeId);
+
+    /// @brief Creates a bidirectional LED housed in the same pin region.
+    /// @param region Region of positive and negative LED pins.
+    /// @param positiveId Positive pin's id.
+    /// @param negativeId Negative pin's id.
     BidirectionalLed(Pin::Region region, Pin::Id positiveId,
                      Pin::Id negativeId);
+    
+    /// @brief Destroys the LED object, turning it off to save energy.
     ~BidirectionalLed();
 
+    /// @brief Sets the LED's color. See executeAmberCycle() for the amber color.
+    /// @param color Color to set the bidirectional led to.
     void setColor(Color color) const;
+
+    /// @brief Toggles the bidirectional LED to create an amber color. The
+    /// duration of this function is AMBER_CYCLE_TIME_MS
     void executeAmberCycle() const;
 
 private:

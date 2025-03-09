@@ -32,7 +32,7 @@ libutil:
 	$(MAKELIB) $(LIBUTIL_TRG)
 
 install: release
-	echo 'Make sure PB3 and PB4 are unplugged during installation'
+	@echo 'Make sure PB3 and PB4 are unplugged during installation'
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMER_ID) \
 		-p $(MCU) -P usb -e -U flash:w:$(RELEASE_DIR)/$(HEXROMTRG)
 

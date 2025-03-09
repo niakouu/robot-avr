@@ -6,14 +6,14 @@
 
 #include "Pin.h"
 
-enum class TimerCompareOutputModeA {
+enum class TimerCompareOutputModeA : uint8_t {
     NORMAL = 0,
     TOGGLE = _BV(COM0A0),
     CLEAR = _BV(COM0A1),
     SET = _BV(COM0A1) | _BV(COM0A0)
 };
 
-enum class TimerCompareOutputModeB {
+enum class TimerCompareOutputModeB : uint8_t {
     NORMAL = 0,
     TOGGLE = _BV(COM0B0),
     CLEAR = _BV(COM0B1),

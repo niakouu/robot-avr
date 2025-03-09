@@ -9,7 +9,7 @@ public:
     Photoresistance(const Adc* adc, Pin::Id pinId);
     ~Photoresistance();
 
-    enum class Intensity { LOW, MEDIUM, HIGH };
+    enum class Intensity : uint8_t { LOW, MEDIUM, HIGH };
 
     Intensity readIntensity() const;
 
