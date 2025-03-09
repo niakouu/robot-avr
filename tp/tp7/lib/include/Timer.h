@@ -59,6 +59,7 @@ public:
 
     bool isCounterExpired() const;
     void setCounterExpired();
+    
 
 protected:
     friend class Board;

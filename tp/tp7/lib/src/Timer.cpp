@@ -66,7 +66,10 @@ const Timer2::Registers TIMER2_REGISTERS{.waveformA{Pin::Region::D,
 
 template <typename T, typename U>
 Timer<T, U>::Timer(const Timer<T, U>::Registers& registers)
-    : registers_(registers), prescalerFlags_(0), counterExpired_(false) {}
+    : registers_(registers), prescalerFlags_(0), counterExpired_(false) {
+    this->registers_.waveformA.updateDirection(Pin::Direction::OUT);
+    this->registers_.waveformB.updateDirection(Pin::Direction::OUT);
+}
 
 template <typename T, typename U>
 Timer<T, U>::~Timer() {
@@ -75,7 +78,8 @@ Timer<T, U>::~Timer() {
     *this->registers_.compareB = 0;
     *this->registers_.controlA = 0;
     *this->registers_.controlB = 0;
-    *this->registers_.controlC = 0;
+    if (this->registers_.controlC != nullptr)
+        *this->registers_.controlC = 0;
     *this->registers_.interruptMask = 0;
 }
 
@@ -85,6 +89,8 @@ void Timer<T, U>::setAsCounter(const ConfigCounter& configCounter) {
         static_cast<const TimerPrescaler&>(configCounter.prescaler);
     this->prescalerFlags_ = prescaler.getFlags();
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        this->stop();
+        
         *this->registers_.counter = 0;
         *this->registers_.compareA = configCounter.maxTicks;
         *this->registers_.compareB = 0;
@@ -92,7 +98,8 @@ void Timer<T, U>::setAsCounter(const ConfigCounter& configCounter) {
             static_cast<uint8_t>(configCounter.compareOutputMode)
             | (*this->registers_.controlA & ~(_BV(COM0B1) | _BV(COM0B0)));
         *this->registers_.controlB = 0;
-        *this->registers_.controlC = 0;
+        if (this->registers_.controlC != nullptr)
+            *this->registers_.controlC = 0;
         *this->registers_.interruptMask = _BV(OCIE0A);
 
         if (isType<T, uint16_t>::value) {
@@ -111,7 +118,10 @@ void Timer<T, U>::setAsPwm(const ConfigPwm& configPwm) {
     const TimerPrescaler& prescaler =
         static_cast<const TimerPrescaler&>(configPwm.prescaler);
     this->prescalerFlags_ = prescaler.getFlags();
+
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        this->stop();
+        
         *this->registers_.counter = 0;
         *this->registers_.compareA =
             static_cast<T>(configPwm.ratioA * static_cast<float>(UINT8_MAX));
@@ -125,15 +135,17 @@ void Timer<T, U>::setAsPwm(const ConfigPwm& configPwm) {
 
         *this->registers_.controlA =
             static_cast<uint8_t>(configPwm.compareOutputModeA)
-            | static_cast<uint8_t>(configPwm.compareOutputModeB) | _BV(WGM00)
-            | (*this->registers_.controlA & ~(_BV(WGM01) | _BV(WGM00)));
+            | static_cast<uint8_t>(configPwm.compareOutputModeB) | _BV(WGM00);
 
-        *this->registers_.controlB =
-            prescaler.getFlags() | (*this->registers_.controlB & ~(_BV(WGM02)));
+        *this->registers_.controlB = *this->registers_.controlB & ~(_BV(WGM02));
 
         if (isType<T, uint16_t>::value)
             *this->registers_.controlB &= ~(_BV(WGM13));
-        *this->registers_.controlC = 0;
+
+        if (this->registers_.controlC != nullptr)
+            *this->registers_.controlC = 0;
+
+        *this->registers_.interruptMask = 0;
     }
 }
 

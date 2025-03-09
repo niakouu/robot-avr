@@ -1,7 +1,7 @@
 include ../common.mk
 PROJECTNAME = exec
 
-SRCS = main.cpp
+SRCS = timerPwm.cpp
 RELEASE_LIBS = -L../lib/$(RELEASE_DIR) -lutil
 SIMULATION_LIBS = -L../lib/$(SIMULATION_DIR) -lutil
 INCLUDE = -I../lib/include/
