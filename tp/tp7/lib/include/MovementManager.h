@@ -7,7 +7,8 @@
 template <typename T, typename U>
 class MovementManager {
 public:
-    MovementManager(const Timer<T, U>& timer, Motor&& motorLeft, Motor&& motorRight);
+    MovementManager(const Timer<T, U>& timer, const Motor&& motorLeft,
+                    const Motor&& motorRight);
     ~MovementManager();
 
     void moveForward(float speed) const;

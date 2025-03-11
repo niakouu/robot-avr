@@ -125,15 +125,19 @@ private:
     const Value value_;
 };
 
+namespace TimerConstants {
+    const uint8_t TOP_PWM = 0xFF;
+
+    extern const Timer<uint8_t, TimerPrescalerSynchronous>::Registers
+        TIMER0_REGISTERS;
+    extern const Timer<uint16_t, TimerPrescalerSynchronous>::Registers
+        TIMER1_REGISTERS;
+    extern const Timer<uint8_t, TimerPrescalerAsynchronous>::Registers
+        TIMER2_REGISTERS;
+};
+
 typedef Timer<uint8_t, TimerPrescalerSynchronous> Timer0;
 typedef Timer<uint16_t, TimerPrescalerSynchronous> Timer1;
 typedef Timer<uint8_t, TimerPrescalerAsynchronous> Timer2;
-
-extern const Timer<uint8_t, TimerPrescalerSynchronous>::Registers
-    TIMER0_REGISTERS;
-extern const Timer<uint16_t, TimerPrescalerSynchronous>::Registers
-    TIMER1_REGISTERS;
-extern const Timer<uint8_t, TimerPrescalerAsynchronous>::Registers
-    TIMER2_REGISTERS;
 
 #endif /* _TIMER_H */

@@ -1,4 +1,5 @@
 #include "Motor.h"
+#include "Timer.h"
 
 Motor::Motor(const Pin&& directionPin, float offset)
     : directionPin_(directionPin), offset_(offset) {}
@@ -13,7 +14,7 @@ float Motor::move(float speedRatio, bool forward) const {
     else
         this->directionPin_.set();
 
-    return speedRatio + this->offset_;
+    return (TimerConstants::TOP_PWM * speedRatio) + this->offset_;
 }
 
 void Motor::setOffset(float offset) {
