@@ -38,3 +38,10 @@ template <typename T, typename U>
 void MovementManager<T, U>::stop() const {
     // TODO
 }
+
+template <typename T, typename U>
+void MovementManager<T, U>::setMotorOffsets(float offsetLeft,
+                                            float offsetRight) {
+    this->motorLeft_.setOffset(offsetLeft);
+    this->motorRight_.setOffset(offsetRight);
+}

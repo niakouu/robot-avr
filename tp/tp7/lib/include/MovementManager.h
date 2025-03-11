@@ -16,6 +16,8 @@ public:
     void moveRight(float speed, float curveRatio) const;
     void stop() const;
 
+    void setMotorOffsets(float offsetLeft, float offsetRight);
+
 private:
     const Timer<T, U>& timer_;
     Motor motorLeft_, motorRight_;

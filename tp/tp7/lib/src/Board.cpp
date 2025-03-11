@@ -14,35 +14,35 @@ Board& Board::get() {
 }
 
 const Timer0& Board::getTimer0() const {
-    return timer0_;
+    return this->timer0_;
 }
 
 const Timer1& Board::getTimer1() const {
-    return timer1_;
+    return this->timer1_;
 }
 
 const Timer2& Board::getTimer2() const {
-    return timer2_;
+    return this->timer2_;
 }
 
 const Adc& Board::getAdc() const {
-    return adc_;
+    return this->adc_;
 }
 
 const Memory24CXXX& Board::getMemory() const {
-    return memory_;
+    return this->memory_;
 }
 
 const Uart& Board::getUart0() const {
-    return uart0_;
+    return this->uart0_;
 }
 
 const Button& Board::getButton() const {
-    return button_;
+    return this->button_;
 }
 
 const WatchdogTimer& Board::getWatchdogTimer() const {
-    return watchdogTimer_;
+    return this->watchdogTimer_;
 }
 
 Timer0& Board::getTimer0() {

@@ -5,7 +5,7 @@
 
 class Motor {
 public:
-    Motor(Pin&& directionPin, float offset);
+    Motor(const Pin&& directionPin, float offset);
     ~Motor();
 
     /// @brief Spin motor in a direction at a specific speed.
@@ -13,6 +13,8 @@ public:
     /// @param forward Whether the motor should spin forwards or backwards.
     /// @return PWM ratio to set for the target speed.
     float move(float speedRatio, bool forward) const;
+
+    void setOffset(float offset);
 
 private:
     Pin directionPin_;

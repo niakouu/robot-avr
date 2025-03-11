@@ -5,7 +5,7 @@
 #include "Board.h"
 #include "Uart.h"
 
-constexpr float SWITCH_DELAY_MS = 2000;
+constexpr uint16_t SWITCH_DELAY_MS = 2000;
 constexpr uint8_t AMBER_LOOP_TIME = SWITCH_DELAY_MS / 10;
 constexpr uint16_t BAUD_RATE = 2400;
 
@@ -30,10 +30,7 @@ int main() {
     printf("\tGreen:\n\t\tAP1: %d\n\t\tAP0: %d\n", bit_is_set(PORTA, PORTA1) >> PORTA1, bit_is_set(PORTA, PORTA0) >> PORTA0);
     _delay_ms(SWITCH_DELAY_MS);
     printf("\tCheck bidirectional led for amber.\n");
-    for (uint8_t i = 0; i < SWITCH_DELAY_MS/BidirectionalLed::AMBER_CYCLE_TIME_MS; i++)
-    {
-        bidirectionalLed.executeAmberCycle();
-    }
+    bidirectionalLed.executeAmber(SWITCH_DELAY_MS);
     printf("Led Test Stop.\n");
     return 0;
 }

@@ -1,14 +1,21 @@
 #include "Motor.h"
 
-Motor::Motor(Pin&& directionPin, float offset) : directionPin_(directionPin) {
-    // TODO
-}
+Motor::Motor(const Pin&& directionPin, float offset)
+    : directionPin_(directionPin), offset_(offset) {}
 
 Motor::~Motor() {
-    // TODO : turn off
+    this->directionPin_.unset();
 }
 
 float Motor::move(float speedRatio, bool forward) const {
-    // TODO
-    return 0.0f;
+    if (forward)
+        this->directionPin_.unset();
+    else
+        this->directionPin_.set();
+
+    return speedRatio + this->offset_;
+}
+
+void Motor::setOffset(float offset) {
+    this->offset_ = offset;
 }
