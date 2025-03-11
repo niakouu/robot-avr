@@ -1,11 +1,12 @@
 include ../common.mk
 PROJECTNAME = exec
 
-SRCS = led.cpp
+SRCS = main.cpp LedTest.cpp UartTest.cpp
 RELEASE_LIBS = -L../lib/$(RELEASE_DIR) -lutil
 SIMULATION_LIBS = -L../lib/$(SIMULATION_DIR) -lutil
 INCLUDE = -I../lib/include/
 MAKELIB = make -C ../lib/
+SERIEVIAUSB_DIR = ../../../serieViaUSB
 
 TRG = $(PROJECTNAME).elf
 HEXROMTRG = $(PROJECTNAME).hex
@@ -35,6 +36,10 @@ install: release
 	@echo 'Make sure PB3 and PB4 are unplugged during installation'
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMER_ID) \
 		-p $(MCU) -P usb -e -U flash:w:$(RELEASE_DIR)/$(HEXROMTRG)
+
+test: install
+	make -C $(SERIEVIAUSB_DIR)
+	bash ./tests.sh
 
 clean:
 	$(REMOVE) -r $(OUT_DIR)

@@ -48,7 +48,6 @@ void Pin::updateDirection(Direction direction) const {
         _MAPPING_DEF(region, 4), _MAPPING_DEF(region, 5),                      \
         _MAPPING_DEF(region, 6), _MAPPING_DEF(region, 7),                      \
     }
-    
 
 static constexpr Pin::Mappings mappings[][Pin::NUMBER_OF_PINS] = {
     _REGION_DEF(A), _REGION_DEF(B), _REGION_DEF(C), _REGION_DEF(D)};
