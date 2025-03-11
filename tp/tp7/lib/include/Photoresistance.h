@@ -7,7 +7,7 @@
 class Photoresistance {
 public:
     Photoresistance(const Adc& adc, Pin::Id pinId);
-    ~Photoresistance();
+    ~Photoresistance() = default;
 
     enum class Intensity : uint8_t { LOW, MEDIUM, HIGH };
 

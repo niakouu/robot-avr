@@ -1,10 +1,13 @@
 include ../common.mk
 PROJECTNAME = exec
 
-SRCS = main.cpp LedTest.cpp UartTest.cpp
+SRCSDIR = src
+SRCSCLASS = main.cpp LedTest.cpp UartTest.cpp
+SRCS = $(SRCSCLASS:%=$(SRCSDIR)/%)
+
 RELEASE_LIBS = -L../lib/$(RELEASE_DIR) -lutil
 SIMULATION_LIBS = -L../lib/$(SIMULATION_DIR) -lutil
-INCLUDE = -I../lib/include/
+INCLUDE = -I../lib/include/ -Iinclude
 MAKELIB = make -C ../lib/
 SERIEVIAUSB_DIR = ../../../serieViaUSB
 

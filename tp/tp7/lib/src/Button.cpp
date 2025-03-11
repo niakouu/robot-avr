@@ -1,36 +1,32 @@
 #include "Button.h"
 
 Button::Button(Pin::Region region, Pin::Id id, bool pressedIsHigh)
-    : pressedIsHigh_(pressedIsHigh), isPressed_(false), eventConsumed_(false),
+    : isPressed_(false), eventConsumed_(false), pressedIsHigh_(pressedIsHigh),
       buttonPin_(region, id, Pin::Direction::IN) {}
 
-// TODO(user):
-
-Button::~Button() {}
-
 bool Button::isPressed() {
-
-    if (!isEvent()) {
-        consumeEvent();
+    if (!this->eventConsumed_) {
+        this->consumeEvent();
         return false;
     }
-    restoreEvent();
+
+    this->restoreEvent();
     return true;
 }
 
 bool Button::isEvent() const {
-    return eventConsumed_;
+    return this->eventConsumed_;
 }
 
 void Button::consumeEvent() {
-    eventConsumed_ = true;
+    this->eventConsumed_ = true;
 }
 
 void Button::restoreEvent() {
-    eventConsumed_ = false;
+    this->eventConsumed_ = false;
 }
 
 void Button::setPressed() {
-    if (buttonPin_.read())
-        isPressed_ = isPressed();
+    if (this->buttonPin_.read())
+        this->isPressed_ = isPressed();
 }

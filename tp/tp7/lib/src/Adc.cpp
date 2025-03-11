@@ -38,7 +38,7 @@ Adc::~Adc() {
 
 // Faire une conversion et aller retourner le resultat sur 16 bits
 // dont seulement les 10 de poids faibles sont significatifs.
-uint16_t Adc::read(const uint8_t pos) {
+uint16_t Adc::read(const uint8_t pos) const {
     // Garder les bits de ADMUX intacts, sauf les bit permettant
     // la selection de l'entree
     ADMUX &=

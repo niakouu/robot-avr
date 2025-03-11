@@ -6,7 +6,7 @@
 class Button {
 public:
     Button(Pin::Region region, Pin::Id id, bool pressedIsHigh);
-    ~Button();
+    ~Button() = default;
 
     bool isPressed();
     bool isEvent() const;
