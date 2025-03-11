@@ -48,8 +48,8 @@ int main() {
             timer2.stop();
             timer2.setAsPwm(
                 {.prescaler = TimerPrescalerAsynchronous::Value::CLK_DIV_8,
-                 .ratioA = ratio,
-                 .ratioB = ratio,
+                 .speedA = ratio,
+                 .speedB = ratio,
                  .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
                  .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
             timer2.start();

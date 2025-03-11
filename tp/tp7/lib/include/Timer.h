@@ -40,7 +40,7 @@ public:
 
     struct ConfigPwm {
         U prescaler;
-        float ratioA, ratioB;
+        T speedA, speedB;
         TimerCompareOutputModeA compareOutputModeA;
         TimerCompareOutputModeB compareOutputModeB;
     };
@@ -59,7 +59,6 @@ public:
 
     bool isCounterExpired() const;
     void setCounterExpired();
-    
 
 protected:
     friend class Board;
@@ -134,7 +133,7 @@ namespace TimerConstants {
         TIMER1_REGISTERS;
     extern const Timer<uint8_t, TimerPrescalerAsynchronous>::Registers
         TIMER2_REGISTERS;
-};
+}; // namespace TimerConstants
 
 typedef Timer<uint8_t, TimerPrescalerSynchronous> Timer0;
 typedef Timer<uint16_t, TimerPrescalerSynchronous> Timer1;

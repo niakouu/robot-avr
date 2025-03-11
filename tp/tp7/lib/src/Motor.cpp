@@ -1,22 +1,34 @@
 #include "Motor.h"
+
 #include "Timer.h"
 
-Motor::Motor(const Pin&& directionPin, float offset)
+template class Motor<uint8_t>;
+template class Motor<uint16_t>;
+
+template <typename T>
+Motor<T>::Motor(const Pin&& directionPin, float offset)
     : directionPin_(directionPin), offset_(offset) {}
 
-Motor::~Motor() {
+template <typename T>
+Motor<T>::~Motor() {
     this->directionPin_.unset();
 }
 
-float Motor::move(float speedRatio, bool forward) const {
+template <typename T>
+T Motor<T>::move(float speedRatio, float curveRatio, bool forward) const {
     if (forward)
         this->directionPin_.unset();
     else
         this->directionPin_.set();
 
-    return (TimerConstants::TOP_PWM * speedRatio) + this->offset_;
+    T speed =
+        ((TimerConstants::TOP_PWM * speedRatio) + this->offset_) * curveRatio;
+    if (speed >= TimerConstants::TOP_PWM)
+        speed = TimerConstants::TOP_PWM - 1;
+    return speed;
 }
 
-void Motor::setOffset(float offset) {
+template <typename T>
+void Motor<T>::setOffset(float offset) {
     this->offset_ = offset;
 }

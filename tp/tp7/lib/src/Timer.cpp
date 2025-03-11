@@ -28,41 +28,38 @@ static constexpr uint16_t PRESCALE_FACTOR_128 = 128;
 static constexpr uint16_t PRESCALE_FACTOR_256 = 256;
 static constexpr uint16_t PRESCALE_FACTOR_1024 = 1024;
 
-const Timer0::Registers TIMER0_REGISTERS{.waveformA{Pin::Region::B,
-                                                    Pin::Id::P3},
-                                         .waveformB{Pin::Region::B,
-                                                    Pin::Id::P4},
-                                         .counter = &TCNT0,
-                                         .compareA = &OCR0A,
-                                         .compareB = &OCR0B,
-                                         .controlA = &TCCR0A,
-                                         .controlB = &TCCR0B,
-                                         .controlC = nullptr,
-                                         .interruptMask = &TIMSK0};
+const Timer0::Registers TimerConstants::TIMER0_REGISTERS{
+    .waveformA{Pin::Region::B, Pin::Id::P3},
+    .waveformB{Pin::Region::B, Pin::Id::P4},
+    .counter = &TCNT0,
+    .compareA = &OCR0A,
+    .compareB = &OCR0B,
+    .controlA = &TCCR0A,
+    .controlB = &TCCR0B,
+    .controlC = nullptr,
+    .interruptMask = &TIMSK0};
 
-const Timer1::Registers TIMER1_REGISTERS{.waveformA{Pin::Region::D,
-                                                    Pin::Id::P5},
-                                         .waveformB{Pin::Region::D,
-                                                    Pin::Id::P4},
-                                         .counter = &TCNT1,
-                                         .compareA = &OCR1A,
-                                         .compareB = &OCR1B,
-                                         .controlA = &TCCR1A,
-                                         .controlB = &TCCR1B,
-                                         .controlC = &TCCR1C,
-                                         .interruptMask = &TIMSK1};
+const Timer1::Registers TimerConstants::TIMER1_REGISTERS{
+    .waveformA{Pin::Region::D, Pin::Id::P5},
+    .waveformB{Pin::Region::D, Pin::Id::P4},
+    .counter = &TCNT1,
+    .compareA = &OCR1A,
+    .compareB = &OCR1B,
+    .controlA = &TCCR1A,
+    .controlB = &TCCR1B,
+    .controlC = &TCCR1C,
+    .interruptMask = &TIMSK1};
 
-const Timer2::Registers TIMER2_REGISTERS{.waveformA{Pin::Region::D,
-                                                    Pin::Id::P7},
-                                         .waveformB{Pin::Region::D,
-                                                    Pin::Id::P6},
-                                         .counter = &TCNT2,
-                                         .compareA = &OCR2A,
-                                         .compareB = &OCR2B,
-                                         .controlA = &TCCR2A,
-                                         .controlB = &TCCR2B,
-                                         .controlC = nullptr,
-                                         .interruptMask = &TIMSK2};
+const Timer2::Registers TimerConstants::TIMER2_REGISTERS{
+    .waveformA{Pin::Region::D, Pin::Id::P7},
+    .waveformB{Pin::Region::D, Pin::Id::P6},
+    .counter = &TCNT2,
+    .compareA = &OCR2A,
+    .compareB = &OCR2B,
+    .controlA = &TCCR2A,
+    .controlB = &TCCR2B,
+    .controlC = nullptr,
+    .interruptMask = &TIMSK2};
 
 template <typename T, typename U>
 Timer<T, U>::Timer(const Timer<T, U>::Registers& registers)
@@ -90,7 +87,7 @@ void Timer<T, U>::setAsCounter(const ConfigCounter& configCounter) {
     this->prescalerFlags_ = prescaler.getFlags();
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         this->stop();
-        
+
         *this->registers_.counter = 0;
         *this->registers_.compareA = configCounter.maxTicks;
         *this->registers_.compareB = 0;
@@ -121,17 +118,10 @@ void Timer<T, U>::setAsPwm(const ConfigPwm& configPwm) {
 
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         this->stop();
-        
-        *this->registers_.counter = 0;
-        *this->registers_.compareA =
-            static_cast<T>(configPwm.ratioA * static_cast<float>(UINT8_MAX));
-        if (*this->registers_.compareA >= UINT8_MAX)
-            *this->registers_.compareA = UINT8_MAX - 1;
 
-        *this->registers_.compareB =
-            static_cast<T>(configPwm.ratioB * static_cast<float>(UINT8_MAX));
-        if (*this->registers_.compareB >= UINT8_MAX)
-            *this->registers_.compareB = UINT8_MAX - 1;
+        *this->registers_.counter = 0;
+        *this->registers_.compareA = configPwm.speedA;
+        *this->registers_.compareB = configPwm.speedB;
 
         *this->registers_.controlA =
             static_cast<uint8_t>(configPwm.compareOutputModeA)
