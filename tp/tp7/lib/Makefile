@@ -21,10 +21,10 @@ release: $(RELEASE_DIR)/$(TRG)
 simulation: $(SIMULATION_DIR)/$(TRG)
 
 $(RELEASE_DIR)/$(TRG): $(RELEASE_OBJDEPS)
-	$(AR) rcs -o $@ $(RELEASE_OBJDEPS)
+	$(call link_library,release,$(RELEASE_OBJDEPS))
 
 $(SIMULATION_DIR)/$(TRG): $(SIMULATION_OBJDEPS)
-	$(AR) rcs -o $@ $(SIMULATION_OBJDEPS)
+	$(call link_library,simulation,$(SIMULATION_OBJDEPS))
 
 clean:
 	$(REMOVE) -r $(OUT_DIR)

@@ -17,20 +17,25 @@ HEXTRG = $(HEXROMTRG) $(PROJECTNAME).ee.hex
 
 RELEASE_OBJDEPS = $(SRCS:%=$(RELEASE_DIR)/%.o)
 SIMULATION_OBJDEPS = $(SRCS:%=$(SIMULATION_DIR)/%.o)
+DEBUG_OBJDEPS = $(SRCS:%=$(DEBUG_DIR)/%.o)
 
 CFLAGS += $(INCLUDE)
 
-.PHONY: all install clean libutil release simulation
+.PHONY: all clean libutil release simulation debug install install-debug
 
-all: libutil release simulation
+all: libutil release simulation debug
 release: libutil $(RELEASE_DIR)/$(TRG) $(RELEASE_DIR)/$(HEXROMTRG)
+debug: libutil $(DEBUG_DIR)/$(TRG) $(DEBUG_DIR)/$(HEXROMTRG)
 simulation: libutil $(SIMULATION_DIR)/$(TRG) $(SIMULATION_DIR)/$(HEXROMTRG)
 
 $(RELEASE_DIR)/$(TRG): $(RELEASE_OBJDEPS)
-	$(CC) $(RELEASE_LDFLAGS) -o $@ $(RELEASE_OBJDEPS) -lm $(RELEASE_LIBS)
+	$(call link_executable,release,$(RELEASE_OBJDEPS),$(RELEASE_LDFLAGS),$(RELEASE_LIBS))
+
+$(DEBUG_DIR)/$(TRG): $(DEBUG_OBJDEPS)
+	$(call link_executable,debug,$(DEBUG_OBJDEPS),$(DEBUG_LDFLAGS),$(RELEASE_LIBS))
 
 $(SIMULATION_DIR)/$(TRG): $(SIMULATION_OBJDEPS)
-	$(CC) $(SIMULATION_LDFLAGS) -o $@ $(SIMULATION_OBJDEPS) -lm $(SIMULATION_LIBS)
+	$(call link_executable,simulation,$(SIMULATION_OBJDEPS),$(SIMULATION_LDFLAGS),$(SIMULATION_LIBS))
 
 libutil:
 	$(MAKELIB) $(LIBUTIL_TRG)
@@ -40,7 +45,12 @@ install: release
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMER_ID) \
 		-p $(MCU) -P usb -e -U flash:w:$(RELEASE_DIR)/$(HEXROMTRG)
 
-test: install
+install-debug: debug
+	@echo 'Make sure PB3 and PB4 are unplugged during installation'
+	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMER_ID) \
+		-p $(MCU) -P usb -e -U flash:w:$(DEBUG_DIR)/$(HEXROMTRG)
+
+test: install-debug
 	make -C $(SERIEVIAUSB_DIR)
 	bash ./tests.sh
 

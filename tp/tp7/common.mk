@@ -15,6 +15,7 @@ REMOVE = rm -f
 OUT_DIR = build
 SIMULATION_DIR = $(OUT_DIR)/simulation
 RELEASE_DIR = $(OUT_DIR)/release
+DEBUG_DIR = $(OUT_DIR)/debug
 
 # Utility flags
 CFLAGS = -MMD -g -mmcu=$(MCU) \
@@ -24,29 +25,59 @@ CFLAGS = -MMD -g -mmcu=$(MCU) \
 CXXFLAGS = -fno-exceptions -std=c++14
 RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU)
 RELEASE_CFLAGS = -Os
+DEBUG_CFLAGS = $(RELEASE_CFLAGS) -DDEBUG=1
+DEBUG_LDFLAGS = -Wl,-Map,$(DEBUG_DIR)/$(TRG).map -mmcu=$(MCU)
 SIMULATION_LDFLAGS = -Wl,-Map,$(SIMULATION_DIR)/$(TRG).map -mmcu=$(MCU)
 SIMULATION_CFLAGS = -Os -DSIMULATION=1
 
+ifndef VERBOSE
+Q = @
+endif
+
+# Arg 1: CC/CXX
+# Arg 2: Name of build type
+# Arg 3: Target specific flags
+define compile_specific_target
+	@mkdir -p $(dir $@)
+	$(Q)$($1) $(CFLAGS) $3 -c $< -o $@
+	@echo "$1($2): $<"
+endef
+
+# Arg 1: Name of build type
+# Arg 2: Object dependencies
+define link_library
+	$(Q)$(AR) rcs -o $@ $2
+	@echo "AR($1): $@"
+endef
+
+# Arg 1: Name of build type
+# Arg 2: Object dependencies
+# Arg 3: Target specific flags
+# Arg 4: Extra libraries
+define link_executable
+	$(Q)$(CC) $3 -o $@ $2 $4 
+	@echo "LD($1): $@"
+endef
+
 # Common target definitions
 $(SIMULATION_DIR)/%.c.o: %.c
-	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) $(SIMULATION_CFLAGS) -c $< -o $@
-	@echo "CC(simulation): $<"
+	$(call compile_specific_target,CC,simulation,$(SIMULATION_CFLAGS))
 
 $(SIMULATION_DIR)/%.cpp.o: %.cpp
-	@mkdir -p $(dir $@)
-	@$(CXX) $(CFLAGS) $(SIMULATION_CFLAGS) $(CXXFLAGS) -c $< -o $@
-	@echo "CXX(simulation): $<"
+	$(call compile_specific_target,CXX,simulation,$(SIMULATION_CFLAGS))
 
 $(RELEASE_DIR)/%.c.o: %.c
-	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) $(RELEASE_CFLAGS) -c $< -o $@
-	@echo "CC(release): $<"
+	$(call compile_specific_target,CC,release,$(RELEASE_CFLAGS))
 
 $(RELEASE_DIR)/%.cpp.o: %.cpp
-	@mkdir -p $(dir $@)
-	@$(CXX) $(CFLAGS) $(RELEASE_CFLAGS) $(CXXFLAGS) -c $< -o $@
-	@echo "CXX(release): $<"
+	$(call compile_specific_target,CXX,release,$(RELEASE_CFLAGS))
+
+$(DEBUG_DIR)/%.c.o: %.c
+	$(call compile_specific_target,CC,debug,$(DEBUG_CFLAGS))
+
+$(DEBUG_DIR)/%.cpp.o: %.cpp
+	$(call compile_specific_target,CXX,debug,$(DEBUG_CFLAGS))
 
 %.hex: %.elf
-	$(OBJCOPY) -j .text -j .data -O $(HEXFORMAT) $< $@
+	@$(OBJCOPY) -j .text -j .data -O $(HEXFORMAT) $< $@
+	@echo "OBJCOPY: $< -> $@"
