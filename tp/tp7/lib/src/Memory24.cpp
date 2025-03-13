@@ -24,9 +24,11 @@
 /*                                                                            */
 /*                                                                            */
 /******************************************************************************/
-#include <util/twi.h>
-#include "common.h"
 #include "Memory24.h"
+
+#include <util/twi.h>
+
+#include "common.h"
 
 #ifndef F_CPU
 /* fournir un avertissement mais non une erreur */
@@ -118,7 +120,7 @@ uint8_t Memory24CXXX::choose_memory_bank(const Bank bank) {
 /* Parametres de sortie : uint8_t *donnee  - donnees lues                     */
 /*                                                                            */
 /******************************************************************************/
-void Memory24CXXX::read(const uint16_t address, uint8_t* data) const {
+uint8_t Memory24CXXX::read(const uint16_t address) const {
     //______________ Attente de la fin d'un cycle d'ecriture ______________
     while (true) {
         TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
@@ -175,10 +177,13 @@ void Memory24CXXX::read(const uint16_t address, uint8_t* data) const {
     TWCR = _BV(TWINT) | _BV(TWEN); // R.�Z., interrupt. - Depart de transm.+NACK
     while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
         ;
-    *data = TWDR;
+
+    const uint8_t data = TWDR;
 
     //________________ Transmission de la condition d'arret _________________
     TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
+
+    return data;
 }
 
 void Memory24CXXX::read(const uint16_t address, uint8_t* data,
@@ -400,7 +405,7 @@ uint8_t Memory24CXXX::write_page(const uint16_t address, const uint8_t* data,
         ;
 
     //______________ Transmission du poids fort de l'adresse ________________
-    TWDR = address >> UINT8_WITDH;             // 8 bits de poids fort de l'adresse
+    TWDR = address >> UINT8_WITDH;   // 8 bits de poids fort de l'adresse
     TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
     while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
         ;

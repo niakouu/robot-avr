@@ -10,8 +10,7 @@ const char* UartTest::getName() const {
     return UartTest::NAME;
 }
 
-uint8_t UartTest::runTests(void (*log)(const char* name, const char* format,
-                                       ...)) const {
+uint8_t UartTest::runTests(void (*log)(const char* format, ...)) const {
     (void)log; // Log will use Uart, so don't use it.
 
     uint8_t fails = 0;

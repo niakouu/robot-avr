@@ -35,22 +35,24 @@ void Pin::updateDirection(Direction direction) const {
         *this->registers_.dataDirection |= this->mappings_.directionBit;
 }
 
-#define _MAPPING_DEF(region, idx)                                              \
+#define MAPPING_DEF(region, idx)                                               \
     [static_cast<uint8_t>(                                                     \
         Pin::Id::P##idx)] = {.pinBit = _BV(PIN##region##idx),                  \
                              .portBit = _BV(PORT##region##idx),                \
                              .directionBit = _BV(DD##region##idx)}
 
-#define _REGION_DEF(region)                                                    \
-    [static_cast<uint8_t>(Pin::Region::region)] = {                            \
-        _MAPPING_DEF(region, 0), _MAPPING_DEF(region, 1),                      \
-        _MAPPING_DEF(region, 2), _MAPPING_DEF(region, 3),                      \
-        _MAPPING_DEF(region, 4), _MAPPING_DEF(region, 5),                      \
-        _MAPPING_DEF(region, 6), _MAPPING_DEF(region, 7),                      \
-    }
+#define REGION_DEF(region)                                                     \
+    [static_cast<uint8_t>(Pin::Region::region)] = {MAPPING_DEF(region, 0),     \
+                                                   MAPPING_DEF(region, 1),     \
+                                                   MAPPING_DEF(region, 2),     \
+                                                   MAPPING_DEF(region, 3),     \
+                                                   MAPPING_DEF(region, 4),     \
+                                                   MAPPING_DEF(region, 5),     \
+                                                   MAPPING_DEF(region, 6),     \
+                                                   MAPPING_DEF(region, 7)}
 
 static constexpr Pin::Mappings mappings[][Pin::NUMBER_OF_PINS] = {
-    _REGION_DEF(A), _REGION_DEF(B), _REGION_DEF(C), _REGION_DEF(D)};
+    REGION_DEF(A), REGION_DEF(B), REGION_DEF(C), REGION_DEF(D)};
 
 const constexpr Pin::Mappings& Pin::getMappings(Region region, Id id) {
     const uint8_t regionIndex = static_cast<uint8_t>(region);
@@ -59,8 +61,8 @@ const constexpr Pin::Mappings& Pin::getMappings(Region region, Id id) {
     return mappings[regionIndex][idIndex];
 }
 
-#undef _REGION_DEF
-#undef _MAPPING_DEF
+#undef REGION_DEF
+#undef MAPPING_DEF
 
 constexpr Pin::Registers Pin::getRegisters(Region region) {
     Registers registers{};

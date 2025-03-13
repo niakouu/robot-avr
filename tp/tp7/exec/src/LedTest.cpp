@@ -14,19 +14,18 @@ const char* LedTest::getName() const {
     return LedTest::NAME;
 }
 
-uint8_t LedTest::runTests(void (*log)(const char* name, const char* format,
-                                      ...)) const {
+uint8_t LedTest::runTests(void (*log)(const char* format, ...)) const {
     uint8_t fails = 0;
 
     const BidirectionalLed bidirectionalLed{Pin::Region::A, Pin::Id::P1,
                                             Pin::Id::P0};
 
-    log(this->getName(), "Make sure bidirectional is configured this way:\n");
-    log(this->getName(), "  positive: port A1\n");
-    log(this->getName(), "  negative: port A0\n");
+    log("Make sure bidirectional is configured this way:\n");
+    log("  positive: port A1\n");
+    log("  negative: port A0\n");
 
     // Red
-    log(this->getName(), "Going red for %dms\n", SWITCH_DELAY_MS);
+    log("Going red for %dms\n", SWITCH_DELAY_MS);
     bidirectionalLed.setColor(BidirectionalLed::Color::RED);
 
     _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
@@ -35,7 +34,7 @@ uint8_t LedTest::runTests(void (*log)(const char* name, const char* format,
     _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
 
     // Green
-    log(this->getName(), "Going green for %dms\n", SWITCH_DELAY_MS);
+    log("Going green for %dms\n", SWITCH_DELAY_MS);
     bidirectionalLed.setColor(BidirectionalLed::Color::GREEN);
 
     _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
@@ -44,7 +43,7 @@ uint8_t LedTest::runTests(void (*log)(const char* name, const char* format,
     _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
 
     // Amber
-    log(this->getName(), "Going amber for %dms. Please verify the color\n",
+    log("Going amber for %dms. Please verify the color\n",
         SWITCH_DELAY_MS);
 
     bidirectionalLed.executeAmber(SWITCH_DELAY_MS);

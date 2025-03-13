@@ -18,6 +18,11 @@
         "cert-dcl50-cpp"
     ],
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.exclude": {
+        "equipe-82": true,
+        "equipe-90": true,
+        "serieViaUSB": true
+    },
     "C_Cpp.codeAnalysis.clangTidy.args": [
         "--extra-arg=--target=avr",
         "--extra-arg=-mmcu=atmega324pa",

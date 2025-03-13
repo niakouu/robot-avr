@@ -2,7 +2,7 @@ include ../common.mk
 PROJECTNAME = exec
 
 SRCSDIR = src
-SRCSCLASS = main.cpp LedTest.cpp UartTest.cpp
+SRCSCLASS = main.cpp LedTest.cpp UartTest.cpp MemoryTest.cpp
 SRCS = $(SRCSCLASS:%=$(SRCSDIR)/%)
 
 RELEASE_LIBS = -L../lib/$(RELEASE_DIR) -lutil

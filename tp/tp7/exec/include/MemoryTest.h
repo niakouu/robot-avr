@@ -1,11 +1,11 @@
-#ifndef _UART_TEST_H
-#define _UART_TEST_H
+#ifndef _MEMORY_TEST_H
+#define _MEMORY_TEST_H
 
 #include "Test.h"
 
-class UartTest : public Test {
+class MemoryTest : public Test {
 public:
-    UartTest() = default;
+    MemoryTest() = default;
 
     const char* getName() const override;
     uint8_t runTests(void (*log)(const char* format, ...)) const override;
@@ -14,4 +14,4 @@ private:
     static const char* NAME;
 };
 
-#endif /* _UART_TEST_H */
+#endif /* _MEMORY_TEST_H */

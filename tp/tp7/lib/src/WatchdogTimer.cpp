@@ -24,15 +24,19 @@ void WatchdogTimer::sleep(const uint16_t milliseconds,
     uint16_t timeLeft = milliseconds;
     while (timeLeft != 0) {
         if (timeLeft < TIME_BOUNDARIES[0].timeMs) {
-            static_assert(TIME_BOUNDARIES[0].timeMs <= UINT8_MAX, "First TIME_BOUNDARIES element should fit in a byte");
+            static_assert(TIME_BOUNDARIES[0].timeMs <= UINT8_MAX,
+                          "First TIME_BOUNDARIES element should fit in a byte");
             for (uint8_t i = 0; i < static_cast<uint8_t>(timeLeft); ++i) {
                 _delay_ms(1);
             }
 
             timeLeft = 0;
         } else {
-            static_assert(sizeof(TIME_BOUNDARIES) / sizeof(*TIME_BOUNDARIES) <= INT8_MAX, "Length of TIME_BOUNDARIES should fit in int8_t");
-            constexpr int8_t TIME_BOUNDARIES_LEN = static_cast<int8_t>(sizeof(TIME_BOUNDARIES) / sizeof(*TIME_BOUNDARIES));
+            static_assert(sizeof(TIME_BOUNDARIES) / sizeof(*TIME_BOUNDARIES)
+                              <= INT8_MAX,
+                          "Length of TIME_BOUNDARIES should fit in int8_t");
+            constexpr int8_t TIME_BOUNDARIES_LEN = static_cast<int8_t>(
+                sizeof(TIME_BOUNDARIES) / sizeof(*TIME_BOUNDARIES));
             for (int8_t i = TIME_BOUNDARIES_LEN - 1; i >= 0; --i) {
                 const uint16_t timeBoundaryMs = TIME_BOUNDARIES[i].timeMs;
                 if (timeLeft >= timeBoundaryMs) {
@@ -50,6 +54,7 @@ void WatchdogTimer::setSleepDone() {
 }
 
 #ifdef SIMULATION
+
 void WatchdogTimer::rawSleep(const uint8_t durationMode,
                              const SleepMode sleepMode) {
     switch (durationMode) {
@@ -87,7 +92,9 @@ void WatchdogTimer::rawSleep(const uint8_t durationMode,
             break;
     }
 }
-#else  /* SIMULATION */
+
+#else /* SIMULATION */
+
 void WatchdogTimer::rawSleep(const uint8_t durationMode,
                              const SleepMode sleepMode) {
     WatchdogTimer::wdtEnableInterrupt(durationMode);
@@ -98,8 +105,9 @@ void WatchdogTimer::rawSleep(const uint8_t durationMode,
     while (!this->sleepDone_)
         sleep_cpu();
 
-    sleep_disable();      // cancel sleep as a precaution
+    sleep_disable(); // cancel sleep as a precaution
 }
+
 #endif /* SIMULATION */
 
 void WatchdogTimer::wdtEnableInterrupt(const uint8_t durationMode) {
