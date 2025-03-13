@@ -1,11 +1,10 @@
-#include "TimerPwmTest.h"
-
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
 #include "Board.h"
 #include "Led.h"
 #include "Timer.h"
+#include "TimerPwmTest.h"
 
 constexpr uint16_t SWITCH_DELAY_MS = 2000;
 constexpr uint8_t DELAY_15_MS = 15;
@@ -29,12 +28,10 @@ const char* TimerPwmTest::getName() const {
     return TimerPwmTest::NAME;
 }
 
-uint8_t TimerPwmTest::runTests(void (*log)(const char* name,
-                                               const char* format, ...)) const {
+uint8_t TimerPwmTest::runTests(void (*log)(const char* format, ...)) const {
     uint8_t fails = 0;
 
     Timer2& timer2 = Board::get().getTimer2();
-    
 
     return fails;
 }

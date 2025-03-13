@@ -8,8 +8,7 @@ public:
     TimerCounterTest() = default;
 
     const char* getName() const override;
-    uint8_t runTests(void (*log)(const char* name, const char* format,
-                                 ...)) const override;
+    uint8_t runTests(void (*log)(const char* format, ...)) const override;
 
 private:
     static const char* NAME;

@@ -286,3 +286,9 @@ TimerPrescalerAsynchronous::prescalerForDuration(uint16_t milliseconds) {
 
     return Value::CLK_DIV_1024;
 }
+
+Timer1::Timer1(const Registers& registers) : Timer(registers) {}
+
+Timer1::~Timer1() {
+    Timer::~Timer();
+}

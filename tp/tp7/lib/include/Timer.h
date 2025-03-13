@@ -100,6 +100,17 @@ private:
     Value value_;
 };
 
+class Timer1 : public Timer<uint16_t, TimerPrescalerSynchronous> {
+public:
+    Timer1(Timer1&) = delete;
+    void operator=(const Timer1&) = delete;
+
+protected:
+    friend class Board;
+    Timer1(const Registers& registers);
+    ~Timer1();
+};
+
 class TimerPrescalerAsynchronous : public TimerPrescaler {
 public:
     enum class Value : uint8_t {
@@ -136,7 +147,6 @@ namespace TimerConstants {
 }; // namespace TimerConstants
 
 typedef Timer<uint8_t, TimerPrescalerSynchronous> Timer0;
-typedef Timer<uint16_t, TimerPrescalerSynchronous> Timer1;
 typedef Timer<uint8_t, TimerPrescalerAsynchronous> Timer2;
 
 #endif /* _TIMER_H */

@@ -29,26 +29,25 @@ const char* TimerCounterTest::getName() const {
     return TimerCounterTest::NAME;
 }
 
-uint8_t TimerCounterTest::runTests(void (*log)(const char* name,
-                                               const char* format, ...)) const {
+uint8_t TimerCounterTest::runTests(void (*log)(const char* format, ...)) const {
     uint8_t fails = 0;
 
     Timer1& timer1 = Board::get().getTimer1();
     Timer2& timer2 = Board::get().getTimer2();
 
     // Counter Settings
-    log(this->getName(), "Setting timer 1 counter settings from milliseconds.\n");
+    log("Setting timer 1 counter settings from milliseconds.\n");
     timer1.setAsCounter(Timer1::ConfigCounter::fromMilliseconds(
         SWITCH_DELAY_MS, TimerCompareOutputModeA::TOGGLE));
-    log(this->getName(), "Setting timer 2 counter settings.\n");
+    log("Setting timer 2 counter settings.\n");
     timer2.setAsCounter(
         {.maxTicks = 0,
          .prescaler = TimerPrescalerAsynchronous::Value::CLK_DIV_1024});
 
     // Timer start
-    log(this->getName(), "Starting timer2.\n");
+    log("Starting timer2.\n");
     timer2.start();
-    log(this->getName(), "Starting timer1.\n");
+    log("Starting timer1.\n");
     timer1.start();
 
     const uint32_t startTime = ::gticks;
@@ -57,17 +56,18 @@ uint8_t TimerCounterTest::runTests(void (*log)(const char* name,
         _delay_ms(DELAY_15_MS);
 
     const uint32_t endTime = ::gticks;
-    const uint32_t differenceMs = (endTime - startTime)/(F_CPU/MS_PER_SEC);
+    const uint32_t differenceMs = (endTime - startTime) / (F_CPU / MS_PER_SEC);
 
-    log(this->getName(), "Stopping Timer 1.");
+    log("Stopping Timer 1.");
     timer1.stop();
 
-    log(this->getName(), "Took start: %lu end: %lu ticks\n", startTime, endTime);
+    log("Took start: %lu end: %lu ticks\n", startTime, endTime);
 
-    if (differenceMs < SWITCH_DELAY_MS - OFFSET_MS || differenceMs > SWITCH_DELAY_MS + OFFSET_MS)
+    if (differenceMs < SWITCH_DELAY_MS - OFFSET_MS
+        || differenceMs > SWITCH_DELAY_MS + OFFSET_MS)
         ++fails;
 
-    log(this->getName(), "Stopping Timer 2.");
+    log("Stopping Timer 2.");
     timer2.stop();
 
     return fails;
