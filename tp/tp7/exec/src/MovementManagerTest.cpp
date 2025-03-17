@@ -6,6 +6,7 @@
 
 #include "Board.h"
 #include "Motor.h"
+#include "MovementManager.h"
 #include "Pin.h"
 
 constexpr uint16_t MILLISECONDS_IN_SECONDS = 1000;
@@ -22,32 +23,22 @@ uint8_t MovementManagerTest::runTests(void (*log)(const char* format,
                                                   ...)) const {
     uint8_t fails = 0;
 
-    const Motor<uint8_t> motor(Pin(Pin::Region::A, Pin::Id::P1, Pin::Direction::OUT),
-                          0);
+    MovementManager<uint16_t, TimerPrescalerSynchronous> movementManager{
+        Board::get().getTimer1(),
+        {Pin(Pin::Region::D, Pin::Id::P5, Pin::Direction::OUT), 0},
+        {Pin(Pin::Region::D, Pin::Id::P4, Pin::Direction::OUT), 0}};
 
     log("Left should be enable: D7 direction: D5\n");
     log("Left should be enable: D6 direction: D4\n");
 
+    movementManager.moveForward(1.0f);
     _delay_ms(WAIT_DELAY_MS);
-
-    log("Going forward for %dms\n", SWITCH_DELAY_MS);
-    motor.move(1, true);
-
-    _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
-    if (bit_is_set(PORTA, PORTA1) == 0)
-        ++fails;
-    _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
-
-    log("Going backwards for %dms\n", SWITCH_DELAY_MS);
-    motor.move(1, false);
-
-    _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
-    if (bit_is_set(PORTA, PORTA1) != 0)
-        ++fails;
-    _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
-
-    log("Motor stops", SWITCH_DELAY_MS);
-    motor.move(0, true);
+    movementManager.moveBackward(1.0f);
+    _delay_ms(WAIT_DELAY_MS);
+    movementManager.moveLeft(1.0f, 0.5f);
+    _delay_ms(WAIT_DELAY_MS);
+    movementManager.moveRight(1.0f, 0.5f);
+    _delay_ms(WAIT_DELAY_MS);
 
     return fails;
 }

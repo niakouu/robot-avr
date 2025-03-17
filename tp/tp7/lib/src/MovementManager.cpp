@@ -23,6 +23,8 @@ void MovementManager<T, U>::moveForward(float speed) {
          .speedB = this->motorRight_.move(speed, true),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
+
+    this->timer_.start();
 }
 
 template <typename T, typename U>
@@ -33,6 +35,8 @@ void MovementManager<T, U>::moveBackward(float speed) {
          .speedB = this->motorRight_.move(speed, false),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
+
+    this->timer_.start();
 }
 
 template <typename T, typename U>
@@ -43,6 +47,7 @@ void MovementManager<T, U>::moveLeft(float speed, float curveRatio) {
          .speedB = this->motorRight_.move(speed * curveRatio, false),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
+    this->timer_.start();
 }
 
 template <typename T, typename U>
@@ -53,6 +58,7 @@ void MovementManager<T, U>::moveRight(float speed, float curveRatio) {
          .speedB = this->motorRight_.move(speed, false),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
+    this->timer_.start();
 }
 
 template <typename T, typename U>
@@ -63,6 +69,7 @@ void MovementManager<T, U>::stop() {
          .speedB = 0,
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
+    this->timer_.start();
 }
 
 template <typename T, typename U>
