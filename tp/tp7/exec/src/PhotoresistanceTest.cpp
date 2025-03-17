@@ -17,7 +17,7 @@ const char* PhotoresistanceTest::getName() const {
 
 uint8_t PhotoresistanceTest::runTests(void (*log)(const char* format,
                                                   ...)) const {
-    constexpr Pin::Id photoresistancePinId = Pin::Id::P0;
+    constexpr Pin::Id photoresistancePinId = Pin::Id::P5;
     uint8_t fails = 0;
     Button& button = Board::get().getButton();
     const Photoresistance photoresistance{Board::get().getAdc(),
