@@ -20,8 +20,8 @@ uint8_t PhotoresistanceTest::runTests(void (*log)(const char* format,
     constexpr Pin::Id photoresistancePinId = Pin::Id::P0;
     uint8_t fails = 0;
     Button& button = Board::get().getButton();
-    Photoresistance photoresistance{Board::get().getAdc(),
-                                    photoresistancePinId};
+    const Photoresistance photoresistance{Board::get().getAdc(),
+                                          photoresistancePinId};
 
     log("Please plug the photoresistance in pin A%d\n",
         static_cast<uint8_t>(photoresistancePinId));
