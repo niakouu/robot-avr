@@ -1,11 +1,19 @@
 #include "Button.h"
+
+#include <avr/io.h>
 #include <util/delay.h>
 
 constexpr uint8_t DEBOUNCE_MS = 30;
 
 Button::Button(Pin::Region region, Pin::Id id, bool pressedIsHigh)
     : isPressed_(false), eventConsumed_(false), pressedIsHigh_(pressedIsHigh),
-      buttonPin_(region, id, Pin::Direction::IN) {}
+      buttonPin_(region, id, Pin::Direction::IN) {
+    EIMSK |= _BV(INT0);
+
+    // ISR called on every edge
+    EICRA &= ~(_BV(ISC01));
+    EICRA |= _BV(ISC00);
+}
 
 bool Button::isPressed() const {
     return this->isPressed_;

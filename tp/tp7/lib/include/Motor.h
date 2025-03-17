@@ -13,7 +13,7 @@ public:
     /// @param speedRatio Speed the motor should spin in, between 0 and 1.
     /// @param forward Whether the motor should spin forwards or backwards.
     /// @return PWM ratio to set for the target speed.
-    T move(float speedRatio, float curveRatio, bool forward) const;
+    T move(float speedRatio, bool forward) const;
 
     void setOffset(float offset);
 

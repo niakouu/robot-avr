@@ -5,6 +5,7 @@
 #include "ButtonTest.h"
 #include "LedTest.h"
 #include "MemoryTest.h"
+#include "MovementManagerTest.h"
 #include "PhotoresistanceTest.h"
 #include "Test.h"
 #include "TimerCounterTest.h"
@@ -23,6 +24,7 @@ namespace {
     TimerPwmTest TIMER_PWM_TEST;
     TimerFrequencyTest TIMER_FREQUENCY_TEST;
     WatchdogTimerTest WATCHDOG_TIMER_TEST;
+    MovementManagerTest MOVEMENT_MANAGER_TEST;
     constexpr uint16_t BAUD_RATE = 2400;
 
     const char* gCurrentTestName = NULL;
@@ -37,6 +39,7 @@ namespace {
 } // namespace
 
 ISR(INT0_vect) {
+    printf("wtf\n");
     Board::get().getButton().setPressed();
 }
 
@@ -53,7 +56,8 @@ int main() {
                            &::TIMER_COUNTER_TEST,
                            &::TIMER_PWM_TEST,
                            &::TIMER_FREQUENCY_TEST,
-                           &::WATCHDOG_TIMER_TEST};
+                           &::WATCHDOG_TIMER_TEST,
+                           &::MOVEMENT_MANAGER_TEST};
 
     Uart& uart0 = Board::get().getUart0();
     stdout = uart0.getEmulatedFile();

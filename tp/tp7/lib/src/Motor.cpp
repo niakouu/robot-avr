@@ -15,14 +15,13 @@ Motor<T>::~Motor() {
 }
 
 template <typename T>
-T Motor<T>::move(float speedRatio, float curveRatio, bool forward) const {
+T Motor<T>::move(float speedRatio, bool forward) const {
     if (forward)
         this->directionPin_.unset();
     else
         this->directionPin_.set();
 
-    T speed =
-        ((TimerConstants::TOP_PWM * speedRatio) + this->offset_) * curveRatio;
+    T speed = (TimerConstants::TOP_PWM * speedRatio) + this->offset_;
     if (speed >= TimerConstants::TOP_PWM)
         speed = TimerConstants::TOP_PWM - 1;
     return speed;

@@ -46,7 +46,7 @@ uint8_t MovementManagerTest::runTests(void (*log)(const char* format, ...)) cons
     moteur.move(1, false);
 
     _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
-    if (bit_is_set(PORTA, PORTA1) == 1)
+    if (bit_is_set(PORTA, PORTA1) != 0)
         ++fails;
     _delay_ms(static_cast<double>(SWITCH_DELAY_MS) / 2);
 
