@@ -30,7 +30,7 @@ uint8_t PhotoresistanceTest::runTests(void (*log)(const char* format,
     log("Please press the button once the light is very close to the "
         "sensor.\n");
 
-    while (!button.isEvent()) {
+    while (!(button.isEvent() && button.isPressed())) {
         _delay_ms(WAIT_DELAY_MS);
     }
 
@@ -43,7 +43,7 @@ uint8_t PhotoresistanceTest::runTests(void (*log)(const char* format,
     // Medium
     log("Please press the button once the light is ambient to the sensor\n");
 
-    while (!button.isEvent()) {
+    while (!(button.isEvent() && button.isPressed())) {
         _delay_ms(WAIT_DELAY_MS);
     }
 

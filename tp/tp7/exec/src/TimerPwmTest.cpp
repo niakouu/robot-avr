@@ -29,17 +29,19 @@ uint8_t TimerPwmTest::runTests(void (*log)(const char* format, ...)) const {
         .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
         .compareOutputModeB = TimerCompareOutputModeB::CLEAR};
 
-    const Button& button = Board::get().getButton();
+    Button& button = Board::get().getButton();
     log("Press button to start spining the left motor.");
     while (!button.isEvent()) {
         _delay_ms(WAIT_DELAY_MS);
     }
+    button.consumeEvent();
 
     for (const float ratio : RATIOS) {
         config.speedA = static_cast<uint8_t>(ratio * UINT8_MAX);
         config.speedB = static_cast<uint8_t>(0);
 
         timer2.setAsPwm(config);
+        timer2.start();
         log("Starting timer for left motor at speed: %d\n", config.speedA);
 
         _delay_ms(SWITCH_DELAY_MS);
@@ -49,12 +51,14 @@ uint8_t TimerPwmTest::runTests(void (*log)(const char* format, ...)) const {
     while (!button.isEvent()) {
         _delay_ms(WAIT_DELAY_MS);
     }
+    button.consumeEvent();
 
     for (const float ratio : RATIOS) {
         config.speedA = static_cast<uint8_t>(0);
         config.speedB = static_cast<uint8_t>(ratio * UINT8_MAX);
 
         timer2.setAsPwm(config);
+        timer2.start();
         log("Starting timer for right motor at speed: %d\n", config.speedB);
 
         _delay_ms(SWITCH_DELAY_MS);
@@ -64,16 +68,19 @@ uint8_t TimerPwmTest::runTests(void (*log)(const char* format, ...)) const {
     while (!button.isEvent()) {
         _delay_ms(WAIT_DELAY_MS);
     }
+    button.consumeEvent();
 
     for (const float ratio : RATIOS) {
         config.speedA = static_cast<uint8_t>(ratio * UINT8_MAX);
         config.speedB = static_cast<uint8_t>(ratio * UINT8_MAX);
 
         timer2.setAsPwm(config);
+        timer2.start();
         log("Starting timer for both motors at speed: %d\n", config.speedB);
 
         _delay_ms(SWITCH_DELAY_MS);
     }
 
+    timer2.stop();
     return 0;
 }
