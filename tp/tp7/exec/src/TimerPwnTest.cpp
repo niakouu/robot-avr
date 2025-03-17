@@ -30,8 +30,25 @@ const char* TimerPwmTest::getName() const {
 
 uint8_t TimerPwmTest::runTests(void (*log)(const char* format, ...)) const {
     uint8_t fails = 0;
+    constexpr const float RATIOS[]{0.0F, 0.25F, 0.5F, 0.75F, 1.0F};
 
     Timer2& timer2 = Board::get().getTimer2();
+    Timer2::ConfigPwm config{
+        .prescaler = TimerPrescalerAsynchronous::Value::CLK_DIV_8,
+        .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
+        .compareOutputModeB = TimerCompareOutputModeB::CLEAR};
+
+    for (const float ratio : RATIOS) {
+        config.speedA = static_cast<uint8_t>(ratio * UINT8_MAX);
+        config.speedB = static_cast<uint8_t>(ratio * UINT8_MAX);
+
+        timer2.setAsPwm(config);
+
+        log("Starting timer at speed: %d\n", config.speedA);
+
+        _delay_ms(SWITCH_DELAY_MS);
+        // TODO
+    }
 
     return fails;
 }

@@ -1,3 +1,4 @@
+#include <avr/interrupt.h>
 #include <stdio.h>
 
 #include "Board.h"
@@ -5,14 +6,19 @@
 #include "MemoryTest.h"
 #include "Test.h"
 #include "UartTest.h"
+#include "ButtonTest.h"
+#include "PhotoresistanceTest.h"
 
 namespace {
     UartTest UART_TEST;
     LedTest LED_TEST;
     MemoryTest MEMORY_TEST;
+    ButtonTest BUTTON_TEST;
+    PhotoresistanceTest PHOTORESISTANCE_TEST;
     constexpr uint16_t BAUD_RATE = 2400;
-    
-    const char *gCurrentTestName = NULL;
+
+    const char* gCurrentTestName = NULL;
+
     void testLog(const char* format, ...) {
         va_list va = nullptr;
         va_start(va, format);
@@ -22,8 +28,12 @@ namespace {
     }
 } // namespace
 
+ISR(INT0_vect) {
+    Board::get().getButton().setPressed();
+}
+
 int main() {
-    const Test* tests[] = {&::UART_TEST, &::LED_TEST, &::MEMORY_TEST};
+    const Test* tests[] = {&::UART_TEST, &::LED_TEST, &::MEMORY_TEST, &::BUTTON_TEST, &::PHOTORESISTANCE_TEST};
     Uart& uart0 = Board::get().getUart0();
     stdout = uart0.getEmulatedFile();
     uart0.configure(::BAUD_RATE, false, Uart::Parity::DISABLED,
