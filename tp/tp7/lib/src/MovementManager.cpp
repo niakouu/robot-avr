@@ -19,8 +19,8 @@ template <typename T, typename U>
 void MovementManager<T, U>::moveForward(float speed) {
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
-         .speedA = this->motorLeft_.move(speed, 1.0F, true),
-         .speedB = this->motorRight_.move(speed, 1.0F, true),
+         .speedA = this->motorLeft_.move(speed, true),
+         .speedB = this->motorRight_.move(speed, true),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
 }
@@ -29,8 +29,8 @@ template <typename T, typename U>
 void MovementManager<T, U>::moveBackward(float speed) {
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
-         .speedA = this->motorLeft_.move(speed, 1.0F, false),
-         .speedB = this->motorRight_.move(speed, 1.0F, false),
+         .speedA = this->motorLeft_.move(speed, false),
+         .speedB = this->motorRight_.move(speed, false),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
 }
@@ -39,8 +39,8 @@ template <typename T, typename U>
 void MovementManager<T, U>::moveLeft(float speed, float curveRatio) {
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
-         .speedA = this->motorLeft_.move(speed, 1.0F, false),
-         .speedB = this->motorRight_.move(speed, curveRatio, false),
+         .speedA = this->motorLeft_.move(speed, false),
+         .speedB = this->motorRight_.move(speed * curveRatio, false),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
 }
@@ -49,8 +49,8 @@ template <typename T, typename U>
 void MovementManager<T, U>::moveRight(float speed, float curveRatio) {
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
-         .speedA = this->motorLeft_.move(speed, curveRatio, false),
-         .speedB = this->motorRight_.move(speed, 1.0F, false),
+         .speedA = this->motorLeft_.move(speed * curveRatio, false),
+         .speedB = this->motorRight_.move(speed, false),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
 }

@@ -4,7 +4,7 @@ PROJECTNAME = exec
 SRCSDIR = src
 SRCSCLASS = main.cpp LedTest.cpp UartTest.cpp MemoryTest.cpp ButtonTest.cpp \
 	PhotoresistanceTest.cpp TimerCounterTest.cpp TimerPwmTest.cpp \
-	TimerFrequencyTest.cpp WatchdogTimerTest.cpp
+	TimerFrequencyTest.cpp WatchdogTimerTest.cpp MovementManagerTest.cpp
 SRCS = $(SRCSCLASS:%=$(SRCSDIR)/%)
 
 RELEASE_LIBS = -L../lib/$(RELEASE_DIR) -lutil

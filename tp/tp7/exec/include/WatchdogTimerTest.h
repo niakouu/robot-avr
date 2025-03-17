@@ -5,7 +5,7 @@
 
 class WatchdogTimerTest : public Test {
 public:
-WatchdogTimerTest() = default;
+    WatchdogTimerTest() = default;
 
     const char* getName() const override;
     uint8_t runTests(void (*log)(const char* format, ...)) const override;

@@ -43,7 +43,7 @@ public:
    
    // deux variantes pour la lecture, celle-ci et la suivante
    // une donnee a la fois
-   uint8_t read(const uint16_t address, uint8_t *data);
+   uint8_t read(const uint16_t address);
    // bloc de donnees : longueur doit etre de 127 et moins
    uint8_t read(const uint16_t address, uint8_t *data,
                    const uint8_t length);

@@ -146,10 +146,8 @@ uint8_t Memory24::choose_memory_bank(const uint8_t bank)
 /* Parametres de sortie : uint8_t *donnee  - donnees lues                     */
 /*                                                                            */
 /******************************************************************************/
-uint8_t Memory24::read(const uint16_t address, uint8_t *data)
+uint8_t Memory24::read(const uint16_t address)
 {
-  uint8_t rv = 0;
-
   //______________ Attente de la fin d'un cycle d'ecriture ______________
   for (;;)
   {
@@ -206,11 +204,11 @@ uint8_t Memory24::read(const uint16_t address, uint8_t *data)
   TWCR = _BV(TWINT) | _BV(TWEN);     // R.�Z., interrupt. - Depart de transm.+NACK
   while ((TWCR & _BV(TWINT)) == 0)   // Attente de fin de transmission
     ;
-  *data = TWDR;
+  const uint8_t data = TWDR;
 
   //________________ Transmission de la condition d'arret _________________
   TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
-  return rv;
+  return data;
 }
 
 

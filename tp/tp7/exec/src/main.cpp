@@ -39,7 +39,7 @@ namespace {
 } // namespace
 
 ISR(INT0_vect) {
-    printf("wtf\n");
+    Board::get().getUart0().transmit('9');
     Board::get().getButton().setPressed();
 }
 
