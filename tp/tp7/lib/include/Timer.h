@@ -66,6 +66,7 @@ protected:
     ~Timer();
 
 private:
+    friend class Timer1;
     static const uint16_t MILLIS_IN_SECONDS = 1000;
     const Registers& registers_;
     uint8_t prescalerFlags_;
@@ -74,8 +75,18 @@ private:
 
 class TimerPrescaler {
 public:
+    enum class PrescaleFactor : uint16_t {
+        FACTOR_NONE = 1,
+        FACTOR_8 = 8,
+        FACTOR_32 = 32,
+        FACTOR_64 = 64,
+        FACTOR_128 = 128,
+        FACTOR_256 = 256,
+        FACTOR_1024 = 1024
+    };
+
     virtual uint8_t getFlags() const = 0;
-    virtual uint16_t getDivisionFactor() const = 0;
+    virtual PrescaleFactor getDivisionFactor() const = 0;
 };
 
 class TimerPrescalerSynchronous : public TimerPrescaler {
@@ -92,7 +103,7 @@ public:
     operator Value() const;
 
     uint8_t getFlags() const;
-    uint16_t getDivisionFactor() const;
+    TimerPrescaler::PrescaleFactor getDivisionFactor() const;
     static TimerPrescalerSynchronous
     prescalerForDuration(uint16_t milliseconds);
 
@@ -104,6 +115,21 @@ class Timer1 : public Timer<uint16_t, TimerPrescalerSynchronous> {
 public:
     Timer1(Timer1&) = delete;
     void operator=(const Timer1&) = delete;
+
+    struct ConfigFrequency {
+        uint16_t top;
+        TimerPrescalerSynchronous prescaler;
+        TimerCompareOutputModeA compareOutputModeA;
+        TimerCompareOutputModeB compareOutputModeB;
+
+        static ConfigFrequency
+        fromFrequency(uint32_t frequency,
+                      TimerCompareOutputModeA compareOutputModeA,
+                      TimerCompareOutputModeB compareOutputModeB);
+    };
+
+    // PWM Phase and Frequency Correct -> mode 8
+    void setAsPwmFrequency(const ConfigFrequency& configFrequency);
 
 protected:
     friend class Board;
@@ -127,7 +153,7 @@ public:
     operator Value() const;
 
     uint8_t getFlags() const;
-    uint16_t getDivisionFactor() const;
+    TimerPrescaler::PrescaleFactor getDivisionFactor() const;
     static TimerPrescalerAsynchronous
     prescalerForDuration(uint16_t milliseconds);
 

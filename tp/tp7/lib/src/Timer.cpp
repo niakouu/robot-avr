@@ -1,5 +1,6 @@
 #include "Timer.h"
 
+#include <math.h>
 #include <util/atomic.h>
 
 #include "common.h"
@@ -20,46 +21,46 @@ template class Timer<uint8_t, TimerPrescalerSynchronous>;
 template class Timer<uint16_t, TimerPrescalerSynchronous>;
 template class Timer<uint8_t, TimerPrescalerAsynchronous>;
 
-static constexpr uint16_t PRESCALE_FACTOR_NONE = 1;
-static constexpr uint16_t PRESCALE_FACTOR_8 = 8;
-static constexpr uint16_t PRESCALE_FACTOR_32 = 32;
-static constexpr uint16_t PRESCALE_FACTOR_64 = 64;
-static constexpr uint16_t PRESCALE_FACTOR_128 = 128;
-static constexpr uint16_t PRESCALE_FACTOR_256 = 256;
-static constexpr uint16_t PRESCALE_FACTOR_1024 = 1024;
+const Timer<uint8_t, TimerPrescalerSynchronous>::Registers
+    TimerConstants::TIMER0_REGISTERS{.waveformA{Pin::Region::B, Pin::Id::P3},
+                                     .waveformB{Pin::Region::B, Pin::Id::P4},
+                                     .counter = &TCNT0,
+                                     .compareA = &OCR0A,
+                                     .compareB = &OCR0B,
+                                     .controlA = &TCCR0A,
+                                     .controlB = &TCCR0B,
+                                     .controlC = nullptr,
+                                     .interruptMask = &TIMSK0};
 
-const Timer0::Registers TimerConstants::TIMER0_REGISTERS{
-    .waveformA{Pin::Region::B, Pin::Id::P3},
-    .waveformB{Pin::Region::B, Pin::Id::P4},
-    .counter = &TCNT0,
-    .compareA = &OCR0A,
-    .compareB = &OCR0B,
-    .controlA = &TCCR0A,
-    .controlB = &TCCR0B,
-    .controlC = nullptr,
-    .interruptMask = &TIMSK0};
+const Timer<uint16_t, TimerPrescalerSynchronous>::Registers
+    TimerConstants::TIMER1_REGISTERS{.waveformA{Pin::Region::D, Pin::Id::P5},
+                                     .waveformB{Pin::Region::D, Pin::Id::P4},
+                                     .counter = &TCNT1,
+                                     .compareA = &OCR1A,
+                                     .compareB = &OCR1B,
+                                     .controlA = &TCCR1A,
+                                     .controlB = &TCCR1B,
+                                     .controlC = &TCCR1C,
+                                     .interruptMask = &TIMSK1};
 
-const Timer1::Registers TimerConstants::TIMER1_REGISTERS{
-    .waveformA{Pin::Region::D, Pin::Id::P5},
-    .waveformB{Pin::Region::D, Pin::Id::P4},
-    .counter = &TCNT1,
-    .compareA = &OCR1A,
-    .compareB = &OCR1B,
-    .controlA = &TCCR1A,
-    .controlB = &TCCR1B,
-    .controlC = &TCCR1C,
-    .interruptMask = &TIMSK1};
+const Timer<uint8_t, TimerPrescalerAsynchronous>::Registers
+    TimerConstants::TIMER2_REGISTERS{.waveformA{Pin::Region::D, Pin::Id::P7},
+                                     .waveformB{Pin::Region::D, Pin::Id::P6},
+                                     .counter = &TCNT2,
+                                     .compareA = &OCR2A,
+                                     .compareB = &OCR2B,
+                                     .controlA = &TCCR2A,
+                                     .controlB = &TCCR2B,
+                                     .controlC = nullptr,
+                                     .interruptMask = &TIMSK2};
 
-const Timer2::Registers TimerConstants::TIMER2_REGISTERS{
-    .waveformA{Pin::Region::D, Pin::Id::P7},
-    .waveformB{Pin::Region::D, Pin::Id::P6},
-    .counter = &TCNT2,
-    .compareA = &OCR2A,
-    .compareB = &OCR2B,
-    .controlA = &TCCR2A,
-    .controlB = &TCCR2B,
-    .controlC = nullptr,
-    .interruptMask = &TIMSK2};
+template <TimerPrescaler::PrescaleFactor prescaleFactor>
+static constexpr uint16_t maxFrequency =
+    (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
+
+template <TimerPrescaler::PrescaleFactor prescaleFactor>
+static constexpr uint16_t prescaleMaximumMilliseconds =
+    (UINT16_MAX * 1000) / (F_CPU / static_cast<uint16_t>(prescaleFactor));
 
 template <typename T, typename U>
 Timer<T, U>::Timer(const Timer<T, U>::Registers& registers)
@@ -139,10 +140,6 @@ void Timer<T, U>::setAsPwm(const ConfigPwm& configPwm) {
     }
 }
 
-template <uint16_t prescaleFactor>
-static constexpr uint16_t prescaleMaximumMilliseconds =
-    (UINT16_MAX * 1000) / (F_CPU / prescaleFactor);
-
 template <typename T, typename U>
 typename Timer<T, U>::ConfigCounter
 Timer<T, U>::ConfigCounter::fromMilliseconds(
@@ -151,7 +148,8 @@ Timer<T, U>::ConfigCounter::fromMilliseconds(
     U prescaler = U::prescalerForDuration(milliseconds);
 
     uint32_t maxTicks = static_cast<uint32_t>(
-        (F_CPU / prescaler.getDivisionFactor())
+        (static_cast<float>(F_CPU)
+         / static_cast<uint16_t>(prescaler.getDivisionFactor()))
         * static_cast<float>(milliseconds) / MILLIS_IN_SECONDS);
 
     if (isType<T, uint8_t>::value && maxTicks > UINT8_MAX)
@@ -200,34 +198,36 @@ uint8_t TimerPrescalerSynchronous::getFlags() const {
     return static_cast<uint8_t>(this->value_);
 }
 
-uint16_t TimerPrescalerSynchronous::getDivisionFactor() const {
+TimerPrescaler::PrescaleFactor
+TimerPrescalerSynchronous::getDivisionFactor() const {
     switch (this->value_) {
         default:
         case Value::CLK_NONE_DIV:
-            return PRESCALE_FACTOR_NONE;
+            return PrescaleFactor::FACTOR_NONE;
         case Value::CLK_DIV_8:
-            return PRESCALE_FACTOR_8;
+            return PrescaleFactor::FACTOR_8;
         case Value::CLK_DIV_64:
-            return PRESCALE_FACTOR_64;
+            return PrescaleFactor::FACTOR_64;
         case Value::CLK_DIV_256:
-            return PRESCALE_FACTOR_256;
+            return PrescaleFactor::FACTOR_256;
         case Value::CLK_DIV_1024:
-            return PRESCALE_FACTOR_1024;
+            return PrescaleFactor::FACTOR_1024;
     }
 }
 
 TimerPrescalerSynchronous
 TimerPrescalerSynchronous::prescalerForDuration(uint16_t milliseconds) {
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_NONE>)
+    if (milliseconds
+        <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_NONE>)
         return Value::CLK_NONE_DIV;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_8>)
+    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_8>)
         return Value::CLK_DIV_8;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_64>)
+    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_64>)
         return Value::CLK_DIV_64;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_256>)
+    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_256>)
         return Value::CLK_DIV_256;
 
     return Value::CLK_DIV_1024;
@@ -244,44 +244,46 @@ uint8_t TimerPrescalerAsynchronous::getFlags() const {
     return static_cast<uint8_t>(this->value_);
 }
 
-uint16_t TimerPrescalerAsynchronous::getDivisionFactor() const {
+TimerPrescaler::PrescaleFactor
+TimerPrescalerAsynchronous::getDivisionFactor() const {
     switch (this->value_) {
         default:
         case Value::CLK_NONE_DIV:
-            return PRESCALE_FACTOR_NONE;
+            return PrescaleFactor::FACTOR_NONE;
         case Value::CLK_DIV_8:
-            return PRESCALE_FACTOR_8;
+            return PrescaleFactor::FACTOR_8;
         case Value::CLK_DIV_32:
-            return PRESCALE_FACTOR_32;
+            return PrescaleFactor::FACTOR_32;
         case Value::CLK_DIV_64:
-            return PRESCALE_FACTOR_64;
+            return PrescaleFactor::FACTOR_64;
         case Value::CLK_DIV_128:
-            return PRESCALE_FACTOR_128;
+            return PrescaleFactor::FACTOR_128;
         case Value::CLK_DIV_256:
-            return PRESCALE_FACTOR_256;
+            return PrescaleFactor::FACTOR_256;
         case Value::CLK_DIV_1024:
-            return PRESCALE_FACTOR_1024;
+            return PrescaleFactor::FACTOR_1024;
     }
 }
 
 TimerPrescalerAsynchronous
 TimerPrescalerAsynchronous::prescalerForDuration(uint16_t milliseconds) {
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_NONE>)
+    if (milliseconds
+        <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_NONE>)
         return Value::CLK_NONE_DIV;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_8>)
+    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_8>)
         return Value::CLK_DIV_8;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_32>)
+    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_32>)
         return Value::CLK_DIV_32;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_64>)
+    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_64>)
         return Value::CLK_DIV_64;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_128>)
+    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_128>)
         return Value::CLK_DIV_128;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PRESCALE_FACTOR_256>)
+    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_256>)
         return Value::CLK_DIV_256;
 
     return Value::CLK_DIV_1024;
@@ -291,4 +293,57 @@ Timer1::Timer1(const Registers& registers) : Timer(registers) {}
 
 Timer1::~Timer1() {
     Timer::~Timer();
+}
+
+Timer1::ConfigFrequency Timer1::ConfigFrequency::fromFrequency(
+    uint32_t frequency, TimerCompareOutputModeA compareOutputModeA,
+    TimerCompareOutputModeB compareOutputModeB) {
+
+    TimerPrescalerSynchronous::Value prescaleFactor{
+        TimerPrescalerSynchronous::Value::CLK_NONE_DIV};
+
+    if (frequency <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_1024>)
+        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_1024;
+    else if (frequency
+             <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_256>)
+        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_256;
+    else if (frequency
+             <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_64>)
+        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_64;
+    else if (frequency
+             <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_8>)
+        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_8;
+    else if (frequency
+             > maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>)
+        frequency = maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>;
+
+    const uint32_t numerator =
+        (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
+
+    const uint16_t top = static_cast<uint16_t>(
+        roundf(static_cast<float>(numerator) / static_cast<float>(frequency)));
+
+    return {top, prescaleFactor, compareOutputModeA, compareOutputModeB};
+}
+
+void Timer1::setAsPwmFrequency(const ConfigFrequency& configFrequency) {
+    this->prescalerFlags_ = configFrequency.prescaler.getFlags();
+
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        this->stop();
+
+        *this->registers_.counter = 0;
+        *this->registers_.compareA = configFrequency.top;
+
+        *this->registers_.controlA =
+            static_cast<uint8_t>(configFrequency.compareOutputModeA)
+            | static_cast<uint8_t>(configFrequency.compareOutputModeB)
+            | _BV(WGM10);
+
+        *this->registers_.controlB |= _BV(WGM13);
+        *this->registers_.controlB &= ~_BV(WGM12);
+
+        *this->registers_.controlC = 0;
+        *this->registers_.interruptMask = 0;
+    }
 }
