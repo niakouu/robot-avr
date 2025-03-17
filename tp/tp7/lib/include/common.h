@@ -32,4 +32,9 @@ struct isType<T, T> {
     static constexpr bool value = true;
 };
 
+template <typename T>
+constexpr T&& move(T&& value) {
+    return static_cast<T&&>(value);
+}
+
 #endif /* _COMMON_H */

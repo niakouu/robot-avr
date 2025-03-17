@@ -27,7 +27,6 @@ const Timer<uint8_t, TimerPrescalerSynchronous>::Registers
                                      .counter = &TCNT0,
                                      .compareA = &OCR0A,
                                      .compareB = &OCR0B,
-                                     .inputCapture = nullptr,
                                      .controlA = &TCCR0A,
                                      .controlB = &TCCR0B,
                                      .controlC = nullptr,
@@ -39,7 +38,6 @@ const Timer<uint16_t, TimerPrescalerSynchronous>::Registers
                                      .counter = &TCNT1,
                                      .compareA = &OCR1A,
                                      .compareB = &OCR1B,
-                                     .inputCapture = &ICR1,
                                      .controlA = &TCCR1A,
                                      .controlB = &TCCR1B,
                                      .controlC = &TCCR1C,
@@ -51,11 +49,18 @@ const Timer<uint8_t, TimerPrescalerAsynchronous>::Registers
                                      .counter = &TCNT2,
                                      .compareA = &OCR2A,
                                      .compareB = &OCR2B,
-                                     .inputCapture = nullptr,
                                      .controlA = &TCCR2A,
                                      .controlB = &TCCR2B,
                                      .controlC = nullptr,
                                      .interruptMask = &TIMSK2};
+
+template <TimerPrescaler::PrescaleFactor prescaleFactor>
+static constexpr uint16_t maxFrequency =
+    (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
+
+template <TimerPrescaler::PrescaleFactor prescaleFactor>
+static constexpr uint16_t prescaleMaximumMilliseconds =
+    (UINT16_MAX * 1000) / (F_CPU / static_cast<uint16_t>(prescaleFactor));
 
 template <typename T, typename U>
 Timer<T, U>::Timer(const Timer<T, U>::Registers& registers)
@@ -135,10 +140,6 @@ void Timer<T, U>::setAsPwm(const ConfigPwm& configPwm) {
     }
 }
 
-template <TimerPrescaler::PrescaleFactor prescaleFactor>
-static constexpr uint16_t prescaleMaximumMilliseconds =
-    (UINT16_MAX * 1000) / (F_CPU / static_cast<uint16_t>(prescaleFactor));
-
 template <typename T, typename U>
 typename Timer<T, U>::ConfigCounter
 Timer<T, U>::ConfigCounter::fromMilliseconds(
@@ -147,7 +148,8 @@ Timer<T, U>::ConfigCounter::fromMilliseconds(
     U prescaler = U::prescalerForDuration(milliseconds);
 
     uint32_t maxTicks = static_cast<uint32_t>(
-        (F_CPU / static_cast<uint16_t>(prescaler.getDivisionFactor()))
+        (static_cast<float>(F_CPU)
+         / static_cast<uint16_t>(prescaler.getDivisionFactor()))
         * static_cast<float>(milliseconds) / MILLIS_IN_SECONDS);
 
     if (isType<T, uint8_t>::value && maxTicks > UINT8_MAX)
@@ -293,53 +295,55 @@ Timer1::~Timer1() {
     Timer::~Timer();
 }
 
-template <TimerPrescaler::PrescaleFactor prescaleFactor>
-static constexpr uint16_t maxFrequency =
-    (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
-
-Timer1::ConfigFrequency::ConfigFrequency(
-    uint16_t top, TimerPrescalerSynchronous prescaler, uint16_t speedA,
-    uint16_t speedB, TimerCompareOutputModeA compareOutputModeA,
-    TimerCompareOutputModeB compareOutputModeB)
-    : Timer1::ConfigPwm(prescaler, speedA, speedB, compareOutputModeA,
-                        compareOutputModeB),
-      top(top) {}
-
 Timer1::ConfigFrequency Timer1::ConfigFrequency::fromFrequency(
     uint32_t frequency, TimerCompareOutputModeA compareOutputModeA,
     TimerCompareOutputModeB compareOutputModeB) {
-    Timer1::ConfigFrequency configFrequency;
 
-    TimerPrescaler::PrescaleFactor prescaleFactor =
-        TimerPrescaler::PrescaleFactor::FACTOR_NONE;
+    TimerPrescalerSynchronous::Value prescaleFactor{
+        TimerPrescalerSynchronous::Value::CLK_NONE_DIV};
 
     if (frequency <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_1024>)
-        prescaleFactor = TimerPrescaler::PrescaleFactor::FACTOR_1024;
+        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_1024;
     else if (frequency
              <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_256>)
-        prescaleFactor = TimerPrescaler::PrescaleFactor::FACTOR_256;
+        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_256;
     else if (frequency
              <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_64>)
-        prescaleFactor = TimerPrescaler::PrescaleFactor::FACTOR_64;
+        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_64;
     else if (frequency
              <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_8>)
-        prescaleFactor = TimerPrescaler::PrescaleFactor::FACTOR_8;
+        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_8;
     else if (frequency
              > maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>)
         frequency = maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>;
 
     const uint32_t numerator =
         (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
+
     const uint16_t top = static_cast<uint16_t>(
         roundf(static_cast<float>(numerator) / static_cast<float>(frequency)));
 
-    return {
-        U prescaler;
-        T speedA, speedB;
-        TimerCompareOutputModeA compareOutputModeA;
-        TimerCompareOutputModeB compareOutputModeB;
-        .top = top
-    };
+    return {top, prescaleFactor, compareOutputModeA, compareOutputModeB};
 }
 
-void Timer1::setAsPwmFrequency(const ConfigFrequency& configFrequency) {}
+void Timer1::setAsPwmFrequency(const ConfigFrequency& configFrequency) {
+    this->prescalerFlags_ = configFrequency.prescaler.getFlags();
+
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        this->stop();
+
+        *this->registers_.counter = 0;
+        *this->registers_.compareA = configFrequency.top;
+
+        *this->registers_.controlA =
+            static_cast<uint8_t>(configFrequency.compareOutputModeA)
+            | static_cast<uint8_t>(configFrequency.compareOutputModeB)
+            | _BV(WGM10);
+
+        *this->registers_.controlB |= _BV(WGM13);
+        *this->registers_.controlB &= ~_BV(WGM12);
+
+        *this->registers_.controlC = 0;
+        *this->registers_.interruptMask = 0;
+    }
+}

@@ -25,7 +25,7 @@ class Timer {
 public:
     struct Registers {
         Pin waveformA, waveformB;
-        volatile T *counter, *compareA, *compareB, *inputCapture;
+        volatile T *counter, *compareA, *compareB;
         volatile uint8_t *controlA, *controlB, *controlC, *interruptMask;
     };
 
@@ -43,10 +43,6 @@ public:
         T speedA, speedB;
         TimerCompareOutputModeA compareOutputModeA;
         TimerCompareOutputModeB compareOutputModeB;
-
-        ConfigPwm(U prescaler, T speedA, T speedB,
-                  TimerCompareOutputModeA compareOutputModeA,
-                  TimerCompareOutputModeA compareOutputModeB)
     };
 
     Timer(Timer&) = delete;
@@ -70,6 +66,7 @@ protected:
     ~Timer();
 
 private:
+    friend class Timer1;
     static const uint16_t MILLIS_IN_SECONDS = 1000;
     const Registers& registers_;
     uint8_t prescalerFlags_;
@@ -119,15 +116,14 @@ public:
     Timer1(Timer1&) = delete;
     void operator=(const Timer1&) = delete;
 
-    struct ConfigFrequency : Timer1::ConfigPwm {
+    struct ConfigFrequency {
         uint16_t top;
+        TimerPrescalerSynchronous prescaler;
+        TimerCompareOutputModeA compareOutputModeA;
+        TimerCompareOutputModeB compareOutputModeB;
 
-        ConfigFrequency(uint16_t top, TimerPrescalerSynchronous prescaler,
-            uint16_t speedA, uint16_t speedB,
-            TimerCompareOutputModeA compareOutputModeA,
-            TimerCompareOutputModeB compareOutputModeB);
-
-        static ConfigFrequency fromFrequency(uint32_t frequency,
+        static ConfigFrequency
+        fromFrequency(uint32_t frequency,
                       TimerCompareOutputModeA compareOutputModeA,
                       TimerCompareOutputModeB compareOutputModeB);
     };
