@@ -25,7 +25,7 @@ class Timer {
 public:
     struct Registers {
         Pin waveformA, waveformB;
-        volatile T *counter, *compareA, *compareB;
+        volatile T *counter, *compareA, *compareB, *inputCapture;
         volatile uint8_t *controlA, *controlB, *controlC, *interruptMask;
     };
 
@@ -43,6 +43,10 @@ public:
         T speedA, speedB;
         TimerCompareOutputModeA compareOutputModeA;
         TimerCompareOutputModeB compareOutputModeB;
+
+        ConfigPwm(U prescaler, T speedA, T speedB,
+                  TimerCompareOutputModeA compareOutputModeA,
+                  TimerCompareOutputModeA compareOutputModeB)
     };
 
     Timer(Timer&) = delete;
@@ -74,8 +78,18 @@ private:
 
 class TimerPrescaler {
 public:
+    enum class PrescaleFactor : uint16_t {
+        FACTOR_NONE = 1,
+        FACTOR_8 = 8,
+        FACTOR_32 = 32,
+        FACTOR_64 = 64,
+        FACTOR_128 = 128,
+        FACTOR_256 = 256,
+        FACTOR_1024 = 1024
+    };
+
     virtual uint8_t getFlags() const = 0;
-    virtual uint16_t getDivisionFactor() const = 0;
+    virtual PrescaleFactor getDivisionFactor() const = 0;
 };
 
 class TimerPrescalerSynchronous : public TimerPrescaler {
@@ -92,7 +106,7 @@ public:
     operator Value() const;
 
     uint8_t getFlags() const;
-    uint16_t getDivisionFactor() const;
+    TimerPrescaler::PrescaleFactor getDivisionFactor() const;
     static TimerPrescalerSynchronous
     prescalerForDuration(uint16_t milliseconds);
 
@@ -127,12 +141,26 @@ public:
     operator Value() const;
 
     uint8_t getFlags() const;
-    uint16_t getDivisionFactor() const;
+    TimerPrescaler::PrescaleFactor getDivisionFactor() const;
     static TimerPrescalerAsynchronous
     prescalerForDuration(uint16_t milliseconds);
 
 private:
     const Value value_;
+};
+
+class Timer1 : public Timer<uint16_t, TimerPrescalerSynchronous> {
+public:
+    struct ConfigFrequency : Timer1::ConfigPwm {
+        uint16_t top;
+        static ConfigFrequency
+        fromFrequency(uint32_t frequency,
+                      TimerCompareOutputModeA compareOutputModeA,
+                      TimerCompareOutputModeB compareOutputModeB);
+    };
+
+    // PWM Phase and Frequency Correct -> mode 8
+    void setAsPwmFrequency(const ConfigFrequency& configFrequency);
 };
 
 namespace TimerConstants {
