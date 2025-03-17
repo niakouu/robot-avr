@@ -1,7 +1,7 @@
 #include "Timer.h"
 
-#include <util/atomic.h>
 #include <math.h>
+#include <util/atomic.h>
 
 #include "common.h"
 
@@ -292,9 +292,18 @@ Timer1::Timer1(const Registers& registers) : Timer(registers) {}
 Timer1::~Timer1() {
     Timer::~Timer();
 }
+
 template <TimerPrescaler::PrescaleFactor prescaleFactor>
 static constexpr uint16_t maxFrequency =
     (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
+
+Timer1::ConfigFrequency::ConfigFrequency(
+    uint16_t top, TimerPrescalerSynchronous prescaler, uint16_t speedA,
+    uint16_t speedB, TimerCompareOutputModeA compareOutputModeA,
+    TimerCompareOutputModeB compareOutputModeB)
+    : Timer1::ConfigPwm(prescaler, speedA, speedB, compareOutputModeA,
+                        compareOutputModeB),
+      top(top) {}
 
 Timer1::ConfigFrequency Timer1::ConfigFrequency::fromFrequency(
     uint32_t frequency, TimerCompareOutputModeA compareOutputModeA,
@@ -315,14 +324,15 @@ Timer1::ConfigFrequency Timer1::ConfigFrequency::fromFrequency(
     else if (frequency
              <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_8>)
         prescaleFactor = TimerPrescaler::PrescaleFactor::FACTOR_8;
-    else if (frequency > maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>)
+    else if (frequency
+             > maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>)
         frequency = maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>;
 
-    
-    const uint32_t numerator = (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
-    const uint16_t top = static_cast<uint16_t>(roundf(static_cast<float>(numerator) / static_cast<float>(frequency)));
-    
-    
+    const uint32_t numerator =
+        (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
+    const uint16_t top = static_cast<uint16_t>(
+        roundf(static_cast<float>(numerator) / static_cast<float>(frequency)));
+
     return {
         U prescaler;
         T speedA, speedB;

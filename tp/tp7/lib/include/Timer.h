@@ -119,6 +119,22 @@ public:
     Timer1(Timer1&) = delete;
     void operator=(const Timer1&) = delete;
 
+    struct ConfigFrequency : Timer1::ConfigPwm {
+        uint16_t top;
+
+        ConfigFrequency(uint16_t top, TimerPrescalerSynchronous prescaler,
+            uint16_t speedA, uint16_t speedB,
+            TimerCompareOutputModeA compareOutputModeA,
+            TimerCompareOutputModeB compareOutputModeB);
+
+        static ConfigFrequency fromFrequency(uint32_t frequency,
+                      TimerCompareOutputModeA compareOutputModeA,
+                      TimerCompareOutputModeB compareOutputModeB);
+    };
+
+    // PWM Phase and Frequency Correct -> mode 8
+    void setAsPwmFrequency(const ConfigFrequency& configFrequency);
+
 protected:
     friend class Board;
     Timer1(const Registers& registers);
@@ -147,20 +163,6 @@ public:
 
 private:
     const Value value_;
-};
-
-class Timer1 : public Timer<uint16_t, TimerPrescalerSynchronous> {
-public:
-    struct ConfigFrequency : Timer1::ConfigPwm {
-        uint16_t top;
-        static ConfigFrequency
-        fromFrequency(uint32_t frequency,
-                      TimerCompareOutputModeA compareOutputModeA,
-                      TimerCompareOutputModeB compareOutputModeB);
-    };
-
-    // PWM Phase and Frequency Correct -> mode 8
-    void setAsPwmFrequency(const ConfigFrequency& configFrequency);
 };
 
 namespace TimerConstants {
