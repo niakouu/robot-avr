@@ -30,7 +30,7 @@ const Adc& Board::getAdc() const {
     return this->adc_;
 }
 
-const Memory24CXXX& Board::getMemory() const {
+const Memory24& Board::getMemory() const {
     return this->memory_;
 }
 
@@ -62,7 +62,7 @@ Adc& Board::getAdc() {
     return this->adc_;
 }
 
-Memory24CXXX& Board::getMemory() {
+Memory24& Board::getMemory() {
     return this->memory_;
 }
 

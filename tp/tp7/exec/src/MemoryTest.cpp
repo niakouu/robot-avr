@@ -14,7 +14,7 @@ const char* MemoryTest::getName() const {
 
 uint8_t MemoryTest::runTests(void (*log)(const char* format, ...)) const {
     uint8_t fails = 0;
-    const Memory24CXXX& memory = Board::get().getMemory();
+    Memory24& memory = Board::get().getMemory();
     constexpr uint8_t BUF_SIZE = 127;
     constexpr uint8_t SINGLE_BYTE_TEST_ADDRESSES[] = {0, 63, 127};
     constexpr uint8_t SINGLE_BYTE_TESTS[] = {0x00, 0x35, 0xa2, 0xff};

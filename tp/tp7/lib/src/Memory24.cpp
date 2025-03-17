@@ -24,17 +24,17 @@
 /*                                                                            */
 /*                                                                            */
 /******************************************************************************/
+
 #include "Memory24.h"
-
-#include <util/twi.h>
-
-#include "common.h"
 
 #ifndef F_CPU
 /* fournir un avertissement mais non une erreur */
-#warning "F_CPU pas defini pour 'memoire_24.cpp'"
-#define F_CPU 8000000UL
+# warning "F_CPU pas defini pour 'memoire_24.cpp'"
+# define F_CPU 8000000UL
 #endif
+
+
+uint8_t Memory24::m_peripheral_address = 0xA0;
 
 /******************************************************************************/
 /* void Memory24CXXX::Memory24CXXX()                                        */
@@ -45,9 +45,26 @@
 /* Parametre d'entree  : aucun                                                */
 /* Parametre de sortie : aucun                                                */
 /******************************************************************************/
-Memory24CXXX::Memory24CXXX() : peripheral_address_(PERIPHERAL_ADDRESS) {
-    init();
+Memory24::Memory24()
+  : PAGE_SIZE(128)
+{
+   init();
 }
+
+
+/******************************************************************************/
+/* void Memory24CXXX::~Memory24CXXX()                                       */
+/*                                                                            */
+/*      Destructeur: ne fait rien                                             */
+/*                                                                            */
+/* Parametre d'entree  : aucun                                                */
+/* Parametre de sortie : aucun                                                */
+/******************************************************************************/
+Memory24::~Memory24()
+{
+   // rien a faire... 
+}
+
 
 /******************************************************************************/
 /* void Memory24CXXX::init(void)                                             */
@@ -57,27 +74,36 @@ Memory24CXXX::Memory24CXXX() : peripheral_address_(PERIPHERAL_ADDRESS) {
 /* Parametre d'entree  : aucun                                                */
 /* Parametre de sortie : aucun                                                */
 /******************************************************************************/
-void Memory24CXXX::init() {
-    choose_memory_bank(Bank::ZERO);
-    // Initialisation de l'horloge de l'interface I2C
-    TWSR = 0;
-    // prediviseur
-    TWBR = (F_CPU / SCL_FREQUENCY - SCL_OFFSET) / 2;
+void Memory24::init()
+{
+   choose_memory_bank(0);
+   // Initialisation de l'horloge de l'interface I2C
+   TWSR = 0;
+   // prediviseur
+   TWBR =  (F_CPU / 100000UL - 16) / 2;
+
 }
 
 /******************************************************************************/
-/* uint8_t Memory24CXXX::choose_memory_bank(const uint8_t banc)               */
+/* uint8_t Memory24CXXX::choose_memory_bank(const uint8_t banc)                    */
 /*                                                                            */
 /*      Choisir un banc de memoire                                            */
 /*                                                                            */
 /* Parametre d'entree  : uint8_t banc - le banc de memoire a choisir          */
-/* Parametre de sortie : uint8_t      - rv                                    */
+/* Parametre de sortie : uint8_t      - rv si c'est un succes, 255 si echec   */
 /******************************************************************************/
-uint8_t Memory24CXXX::choose_memory_bank(const Bank bank) {
-    this->peripheral_address_ =
-        (PERIPHERAL_ADDRESS | (static_cast<uint8_t>(bank) << 1));
-    return this->peripheral_address_;
+uint8_t Memory24::choose_memory_bank(const uint8_t bank)
+{
+   uint8_t temp = bank & 0x03;
+   uint8_t rv = 255;
+   if(bank == temp)
+   {
+      Memory24::m_peripheral_address = (0xA0 | ( bank << 1 ));
+      rv = Memory24::m_peripheral_address;
+   }
+   return rv;
 }
+
 
 /******************************************************************************/
 /*                Lecture sequentielle de l'eeprom I2C                        */
@@ -120,142 +146,148 @@ uint8_t Memory24CXXX::choose_memory_bank(const Bank bank) {
 /* Parametres de sortie : uint8_t *donnee  - donnees lues                     */
 /*                                                                            */
 /******************************************************************************/
-uint8_t Memory24CXXX::read(const uint16_t address) const {
-    //______________ Attente de la fin d'un cycle d'ecriture ______________
-    while (true) {
-        TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-        while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-            ;
+uint8_t Memory24::read(const uint16_t address, uint8_t *data)
+{
+  uint8_t rv = 0;
 
-        TWDR = this->peripheral_address_; // controle - bit 0 a 0, ecriture
-        TWCR =
-            _BV(TWINT) | _BV(TWEN); // R. a Z., interrupt. - Depart de transm.
-        while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-            ;
-        if (TWSR == TW_MT_SLA_ACK) // 0x18 = cycle d'ecriture termine
-            break;
-    }
+  //______________ Attente de la fin d'un cycle d'ecriture ______________
+  for (;;)
+  {
+    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);    // Condition de depart
+    while ((TWCR & _BV(TWINT)) == 0)   // Attente de fin de transmission
+      ;
 
-    //_______________ Transmission de la condition de depart ________________
-    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+    TWDR = m_peripheral_address;    //controle - bit 0 a 0, ecriture
+    TWCR = _BV(TWINT) | _BV(TWEN);     // R. a Z., interrupt. - Depart de transm.
+    while ((TWCR & _BV(TWINT)) == 0)   // Attente de fin de transmission
+      ;
+    if (TWSR==0x18)         // 0x18 = cycle d'ecriture termine
+       break;
+  }
 
-    //__________________ Transmission du code de controle ___________________
-    TWDR = this->peripheral_address_; // Controle - bit 0 a 0, ecriture
-    TWCR = _BV(TWINT) | _BV(TWEN);    // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0)  // Attente de fin de transmission
-        ;
+  //_______________ Transmission de la condition de depart ________________
+  TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);     // Condition de depart
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+    ;
 
-    //______________ Transmission du poids fort de l'adresse ________________
-    TWDR = (address >> UINT8_WITDH); // 8 bits de poids fort de l'addresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //__________________ Transmission du code de controle ___________________
+  TWDR = m_peripheral_address;       // Controle - bit 0 a 0, ecriture
+  TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
+    ;
 
-    //_____________ Transmission du poids faible de l'adresse _______________
-    TWDR = address;                  // 8 bits de poids faible de l'addresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R.�Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //______________ Transmission du poids fort de l'adresse ________________
+  TWDR =  ( address >> 8 );            // 8 bits de poids fort de l'addresse
+  TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
+     ;
 
-    //_______________ Transmission de la condition de depart ________________
-    //  TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);    // Condition de fin
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
-    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //_____________ Transmission du poids faible de l'adresse _______________
+  TWDR = address;                      // 8 bits de poids faible de l'addresse
+  TWCR = _BV(TWINT) | _BV(TWEN);       // R.�Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
+    ;
 
-    //__________________ Transmission du code de controle ___________________
-    TWDR = this->peripheral_address_ + 1; // Controle - bit 0 a 1 lecture
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //_______________ Transmission de la condition de depart ________________
+  //  TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);    // Condition de fin
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+    ;
+  TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+    ;
 
-    //________________________ Lecture de l'eeprom __________________________
-    TWCR = _BV(TWINT) | _BV(TWEN); // R.�Z., interrupt. - Depart de transm.+NACK
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //__________________ Transmission du code de controle ___________________
+  TWDR =  m_peripheral_address + 1;   // Controle - bit 0 a 1 lecture 
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+    ;
 
-    const uint8_t data = TWDR;
+  //________________________ Lecture de l'eeprom __________________________
+  TWCR = _BV(TWINT) | _BV(TWEN);     // R.�Z., interrupt. - Depart de transm.+NACK
+  while ((TWCR & _BV(TWINT)) == 0)   // Attente de fin de transmission
+    ;
+  *data = TWDR;
 
-    //________________ Transmission de la condition d'arret _________________
-    TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
-
-    return data;
+  //________________ Transmission de la condition d'arret _________________
+  TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
+  return rv;
 }
 
-void Memory24CXXX::read(const uint16_t address, uint8_t* data,
-                        uint8_t length) const {
-    //______________ Attente de la fin d'un cycle d'ecriture ______________
-    for (;;) {
-        TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-        while ((TWCR & _BV(TWINT)) == 0)
-            ; // Attente de fin de transmission
 
-        TWDR = this->peripheral_address_; // Controle - bit 0 a 0, ecriture
-        TWCR =
-            _BV(TWINT) | _BV(TWEN); // R. a Z., interrupt. - Depart de transm.
-        while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-            ;
-        if (TWSR == TW_MT_SLA_ACK) // 0x18 = cycle d'ecriture termine
-            break;
-    }
+uint8_t Memory24::read(const uint16_t address, uint8_t *data,
+                               uint8_t length)
+{
+  uint8_t twcr;
 
-    //_______________ Transmission de la condition de depart ________________
-    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //______________ Attente de la fin d'un cycle d'ecriture ______________
+  for (;;)
+  {
+    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);    // Condition de depart
+    while ((TWCR & _BV(TWINT)) == 0) ;   // Attente de fin de transmission
 
-    //__________________ Transmission du code de controle ___________________
-    TWDR = this->peripheral_address_; // Controle - bit 0 a 0, ecriture
-    TWCR = _BV(TWINT) | _BV(TWEN);    // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0)  // Attente de fin de transmission
-        ;
+    TWDR = m_peripheral_address;       // Controle - bit 0 a 0, ecriture
+    TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
+    while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
+       ;
+    if (TWSR==0x18)                      // 0x18 = cycle d'ecriture termine
+       break;
+  }
 
-    //______________ Transmission du poids fort de l'adresse ________________
-    TWDR = address >> UINT8_WITDH;   // 8 bits de poids fort de l'addresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //_______________ Transmission de la condition de depart ________________
+  TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);     // Condition de depart
+  while ((TWCR & _BV(TWINT)) == 0)    // Attente de fin de transmission
+     ;
 
-    //_____________ Transmission du poids faible de l'adresse _______________
-    TWDR = address;                  // 8 bits de poids faible de l'addresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //__________________ Transmission du code de controle ___________________
+  TWDR = m_peripheral_address;        // Controle - bit 0 a 0, ecriture
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
 
-    //_______________ Transmission de la condition de depart ________________
-    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //______________ Transmission du poids fort de l'adresse ________________
+  TWDR = address >> 8;                  // 8 bits de poids fort de l'addresse
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
 
-    //__________________ Transmission du code de controle ___________________
-    TWDR = this->peripheral_address_ + 1; // Controle - bit 0 a 1, lecture
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //_____________ Transmission du poids faible de l'adresse _______________
+  TWDR = address;                       // 8 bits de poids faible de l'addresse
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
 
-    //________________________ Lecture de l'eeprom __________________________
-    // La memoire transmet 8 bits de donnee et le recepteur transmet un
-    // acquittement (ACK). Si c'est la derniere donnee le recepteur n'acquitte
-    // pas la reception (NACK) et il transmet ensuite la condition de stop.
-    // Le ACK est realisee par le recepteur en placant TWEA a 1 au lieu de le
-    // laisser a 0.
-    for (uint8_t twcr = _BV(TWINT) | _BV(TWEN) | _BV(TWEA); length > 0;
-         length--) {
-        if (length == 1)
-            twcr = _BV(TWINT) | _BV(TWEN); // Derniere donnee, NACK
-        TWCR = twcr; // R. a Z., interrupt. - Depart de transm.
-        while ((TWCR & _BV(TWINT)) == 0)
-            ;           // Attente de fin de transmission
-        *data++ = TWDR; // Lecture
-    }
+  //_______________ Transmission de la condition de depart ________________
+  TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);    // Condition de depart
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
 
-    //________________ Transmission de la condition d'arret _________________
-    TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
+  //__________________ Transmission du code de controle ___________________
+  TWDR =  m_peripheral_address + 1;  // Controle - bit 0 a 1, lecture
+  TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
+     ;
+
+  //________________________ Lecture de l'eeprom __________________________
+  // La memoire transmet 8 bits de donnee et le recepteur transmet un
+  // acquittement (ACK). Si c'est la derniere donnee le recepteur n'acquitte
+  // pas la reception (NACK) et il transmet ensuite la condition de stop.
+  // Le ACK est realisee par le recepteur en placant TWEA a 1 au lieu de le
+  // laisser a 0.
+  for (twcr = _BV(TWINT) | _BV(TWEN) | _BV(TWEA) ; length > 0; length--)
+  {
+      if (length == 1)
+         twcr = _BV(TWINT) | _BV(TWEN);  // Derniere donnee, NACK
+      TWCR = twcr;                       // R. a Z., interrupt. - Depart de transm.
+      while ((TWCR & _BV(TWINT)) == 0) ; // Attente de fin de transmission
+     *data++ = TWDR;               // Lecture
+  }
+
+  //________________ Transmission de la condition d'arret _________________
+  TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);
+
+  return 0;
 }
+
 
 /******************************************************************************/
 /*                                                                            */
@@ -301,133 +333,146 @@ void Memory24CXXX::read(const uint16_t address, uint8_t* data,
 /* Parametre de sortie  : uint8_t rv       - nombre de donnees ecrites        */
 /*                                                                            */
 /******************************************************************************/
-void Memory24CXXX::write(const uint16_t address, const uint8_t data) const {
-    //______________ Attente de la fin d'un cycle d'ecriture ______________
-    for (;;) {
-        TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-        while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-            ;
+uint8_t Memory24::write(const uint16_t address, const uint8_t data)
+{
+  //______________ Attente de la fin d'un cycle d'ecriture ______________
+  for ( ; ; )
+  {
+    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);    // Condition de depart
+    while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+       ;
 
-        TWDR = this->peripheral_address_; // Controle - bit 0 a 0, ecriture
-        TWCR =
-            _BV(TWINT) | _BV(TWEN); // R. a Z., interrupt. - Depart de transm.
-        while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-            ;
+    TWDR = m_peripheral_address;       // Controle - bit 0 a 0, ecriture
+    TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
+    while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
+       ;
 
-        if (TWSR == TW_MT_SLA_ACK)
-            break; // 0x18 = cycle d'ecriture termine
-    }
+    if (TWSR==0x18)
+       break;               // 0x18 = cycle d'ecriture termine
+  }
 
-    //_______________ Transmission de la condition de depart ________________
-    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //_______________ Transmission de la condition de depart ________________
+  TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);     // Condition de depart
+  while ((TWCR & _BV(TWINT)) == 0)    // Attente de fin de transmission
+     ;
 
-    //__________________ Transmission du code de controle ___________________
-    TWDR = this->peripheral_address_; // Controle - bit 0 a 0, ecriture
-    TWCR = _BV(TWINT) | _BV(TWEN);    // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0)  // Attente de fin de transmission
-        ;
+  //__________________ Transmission du code de controle ___________________
+  TWDR = m_peripheral_address;        // Controle - bit 0 a 0, ecriture
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
 
-    //______________ Transmission du poids fort de l'adresse ________________
-    TWDR = address >> UINT8_WITDH;   // 8 bits de poids fort de l'adresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //______________ Transmission du poids fort de l'adresse ________________
+  TWDR = address >> 8;                 // 8 bits de poids fort de l'adresse
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
 
-    //_____________ Transmission du poids faible de l'adresse _______________
-    TWDR = address;                  // 8 bits de poids faible de l'adresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //_____________ Transmission du poids faible de l'adresse _______________
+  TWDR = address;                      // 8 bits de poids faible de l'adresse
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
 
-    //______________________ Transmission de la donnee ______________________
-    TWDR = data;
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
+  //______________________ Transmission de la donnee ______________________
+  TWDR = data;
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
 
-    //________________ Transmission de la condition d'arret _________________
-    TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN); // Demarrage du cycle d'ecriture
+  //________________ Transmission de la condition d'arret _________________
+  TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN);  // Demarrage du cycle d'ecriture
+
+  return 0;
 }
 
-void Memory24CXXX::write(const uint16_t address, const uint8_t* data,
-                         const uint8_t length) const {
-    uint16_t addressCopy = address;
-    uint8_t lengthCopy = length;
-    while (lengthCopy > 0) {
-        const uint8_t rv = write_page(addressCopy, data, lengthCopy);
-        addressCopy += rv; // On pointe une nouvelle page
-        lengthCopy -= rv;  // On soustrait la partie ecrite precedemment
-        data += rv;        // On avance le pointeur de donnees
-    }
+
+uint8_t Memory24::write(const uint16_t address, const uint8_t *data,
+                                const uint8_t length)
+{
+  uint8_t rv;
+  uint16_t addressCopy = address;
+  uint8_t lengthCopy = length;
+  do
+  {
+      rv = write_page(addressCopy, data, lengthCopy);
+      addressCopy += rv;      // On pointe une nouvelle page
+      lengthCopy -= rv;     // On soustrait la partie ecrite precedemment
+      data += rv;            // On avance le pointeur de donnees
+  }
+  while (lengthCopy > 0);
+
+  return 0;
 }
 
-uint8_t Memory24CXXX::write_page(const uint16_t address, const uint8_t* data,
-                                 const uint8_t length) const {
-    uint8_t rv = 0;
-    uint8_t lengthCopy = length;
 
-    // Les operations suivantes permettent de tenir compte des limites
-    // de grandeur d'une page afin d'eviter le repliement dans l'ecriture
-    // des donnees
-    uint16_t endAddress = 0;
-    if (address + length < (address | (PAGE_SIZE - 1)))
-        endAddress = address + length;
-    else
-        endAddress = (address | (PAGE_SIZE - 1)) + 1;
-    lengthCopy = endAddress - address;
+uint8_t Memory24::write_page(const uint16_t address, const uint8_t *data,
+                                   const uint8_t length)
+{
+  uint16_t endAddress;
+  uint8_t rv = 0;
+  uint8_t lengthCopy = length;
 
-    //______________ Attente de la fin d'un cycle d'ecriture ______________
-    for (;;) {
-        TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-        while ((TWCR & _BV(TWINT)) == 0)
-            ;                             // Attente de fin de transmission
-        TWDR = this->peripheral_address_; // Controle - bit 0 a 0, ecriture
-        TWCR =
-            _BV(TWINT) | _BV(TWEN); // R. a Z., interrupt. - Depart de transm.
-        while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-            ;
+  // Les operations suivantes permettent de tenir compte des limites
+  // de grandeur d'une page afin d'eviter le repliement dans l'ecriture
+  // des donnees
 
-        if (TWSR == TW_MT_SLA_ACK)
-            break; // 0x18 = cycle d'ecriture termine
-    }
+  if (address + length < (address | (PAGE_SIZE - 1)))
+    endAddress = address + length;
+  else
+    endAddress = (address | (PAGE_SIZE - 1)) + 1;
+  lengthCopy = endAddress - address;
 
-    //_______________ Transmission de la condition de depart ________________
-    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
+
+  //______________ Attente de la fin d'un cycle d'ecriture ______________
+  for ( ; ; )
+  {
+    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);    // Condition de depart
+    while ((TWCR & _BV(TWINT)) == 0) ;   // Attente de fin de transmission
+    TWDR = m_peripheral_address;       // Controle - bit 0 a 0, ecriture
+    TWCR = _BV(TWINT) | _BV(TWEN);       // R. a Z., interrupt. - Depart de transm.
+    while ((TWCR & _BV(TWINT)) == 0)     // Attente de fin de transmission
+       ;
+
+    if (TWSR==0x18)
+       break;               // 0x18 = cycle d'ecriture termine
+  }
+
+  //_______________ Transmission de la condition de depart ________________
+  TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);     // Condition de depart
+  while ((TWCR & _BV(TWINT)) == 0)       // Attente de fin de transmission
+     ;
+
+  //__________________ Transmission du code de controle ___________________
+  TWDR = m_peripheral_address;        // Controle - bit 0 a 0, ecriture
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
+
+  //______________ Transmission du poids fort de l'adresse ________________
+  TWDR = address >> 8;                  // 8 bits de poids fort de l'adresse
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
+
+  //_____________ Transmission du poids faible de l'adresse _______________
+  TWDR = address;                       // 8 bits de poids faible de l'adresse
+  TWCR = _BV(TWINT) | _BV(TWEN);        // R. a Z., interrupt. - Depart de transm.
+  while ((TWCR & _BV(TWINT)) == 0)      // Attente de fin de transmission
+     ;
+
+  //______________________ Transmission de la page ______________________
+  for ( ; lengthCopy > 0; lengthCopy--)
+  {
+     TWDR = *data++;
+     TWCR = _BV(TWINT) | _BV(TWEN);     // R. a Z., interrupt. - Depart de transm.
+     while ((TWCR & _BV(TWINT)) == 0)   // Attente de fin de transmission
         ;
+     rv++;                              // Compteur de donnees
+  }
 
-    //__________________ Transmission du code de controle ___________________
-    TWDR = this->peripheral_address_; // Controle - bit 0 a 0, ecriture
-    TWCR = _BV(TWINT) | _BV(TWEN);    // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0)  // Attente de fin de transmission
-        ;
+  //________________ Transmission de la condition d'arrret _________________
+  TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN); // Demarrage du cycle d'ecriture
 
-    //______________ Transmission du poids fort de l'adresse ________________
-    TWDR = address >> UINT8_WITDH;   // 8 bits de poids fort de l'adresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
-
-    //_____________ Transmission du poids faible de l'adresse _______________
-    TWDR = address;                  // 8 bits de poids faible de l'adresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
-
-    //______________________ Transmission de la page ______________________
-    for (; lengthCopy > 0; lengthCopy--) {
-        TWDR = *data++;
-        TWCR =
-            _BV(TWINT) | _BV(TWEN); // R. a Z., interrupt. - Depart de transm.
-        while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-            ;
-        rv++; // Compteur de donnees
-    }
-
-    //________________ Transmission de la condition d'arrret _________________
-    TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN); // Demarrage du cycle d'ecriture
-
-    return rv;
+  return rv;
 }

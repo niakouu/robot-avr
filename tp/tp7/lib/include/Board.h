@@ -20,7 +20,7 @@ public:
     const Timer1& getTimer1() const;
     const Timer2& getTimer2() const;
     const Adc& getAdc() const;
-    const Memory24CXXX& getMemory() const;
+    const Memory24& getMemory() const;
     const Uart& getUart0() const;
     const Button& getButton() const;
     const WatchdogTimer& getWatchdogTimer() const;
@@ -29,7 +29,7 @@ public:
     Timer1& getTimer1();
     Timer2& getTimer2();
     Adc& getAdc();
-    Memory24CXXX& getMemory();
+    Memory24& getMemory();
     Uart& getUart0();
     Button& getButton();
     WatchdogTimer& getWatchdogTimer();
@@ -40,7 +40,7 @@ private:
     Timer1 timer1_;
     Timer2 timer2_;
     Adc adc_;
-    Memory24CXXX memory_;
+    Memory24 memory_;
     Uart uart0_;
     Button button_;
     WatchdogTimer watchdogTimer_;
