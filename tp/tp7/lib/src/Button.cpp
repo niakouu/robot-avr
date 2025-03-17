@@ -1,21 +1,18 @@
 #include "Button.h"
+#include <util/delay.h>
+
+constexpr uint8_t DEBOUNCE_MS = 30;
 
 Button::Button(Pin::Region region, Pin::Id id, bool pressedIsHigh)
     : isPressed_(false), eventConsumed_(false), pressedIsHigh_(pressedIsHigh),
       buttonPin_(region, id, Pin::Direction::IN) {}
 
-bool Button::isPressed() {
-    if (!this->eventConsumed_) {
-        this->consumeEvent();
-        return false;
-    }
-
-    this->restoreEvent();
-    return true;
+bool Button::isPressed() const {
+    return this->isPressed_;
 }
 
 bool Button::isEvent() const {
-    return this->eventConsumed_;
+    return !this->eventConsumed_;
 }
 
 void Button::consumeEvent() {
@@ -27,6 +24,13 @@ void Button::restoreEvent() {
 }
 
 void Button::setPressed() {
-    if (this->buttonPin_.read())
-        this->isPressed_ = isPressed();
+    _delay_ms(DEBOUNCE_MS);
+
+    const bool oldValue = this->isPressed_;
+
+    this->isPressed_ = this->buttonPin_.read();
+
+    if (oldValue != this->isPressed_) {
+        this->restoreEvent();
+    }
 }

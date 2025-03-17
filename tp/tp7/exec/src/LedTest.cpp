@@ -33,7 +33,7 @@ uint8_t LedTest::runTests(void (*log)(const char* format, ...)) const {
     _delay_ms(static_cast<double>(SWITCH_DELAY_MS));
 
     // Green
-    log("GREEN\n", SWITCH_DELAY_MS);
+    log("OFF\n", SWITCH_DELAY_MS);
     bidirectionalLed.setColor(BidirectionalLed::Color::OFF);
 
     _delay_ms(static_cast<double>(SWITCH_DELAY_MS));

@@ -8,7 +8,7 @@ public:
     Button(Pin::Region region, Pin::Id id, bool pressedIsHigh);
     ~Button() = default;
 
-    bool isPressed();
+    bool isPressed() const;
     bool isEvent() const;
     void consumeEvent();
     void restoreEvent();
