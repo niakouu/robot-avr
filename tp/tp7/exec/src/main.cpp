@@ -50,14 +50,14 @@ ISR(WDT_vect) {
 int main() {
     sei();
     const Test* tests[] = {&::UART_TEST,
-                        //    &::LED_TEST,
-                        //    &::MEMORY_TEST,
-                        //    &::BUTTON_TEST,
-                        //    &::PHOTORESISTANCE_TEST,
-                        //    &::TIMER_COUNTER_TEST,
+                           &::LED_TEST,
+                           &::MEMORY_TEST,
+                           &::BUTTON_TEST,
+                           &::PHOTORESISTANCE_TEST,
+                           &::TIMER_COUNTER_TEST,
                            &::TIMER_PWM_TEST,
-                        //    &::TIMER_FREQUENCY_TEST,
-                        //    &::WATCHDOG_TIMER_TEST,
+                           &::TIMER_FREQUENCY_TEST,
+                           &::WATCHDOG_TIMER_TEST,
                            &::MOVEMENT_MANAGER_TEST};
 
     Uart& uart0 = Board::get().getUart0();
