@@ -54,13 +54,15 @@ const Timer<uint8_t, TimerPrescalerAsynchronous>::Registers
                                      .controlC = nullptr,
                                      .interruptMask = &TIMSK2};
 
-template <TimerPrescaler::PrescaleFactor prescaleFactor>
-static constexpr uint16_t maxFrequency =
-    (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
+namespace {
+    template <TimerPrescaler::PrescaleFactor prescaleFactor>
+    constexpr uint32_t maxFrequency =
+        (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
 
-template <TimerPrescaler::PrescaleFactor prescaleFactor>
-static constexpr uint16_t prescaleMaximumMilliseconds =
-    (UINT16_MAX * 1000) / (F_CPU / static_cast<uint16_t>(prescaleFactor));
+    template <TimerPrescaler::PrescaleFactor prescaleFactor>
+    constexpr uint16_t prescaleMaximumMilliseconds =
+        (UINT16_MAX * 1000) / (F_CPU / static_cast<uint16_t>(prescaleFactor));
+} // namespace
 
 template <typename T, typename U>
 Timer<T, U>::Timer(const Timer<T, U>::Registers& registers)
@@ -218,16 +220,18 @@ TimerPrescalerSynchronous::getDivisionFactor() const {
 TimerPrescalerSynchronous
 TimerPrescalerSynchronous::prescalerForDuration(uint16_t milliseconds) {
     if (milliseconds
-        <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_NONE>)
+        <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_NONE>)
         return Value::CLK_NONE_DIV;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_8>)
+    if (milliseconds <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_8>)
         return Value::CLK_DIV_8;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_64>)
+    if (milliseconds
+        <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_64>)
         return Value::CLK_DIV_64;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_256>)
+    if (milliseconds
+        <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_256>)
         return Value::CLK_DIV_256;
 
     return Value::CLK_DIV_1024;
@@ -268,22 +272,26 @@ TimerPrescalerAsynchronous::getDivisionFactor() const {
 TimerPrescalerAsynchronous
 TimerPrescalerAsynchronous::prescalerForDuration(uint16_t milliseconds) {
     if (milliseconds
-        <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_NONE>)
+        <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_NONE>)
         return Value::CLK_NONE_DIV;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_8>)
+    if (milliseconds <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_8>)
         return Value::CLK_DIV_8;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_32>)
+    if (milliseconds
+        <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_32>)
         return Value::CLK_DIV_32;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_64>)
+    if (milliseconds
+        <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_64>)
         return Value::CLK_DIV_64;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_128>)
+    if (milliseconds
+        <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_128>)
         return Value::CLK_DIV_128;
 
-    if (milliseconds <= prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_256>)
+    if (milliseconds
+        <= ::prescaleMaximumMilliseconds<PrescaleFactor::FACTOR_256>)
         return Value::CLK_DIV_256;
 
     return Value::CLK_DIV_1024;
@@ -302,20 +310,21 @@ Timer1::ConfigFrequency Timer1::ConfigFrequency::fromFrequency(
     TimerPrescalerSynchronous::Value prescaleFactor{
         TimerPrescalerSynchronous::Value::CLK_NONE_DIV};
 
-    if (frequency <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_1024>)
+    if (frequency
+        <= ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_1024>)
         prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_1024;
     else if (frequency
-             <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_256>)
+             <= ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_256>)
         prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_256;
     else if (frequency
-             <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_64>)
+             <= ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_64>)
         prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_64;
     else if (frequency
-             <= maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_8>)
+             <= ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_8>)
         prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_8;
     else if (frequency
-             > maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>)
-        frequency = maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>;
+             > ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>)
+        frequency = ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>;
 
     const uint32_t numerator =
         (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);

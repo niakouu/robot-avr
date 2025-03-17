@@ -1,11 +1,12 @@
+#include "TimerPwmTest.h"
+
 #include <avr/interrupt.h>
-#include <util/delay.h>
 #include <string.h>
+#include <util/delay.h>
 
 #include "Board.h"
 #include "Led.h"
 #include "Timer.h"
-#include "TimerPwmTest.h"
 
 constexpr uint16_t SWITCH_DELAY_MS = 2000;
 constexpr uint8_t WAIT_DELAY_MS = 25;
@@ -73,6 +74,6 @@ uint8_t TimerPwmTest::runTests(void (*log)(const char* format, ...)) const {
 
         _delay_ms(SWITCH_DELAY_MS);
     }
-    
+
     return 0;
 }

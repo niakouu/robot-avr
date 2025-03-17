@@ -36,18 +36,18 @@ uint8_t TimerCounterTest::runTests(void (*log)(const char* format, ...)) const {
     Timer2& timer2 = Board::get().getTimer2();
 
     // Counter Settings
-    log("Setting timer 1 counter settings from milliseconds.\n");
+    // log("Setting timer 1 counter settings from milliseconds.\n");
     timer1.setAsCounter(Timer1::ConfigCounter::fromMilliseconds(
         SWITCH_DELAY_MS, TimerCompareOutputModeA::TOGGLE));
-    log("Setting timer 2 counter settings.\n");
+    // log("Setting timer 2 counter settings.\n");
     timer2.setAsCounter(
         {.maxTicks = 0,
          .prescaler = TimerPrescalerAsynchronous::Value::CLK_DIV_1024});
 
     // Timer start
-    log("Starting timer2.\n");
+    // log("Starting timer2.\n");
     timer2.start();
-    log("Starting timer1.\n");
+    // log("Starting timer1.\n");
     timer1.start();
 
     const uint32_t startTime = ::gticks;
@@ -58,16 +58,16 @@ uint8_t TimerCounterTest::runTests(void (*log)(const char* format, ...)) const {
     const uint32_t endTime = ::gticks;
     const uint32_t differenceMs = (endTime - startTime) / (F_CPU / MS_PER_SEC);
 
-    log("Stopping Timer 1.");
+    // log("Stopping Timer 1.");
     timer1.stop();
 
-    log("Took start: %lu end: %lu ticks\n", startTime, endTime);
+    // log("Took start: %lu end: %lu ticks\n", startTime, endTime);
 
     if (differenceMs < SWITCH_DELAY_MS - OFFSET_MS
         || differenceMs > SWITCH_DELAY_MS + OFFSET_MS)
         ++fails;
 
-    log("Stopping Timer 2.");
+    // log("Stopping Timer 2.");
     timer2.stop();
 
     return fails;

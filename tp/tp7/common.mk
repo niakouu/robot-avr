@@ -64,19 +64,19 @@ $(SIMULATION_DIR)/%.c.o: %.c
 	$(call compile_specific_target,CC,simulation,$(SIMULATION_CFLAGS))
 
 $(SIMULATION_DIR)/%.cpp.o: %.cpp
-	$(call compile_specific_target,CXX,simulation,$(SIMULATION_CFLAGS))
+	$(call compile_specific_target,CXX,simulation,$(SIMULATION_CFLAGS) $(CXXFLAGS))
 
 $(RELEASE_DIR)/%.c.o: %.c
 	$(call compile_specific_target,CC,release,$(RELEASE_CFLAGS))
 
 $(RELEASE_DIR)/%.cpp.o: %.cpp
-	$(call compile_specific_target,CXX,release,$(RELEASE_CFLAGS))
+	$(call compile_specific_target,CXX,release,$(RELEASE_CFLAGS) $(CXXFLAGS))
 
 $(DEBUG_DIR)/%.c.o: %.c
 	$(call compile_specific_target,CC,debug,$(DEBUG_CFLAGS))
 
 $(DEBUG_DIR)/%.cpp.o: %.cpp
-	$(call compile_specific_target,CXX,debug,$(DEBUG_CFLAGS))
+	$(call compile_specific_target,CXX,debug,$(DEBUG_CFLAGS) $(CXXFLAGS))
 
 %.hex: %.elf
 	@$(OBJCOPY) -j .text -j .data -O $(HEXFORMAT) $< $@

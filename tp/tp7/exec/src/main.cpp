@@ -2,12 +2,16 @@
 #include <stdio.h>
 
 #include "Board.h"
+#include "ButtonTest.h"
 #include "LedTest.h"
 #include "MemoryTest.h"
-#include "Test.h"
-#include "UartTest.h"
-#include "ButtonTest.h"
 #include "PhotoresistanceTest.h"
+#include "Test.h"
+#include "TimerCounterTest.h"
+#include "TimerFrequencyTest.h"
+#include "TimerPwmTest.h"
+#include "UartTest.h"
+#include "WatchdogTimerTest.h"
 
 namespace {
     UartTest UART_TEST;
@@ -15,6 +19,10 @@ namespace {
     MemoryTest MEMORY_TEST;
     ButtonTest BUTTON_TEST;
     PhotoresistanceTest PHOTORESISTANCE_TEST;
+    TimerCounterTest TIMER_COUNTER_TEST;
+    TimerPwmTest TIMER_PWM_TEST;
+    TimerFrequencyTest TIMER_FREQUENCY_TEST;
+    WatchdogTimerTest WATCHDOG_TIMER_TEST;
     constexpr uint16_t BAUD_RATE = 2400;
 
     const char* gCurrentTestName = NULL;
@@ -32,8 +40,21 @@ ISR(INT0_vect) {
     Board::get().getButton().setPressed();
 }
 
+ISR(WDT_vect) {
+    Board::get().getWatchdogTimer().setSleepDone();
+}
+
 int main() {
-    const Test* tests[] = {&::UART_TEST, &::LED_TEST, &::MEMORY_TEST, &::BUTTON_TEST, &::PHOTORESISTANCE_TEST};
+    const Test* tests[] = {&::UART_TEST,
+                           &::LED_TEST,
+                           &::MEMORY_TEST,
+                           &::BUTTON_TEST,
+                           &::PHOTORESISTANCE_TEST,
+                           &::TIMER_COUNTER_TEST,
+                           &::TIMER_PWM_TEST,
+                           &::TIMER_FREQUENCY_TEST,
+                           &::WATCHDOG_TIMER_TEST};
+
     Uart& uart0 = Board::get().getUart0();
     stdout = uart0.getEmulatedFile();
     uart0.configure(::BAUD_RATE, false, Uart::Parity::DISABLED,

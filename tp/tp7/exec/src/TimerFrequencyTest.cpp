@@ -21,16 +21,15 @@ const char* TimerFrequencyTest::getName() const {
     return TimerFrequencyTest::NAME;
 }
 
-uint8_t TimerFrequencyTest::runTests(void (*log)(const char* format, ...)) const {
+uint8_t TimerFrequencyTest::runTests(void (*log)(const char* format,
+                                                 ...)) const {
     Timer1& timer1 = Board::get().getTimer1();
 
-    for(const uint32_t frequency : FREQUENCIES) {
-        log("Starting timer for buzzer at frequency: %d\n", frequency);
-        Timer1.setAsPwmFrequency(Timer1::ConfigFrequency::fromFrequency(
-            frequency,
-            TimerCompareOutputModeA::CLEAR,
-            TimerCompareOutputModeB::CLEAR
-        ));
+    for (const uint32_t frequency : FREQUENCIES) {
+        // log("Starting timer for buzzer at frequency: %d\n", frequency);
+        timer1.setAsPwmFrequency(Timer1::ConfigFrequency::fromFrequency(
+            frequency, TimerCompareOutputModeA::CLEAR,
+            TimerCompareOutputModeB::CLEAR));
         _delay_ms(SWITCH_DELAY_MS);
     }
 

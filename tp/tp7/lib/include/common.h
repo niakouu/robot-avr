@@ -3,7 +3,10 @@
 
 #include <stdint.h>
 
-static constexpr uint8_t UINT8_WITDH = 8;
+namespace
+{
+    constexpr uint8_t UINT8_WITDH = 8;
+} // namespace
 
 template <uint8_t A, uint8_t B, uint8_t... C>
 struct areAllEqual {

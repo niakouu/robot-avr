@@ -51,14 +51,18 @@ void Pin::updateDirection(Direction direction) const {
                                                    MAPPING_DEF(region, 6),     \
                                                    MAPPING_DEF(region, 7)}
 
-static constexpr Pin::Mappings mappings[][Pin::NUMBER_OF_PINS] = {
-    REGION_DEF(A), REGION_DEF(B), REGION_DEF(C), REGION_DEF(D)};
+namespace {
+    constexpr Pin::Mappings MAPPINGS[][Pin::NUMBER_OF_PINS] = {REGION_DEF(A),
+                                                               REGION_DEF(B),
+                                                               REGION_DEF(C),
+                                                               REGION_DEF(D)};
+} // namespace
 
 const constexpr Pin::Mappings& Pin::getMappings(Region region, Id id) {
     const uint8_t regionIndex = static_cast<uint8_t>(region);
     const uint8_t idIndex = static_cast<uint8_t>(id);
 
-    return mappings[regionIndex][idIndex];
+    return ::MAPPINGS[regionIndex][idIndex];
 }
 
 #undef REGION_DEF
