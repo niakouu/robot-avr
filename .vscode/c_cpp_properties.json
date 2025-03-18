@@ -32,7 +32,7 @@
             "name": "TP9",
             "includePath": [
                 "tp/tp9/lib/include",
-                "tp/tp9/exec/include"
+                "tp/tp9/executor/include"
             ],
             "defines": [
                 "__AVR_ATmega324PA__",

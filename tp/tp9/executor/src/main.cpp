@@ -11,8 +11,14 @@ ISR(WDT_vect) {
     Board::get().getWatchdogTimer().setSleepDone();
 }
 
-int main() {
+void initializer() {
+    cli();
+
     sei();
+}
+
+int main() {
+    initializer();
 
     return 0;
 }
