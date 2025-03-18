@@ -27,6 +27,21 @@
             "cppStandard": "c++14",
             "intelliSenseMode": "gcc-x86",
             "compilerPath": "/usr/bin/avr-gcc"
+        },
+        {
+            "name": "TP9",
+            "includePath": [
+                "tp/tp9/lib/include",
+                "tp/tp9/exec/include"
+            ],
+            "defines": [
+                "__AVR_ATmega324PA__",
+                "F_CPU=8000000"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-x86",
+            "compilerPath": "/usr/bin/avr-gcc"
         }
     ],
     "version": 4
