@@ -13,9 +13,15 @@ public:
 
     void executeNextInstruction(uint16_t data);
     uint16_t getInstructionPointer() const;
-    bool getIsDone() const;
+    bool isDone() const;
 
 private:
+    enum class State : uint8_t {
+        NOT_STARTED,
+        RUNNING,
+        DONE
+    };
+
     enum class Instruction : uint8_t {
         START = 0x01,
         WAIT = 0x02,
@@ -37,7 +43,7 @@ private:
     uint16_t instructionPointer_;
     uint16_t returnAddress_;
     uint16_t cycleCount_;
-    bool isDone_;
+    State state_;
     MovementManager<uint8_t, TimerPrescalerAsynchronous> movementManager_;
     BidirectionalLed bidirectionalLed_;
 };

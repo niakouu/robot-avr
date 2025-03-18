@@ -21,10 +21,14 @@ void Emulator::executeNextInstruction(uint16_t data) {
         static_cast<Emulator::Instruction>(data >> UINT8_WIDTH);
     const uint8_t operand = static_cast<uint8_t>(data & UINT8_MAX);
     this->instructionPointer_ += UINT16_WIDTH;
+    if (state_ == Emulator::State::NOT_STARTED && instruction == Emulator::Instruction::START) {
+        state_ = Emulator::State::RUNNING;
+        return;
+    }
+    if (state_ != Emulator::State::RUNNING)
+        return;
+    
     switch (instruction) {
-        case Emulator::Instruction::START:
-            this->isDone_ = false;
-            break;
         case Emulator::Instruction::WAIT:
             Board::get().getWatchdogTimer().sleep(WAIT_TIME_MS * operand,
                                                   WatchdogTimer::SleepMode::IDLE);
@@ -82,6 +86,6 @@ uint16_t Emulator::getInstructionPointer() const {
     return this->instructionPointer_;
 }
 
-bool Emulator::getIsDone() const {
-    return this->isDone_;
+bool Emulator::isDone() const {
+    return this->state_ == Emulator::State::DONE;
 }
