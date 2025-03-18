@@ -10,7 +10,7 @@
 
 Emulator::Emulator()
     : instructionPointer_(0x0), returnAddress_(0x0), cycleCount_(0),
-      isDone_(false),
+      state_(Emulator::State::NOT_STARTED),
       movementManager_(Board::get().getTimer2(),
                        Motor<uint8_t>(Pin(Pin::Region::D, Pin::Id::P5), 0.0F),
                        Motor<uint8_t>(Pin(Pin::Region::D, Pin::Id::P4), 0.0F)),

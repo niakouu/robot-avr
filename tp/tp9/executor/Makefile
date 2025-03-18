@@ -2,7 +2,7 @@ include ../common.mk
 PROJECTNAME = exec
 
 SRCSDIR = src
-SRCSCLASS = main.cpp
+SRCSCLASS = main.cpp Emulator.cpp
 SRCS = $(SRCSCLASS:%=$(SRCSDIR)/%)
 
 RELEASE_LIBS = -L../lib/$(RELEASE_DIR) -lutil
