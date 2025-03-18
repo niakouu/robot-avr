@@ -69,8 +69,10 @@ void Emulator::executeNextInstruction(uint16_t data) {
             this->returnAddress_ = this->instructionPointer_;
             break;
         case Emulator::Instruction::END_LOOP:
-            this->cycleCount_--;
-            this->instructionPointer_ = this->returnAddress_;
+            if (this->cycleCount_ != 0) {
+                this->cycleCount_--;
+                this->instructionPointer_ = this->returnAddress_;
+            }
             break;
         case Emulator::Instruction::END:
             this->movementManager_.stop();
