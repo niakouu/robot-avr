@@ -35,14 +35,18 @@ int main() {
     uint16_t errors = 0;
     for (uint16_t address = 0; address < size; ++address) {
         const uint8_t byteToWrite = uart.receive();
-        memory.write(address, byteToWrite);
+        memory.write(address, &byteToWrite, sizeof(uint8_t));
 
         const uint8_t readBack = memory.read(address);
         if (readBack != byteToWrite)
             ++errors;
     }
 
-    INFO("All done, with %d errors\n", errors);
+    if (errors > 0) {
+        ERROR("Got %d errors!\n", errors);
+    }
+
+    INFO("All done\n");
 
     return 0;
 }
