@@ -8,18 +8,7 @@ namespace {
     constexpr const uint16_t BAUD_RATE = 2400;
 } // namespace
 
-ISR(INT0_vect) {
-    Board::get().getButton().setPressed();
-    EIFR |= _BV(INTF0); // activate interrupt 0
-}
-
-ISR(WDT_vect) {
-    Board::get().getWatchdogTimer().setSleepDone();
-}
-
 int main() {
-    sei();
-
     const Uart& uart = Board::get().getUart0();
     uart.configure(::BAUD_RATE, false, Uart::Parity::DISABLED,
                    Uart::StopBit::ONE_BIT);
