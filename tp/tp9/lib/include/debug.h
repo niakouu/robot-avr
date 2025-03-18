@@ -1,0 +1,27 @@
+#ifndef _DEBUG_H
+#define _DEBUG_H
+
+#include <stdio.h>
+
+#include "Board.h"
+#include "Uart.h"
+
+#ifndef DEBUG
+#define _DEBUG(x, ...)                                                         \
+    do {                                                                       \
+    } while (0)
+#else
+// Inspired from https://stackoverflow.com/a/27351464
+#define _DEBUG(severity, fmt, ...)                                             \
+    do {                                                                       \
+        fprintf(Board::get().getUart0().getEmulatedFile(),                     \
+                "%s: %s:%d:%s: " severity, fmt, __FILE__, __LINE__,            \
+                __func__ __VA_OPT__(, ) __VA_ARGS__);                          \
+    } while (0)
+#endif /* DEBUG */
+
+#define INFO(fmt, ...) _DEBUG("INFO", fmt, __VA_ARGS__)
+#define WARNING(fmt, ...) _DEBUG("WARNING", fmt, __VA_ARGS__)
+#define ERROR(fmt, ...) _DEBUG("ERROR", fmt, __VA_ARGS__)
+
+#endif /* _DEBUG_H */
