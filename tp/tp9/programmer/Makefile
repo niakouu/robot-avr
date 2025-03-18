@@ -1,5 +1,5 @@
 include ../common.mk
-PROJECTNAME = exec
+PROJECTNAME = programmer
 
 SRCSDIR = src
 SRCSCLASS = main.cpp
@@ -10,6 +10,7 @@ SIMULATION_LIBS = -L../lib/$(SIMULATION_DIR) -lutil
 INCLUDE = -I../lib/include/ -Iinclude
 MAKELIB = make -C ../lib/
 SERIEVIAUSB_DIR = ../../../serieViaUSB
+PROGMEM_DIR = ../../../progmem
 
 TRG = $(PROJECTNAME).elf
 HEXROMTRG = $(PROJECTNAME).hex
@@ -21,7 +22,7 @@ DEBUG_OBJDEPS = $(SRCS:%=$(DEBUG_DIR)/%.o)
 
 CFLAGS += $(INCLUDE)
 
-.PHONY: all clean libutil release simulation debug install install-debug
+.PHONY: all clean libutil release simulation debug install install-debug load progmem serieViaUSB
 
 all: libutil release simulation debug
 release: libutil $(RELEASE_DIR)/$(TRG) $(RELEASE_DIR)/$(HEXROMTRG)
@@ -40,6 +41,12 @@ $(SIMULATION_DIR)/$(TRG): $(SIMULATION_OBJDEPS)
 libutil:
 	$(MAKELIB) $(LIBUTIL_TRG)
 
+progmem:
+	make -C $(PROGMEM_DIR)
+
+serieViaUSB:
+	make -C $(SERIEVIAUSB_DIR)
+
 install: release
 	@echo 'Make sure PB3 and PB4 are unplugged during installation'
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMER_ID) \
@@ -50,9 +57,17 @@ install-debug: debug
 	$(AVRDUDE) -c $(AVRDUDE_PROGRAMMER_ID) \
 		-p $(MCU) -P usb -e -U flash:w:$(DEBUG_DIR)/$(HEXROMTRG)
 
-test: install-debug
-	make -C $(SERIEVIAUSB_DIR)
-	bash ./tests.sh
+load: install-debug progmem serieViaUSB
+ifndef PROGRAM_PATH
+	$(error PROGRAM_PATH variable is not set)
+endif
+	@test -f $(PROGRAM_PATH)
+	$(PROGMEM_DIR)/progmem -o "$(OUT_DIR)/program.o" "$(PROGRAM_PATH)"
+	$(SERIEVIAUSB_DIR)/serieViaUSB -l &
+	@sleep 1
+	@bash -c "$(SERIEVIAUSB_DIR)/serieViaUSB -e -f '$(OUT_DIR)/program.o' >/dev/null 2>&1"
+	@sleep 1
+	@killall serieViaUSB
 
 clean:
 	$(REMOVE) -r $(OUT_DIR)

@@ -15,8 +15,9 @@
 #define _DEBUG(severity, fmt, ...)                                             \
     do {                                                                       \
         fprintf(Board::get().getUart0().getEmulatedFile(),                     \
-                "%s: %s:%d:%s: " severity, fmt, __FILE__, __LINE__,            \
-                __func__ __VA_OPT__(, ) __VA_ARGS__);                          \
+                "%s: %s:%d:%s: ", severity, __FILE__, __LINE__, __func__);     \
+        fprintf(Board::get().getUart0().getEmulatedFile(),                     \
+                fmt __VA_OPT__(, ) __VA_ARGS__);                               \
     } while (0)
 #endif /* DEBUG */
 
