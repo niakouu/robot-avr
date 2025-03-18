@@ -33,6 +33,7 @@ private:
         END_LOOP = 0xC1,
         END = 0xFF
     };
+    static constexpr uint8_t WAIT_TIME_MS = 25;
     uint16_t instructionPointer_;
     uint16_t returnAddress_;
     uint16_t cycleCount_;

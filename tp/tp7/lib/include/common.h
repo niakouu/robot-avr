@@ -5,7 +5,7 @@
 
 namespace
 {
-    constexpr uint8_t UINT8_WITDH = 8;
+    constexpr uint8_t UINT8_WIDTH = 8;
 } // namespace
 
 template <uint8_t A, uint8_t B, uint8_t... C>

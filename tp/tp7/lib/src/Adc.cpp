@@ -60,7 +60,7 @@ uint16_t Adc::read(const uint8_t pos) const {
 
     // Aller chercher le resultat sur 16 bits.
     uint16_t adcVal = ADCL;
-    adcVal += ADCH << UINT8_WITDH;
+    adcVal += ADCH << UINT8_WIDTH;
 
     // resultat sur 16 bits
     return adcVal;

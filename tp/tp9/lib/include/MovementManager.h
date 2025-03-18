@@ -11,10 +11,10 @@ public:
                     const Motor<T>&& motorRight);
     ~MovementManager();
 
-    void moveForward(float speed);
-    void moveBackward(float speed);
-    void moveLeft(float speed, float curveRatio);
-    void moveRight(float speed, float curveRatio);
+    void moveForward(float speedRatio);
+    void moveBackward(float speedRatio);
+    void moveLeft(float speedRatio, float curveRatio);
+    void moveRight(float speedRatio, float curveRatio);
     void stop();
 
     void setMotorOffsets(float offsetLeft, float offsetRight);

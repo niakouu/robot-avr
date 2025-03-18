@@ -1,10 +1,12 @@
 #include "Emulator.h"
 
+#include "common.h"
 #include "Board.h"
 #include "Motor.h"
 #include "MovementManager.h"
 #include "Pin.h"
 #include "Timer.h"
+#include "WatchdogTimer.h"
 
 Emulator::Emulator()
     : instructionPointer_(0x0), returnAddress_(0x0), cycleCount_(0),
@@ -15,48 +17,64 @@ Emulator::Emulator()
       bidirectionalLed_(Pin::Region::B, Pin::Id::P5, Pin::Id::P4) {}
 
 void Emulator::executeNextInstruction(uint16_t data) {
-    Emulator::Instruction instruction = static_cast<Emulator::Instruction>(data >> UINT8_WITDH);
-    uint8_t operand = static_cast<uint8_t>(data & UINT8_MAX);
-    switch (instruction)
-    {
-    case Emulator::Instruction::START:
-        this->isDone_ = false;
-        break;
-    case Emulator::Instruction::WAIT:
-    
-        break;
-    case Emulator::Instruction::TURN_ON_LED:
-    
-        break;
-    case Emulator::Instruction::TURN_OFF_LED:
-    
-        break;
-    case Emulator::Instruction::PLAY_SOUND:
-    
-        break;
-    case Emulator::Instruction::STOP_SOUND:
-    
-        break;
-    case Emulator::Instruction::STOP_MOTOR_0:
-    case Emulator::Instruction::STOP_MOTOR_1:
-    
-        break;
-    case Emulator::Instruction::MOVE_FORWARD:
-        break;
-    case Emulator::Instruction::MOVE_BACKWARD:
-        break;
-    case Emulator::Instruction::TURN_RIGHT:
-        break;
-    case Emulator::Instruction::TURN_LEFT:
-        break;
-    case Emulator::Instruction::START_LOOP:
-        break;
-    case Emulator::Instruction::END_LOOP:
-        break;
-    case Emulator::Instruction::END:
-        break;
-    default:
-        break;
+    const Emulator::Instruction instruction =
+        static_cast<Emulator::Instruction>(data >> UINT8_WIDTH);
+    const uint8_t operand = static_cast<uint8_t>(data & UINT8_MAX);
+    this->instructionPointer_ += UINT16_WIDTH;
+    switch (instruction) {
+        case Emulator::Instruction::START:
+            this->isDone_ = false;
+            break;
+        case Emulator::Instruction::WAIT:
+            Board::get().getWatchdogTimer().sleep(WAIT_TIME_MS * operand,
+                                                  WatchdogTimer::SleepMode::IDLE);
+            break;
+        case Emulator::Instruction::TURN_ON_LED:
+            if (operand == 1)
+                bidirectionalLed_.setColor(BidirectionalLed::Color::GREEN);
+            else if (operand == 2)
+                bidirectionalLed_.setColor(BidirectionalLed::Color::RED);
+            break;
+        case Emulator::Instruction::TURN_OFF_LED:
+            bidirectionalLed_.setColor(BidirectionalLed::Color::OFF);
+            break;
+        case Emulator::Instruction::PLAY_SOUND:
+            // TODO: Add play sound.
+            break;
+        case Emulator::Instruction::STOP_SOUND:
+            // TODO: Add stop sound.
+            break;
+        case Emulator::Instruction::STOP_MOTOR_0:
+        case Emulator::Instruction::STOP_MOTOR_1:
+            movementManager_.stop();
+            break;
+        case Emulator::Instruction::MOVE_FORWARD:
+            movementManager_.moveForward(static_cast<float>(operand) / UINT8_MAX);
+            break;
+        case Emulator::Instruction::MOVE_BACKWARD:
+            movementManager_.moveBackward(static_cast<float>(operand) / UINT8_MAX);
+            break;
+        case Emulator::Instruction::TURN_RIGHT:
+            movementManager_.moveRight(1.0F, 0.0F);
+            break;
+        case Emulator::Instruction::TURN_LEFT:
+            movementManager_.moveLeft(1.0F, 0.0F);
+            break;
+        case Emulator::Instruction::START_LOOP:
+            this->cycleCount_ = operand;
+            this->returnAddress_ = this->instructionPointer_;
+            break;
+        case Emulator::Instruction::END_LOOP:
+            this->cycleCount_--;
+            this->instructionPointer_ = this->returnAddress_;
+            break;
+        case Emulator::Instruction::END:
+            this->movementManager_.stop();
+            this->bidirectionalLed_.setColor(BidirectionalLed::Color::OFF);
+            // TODO: Add sound.
+            break;
+        default:
+            break;
     }
 }
 
