@@ -1,5 +1,6 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
+
 #include "Board.h"
 #include "Emulator.h"
 
@@ -31,10 +32,11 @@ int main() {
     uint16_t data = 0;
     // We must go through reinterpret_cast because of pointer cast.
     // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
-    memory.read(emulator.getInstructionPointer(), reinterpret_cast<uint8_t*>(&data), sizeof(data));
+    memory.read(emulator.getInstructionPointer(),
+                reinterpret_cast<uint8_t*>(&data), sizeof(data));
     // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
-    while(!emulator.isDone()) {
+    while (!emulator.isDone()) {
         emulator.executeNextInstruction(data);
     }
 
