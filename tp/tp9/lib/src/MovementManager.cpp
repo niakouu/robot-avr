@@ -44,7 +44,7 @@ void MovementManager<T, U>::moveLeft(float speedRatio, float curveRatio) {
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
          .speedA = this->motorLeft_.move(speedRatio, false),
-         .speedB = this->motorRight_.move(speedRatio * curveRatio, false),
+         .speedB = this->motorRight_.move(speedRatio * curveRatio, true),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
     this->timer_.start();
@@ -54,7 +54,7 @@ template <typename T, typename U>
 void MovementManager<T, U>::moveRight(float speedRatio, float curveRatio) {
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
-         .speedA = this->motorLeft_.move(speedRatio * curveRatio, false),
+         .speedA = this->motorLeft_.move(speedRatio * curveRatio, true),
          .speedB = this->motorRight_.move(speedRatio, false),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});

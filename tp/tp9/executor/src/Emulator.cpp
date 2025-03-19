@@ -77,6 +77,7 @@ void Emulator::executeNextInstruction(uint16_t data) {
         case Emulator::Instruction::END:
             this->movementManager_.stop();
             this->bidirectionalLed_.setColor(BidirectionalLed::Color::OFF);
+            this->state_ = State::DONE;
             // TODO: Add sound.
             break;
         default:
