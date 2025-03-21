@@ -15,14 +15,19 @@ int main() {
     uart.start();
     INFO("Ready to receive\n");
 
-    Memory24& memory = Board::get().getMemory();
+    const Memory24& memory = Board::get().getMemory();
 
     uint16_t size = uart.receive() << UINT8_WIDTH;
     size |= uart.receive();
     size -= 2; // Size's size is included
 
+    // We must go through reinterpret_cast because of pointer cast.
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+    memory.write(0, reinterpret_cast<const uint8_t *>(&size), sizeof(size));
+    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
+
     uint16_t errors = 0;
-    for (uint16_t address = 0; address < size; ++address) {
+    for (uint16_t address = sizeof(size); address < size; ++address) {
         const uint8_t byteToWrite = uart.receive();
         memory.write(address, &byteToWrite, sizeof(uint8_t));
 

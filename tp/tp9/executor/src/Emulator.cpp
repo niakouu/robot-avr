@@ -1,12 +1,13 @@
 #include "Emulator.h"
 
-#include "common.h"
 #include "Board.h"
 #include "Motor.h"
 #include "MovementManager.h"
 #include "Pin.h"
 #include "Timer.h"
 #include "WatchdogTimer.h"
+#include "common.h"
+#include "debug.h"
 
 Emulator::Emulator()
     : instructionPointer_(0x0), returnAddress_(0x0), cycleCount_(0),
@@ -19,19 +20,27 @@ Emulator::Emulator()
 void Emulator::executeNextInstruction(uint16_t data) {
     const Emulator::Instruction instruction =
         static_cast<Emulator::Instruction>(data >> UINT8_WIDTH);
+
     const uint8_t operand = static_cast<uint8_t>(data & UINT8_MAX);
-    this->instructionPointer_ += UINT16_WIDTH;
-    if (state_ == Emulator::State::NOT_STARTED && instruction == Emulator::Instruction::START) {
-        state_ = Emulator::State::RUNNING;
+
+    if (this->state_ == Emulator::State::DONE)
+        return;
+
+    this->instructionPointer_ += sizeof(uint16_t);
+
+    if (this->state_ == Emulator::State::NOT_STARTED) {
+        if (instruction == Emulator::Instruction::START)
+            this->state_ = Emulator::State::RUNNING;
+
         return;
     }
-    if (state_ != Emulator::State::RUNNING)
-        return;
-    
+
+    INFO("Instruction: %02x %d\n", static_cast<uint8_t>(instruction), operand);
+
     switch (instruction) {
         case Emulator::Instruction::WAIT:
-            Board::get().getWatchdogTimer().sleep(WAIT_TIME_MS * operand,
-                                                  WatchdogTimer::SleepMode::IDLE);
+            Board::get().getWatchdogTimer().sleep(
+                WAIT_TIME_MS * operand, WatchdogTimer::SleepMode::IDLE);
             break;
         case Emulator::Instruction::TURN_ON_LED:
             if (operand == 1)
@@ -53,10 +62,12 @@ void Emulator::executeNextInstruction(uint16_t data) {
             movementManager_.stop();
             break;
         case Emulator::Instruction::MOVE_FORWARD:
-            movementManager_.moveForward(static_cast<float>(operand) / UINT8_MAX);
+            movementManager_.moveForward(static_cast<float>(operand)
+                                         / UINT8_MAX);
             break;
         case Emulator::Instruction::MOVE_BACKWARD:
-            movementManager_.moveBackward(static_cast<float>(operand) / UINT8_MAX);
+            movementManager_.moveBackward(static_cast<float>(operand)
+                                          / UINT8_MAX);
             break;
         case Emulator::Instruction::TURN_RIGHT:
             movementManager_.moveRight(1.0F, 0.0F);

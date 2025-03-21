@@ -1,0 +1,12 @@
+dbt;
+
+dal 1;
+att 100;
+
+dal 0;
+att 100;
+
+dal 2;
+att 100;
+
+fin;
