@@ -19,7 +19,6 @@ int main() {
 
     uint16_t size = uart.receive() << UINT8_WIDTH;
     size |= uart.receive();
-    size -= 2; // Size's size is included
 
     // We must go through reinterpret_cast because of pointer cast.
     // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)

@@ -30,7 +30,8 @@ int main() {
     initializer();
     Emulator emulator;
     const Memory24& memory = Board::get().getMemory();
-    uint16_t data = 0, size;
+    uint16_t data = 0;
+    uint16_t size = 0;
 
     // We must go through reinterpret_cast because of pointer cast.
     // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
