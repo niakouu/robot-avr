@@ -40,8 +40,10 @@ int main() {
 
     size -= sizeof(size); // Size's size included.
 
+    INFO("Size is %04x\n", size);
+
     while (!emulator.isDone()) {
-        if (emulator.getInstructionPointer() < size) {
+        if (emulator.getInstructionPointer() >= size) {
             ERROR("End w/o finish\n");
             break;
         }

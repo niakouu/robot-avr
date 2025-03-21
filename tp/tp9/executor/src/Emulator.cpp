@@ -35,7 +35,7 @@ void Emulator::executeNextInstruction(uint16_t data) {
         return;
     }
 
-    INFO("Instruction: %02x %d\n", static_cast<uint8_t>(instruction), operand);
+    INFO("Instruction: %02x(%02x) (%04x)\n", static_cast<uint8_t>(instruction), operand, data);
 
     switch (instruction) {
         case Emulator::Instruction::WAIT:
