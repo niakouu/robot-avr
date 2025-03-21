@@ -1,0 +1,65 @@
+dbt;   //Program starting
+
+
+dbc 1; //Loop 2 times
+sgo 45;//Play low sound
+att 8; //Wait 200ms
+sar;   //Stop sound
+sgo 81;//Play low sound
+att 8; //Wait 200ms
+sar;   //Stop sound
+att 4; //Wait 100ms
+sgo 81;//Play low sound
+att 8; //Wait 200ms
+sar;   //Stop sound
+fbc;   //End loop
+
+dal 2;//Turn on red LED
+dbc 3;//Loop 4 times
+trg;  //Turn let
+att 4;//Wait 100ms
+fbc;  //End loop
+det;  //Turn off LED
+att 8;//Wait 200ms
+
+dal 1;//Turn on green LED
+dbc 3;//Loop 4 times
+trd;  //Turn right
+att 4;//Wait 100ms
+fbc;  //End loop
+det;  //Turn off LED
+att 8;//Wait 200ms
+
+mav 64;//Forward (25% PWM)
+att 40;//Wait 1000ms
+mar;   //Stop
+mre 64;//Backward (25% PWM)
+att 40;//Wait 1000ms
+mar;   //Stop
+mav 128;//Forward (50% PWM)
+att 20;//Wait 500ms
+mar;   //Stop
+mre 128;//Backward (50% PWM)
+att 20;//Wait 500ms
+mar;   //Stop
+mav 255;//Forward (100% PWM)
+att 10;//Wait 250ms
+mar;   //Stop
+mre 255;//Backward (100% PWM)
+att 10;//Wait 250ms
+mar;   //Stop
+
+dbc 1; //Loop 2 times
+sgo 45;//Play low sound
+att 8; //Wait 200ms
+sar;   //Stop sound
+sgo 81;//Play low sound
+att 8; //Wait 200ms
+sar;   //Stop sound
+att 4; //Wait 100ms
+sgo 81;//Play low sound
+att 80; //Wait 2000ms
+sar;   //Stop sound
+fbc;   //End loop
+
+fin; //Program ending
