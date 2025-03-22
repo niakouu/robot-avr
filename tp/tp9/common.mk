@@ -24,7 +24,7 @@ CFLAGS = -MMD -g -mmcu=$(MCU) \
 	-Wall -DF_CPU=$(F_CPU)
 CXXFLAGS = -fno-exceptions -std=c++14
 RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU)
-RELEASE_CFLAGS = -Os
+RELEASE_CFLAGS = -Oz
 DEBUG_CFLAGS = $(RELEASE_CFLAGS) -DDEBUG=1
 DEBUG_LDFLAGS = -Wl,-Map,$(DEBUG_DIR)/$(TRG).map -mmcu=$(MCU)
 SIMULATION_LDFLAGS = -Wl,-Map,$(SIMULATION_DIR)/$(TRG).map -mmcu=$(MCU)

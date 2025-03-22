@@ -1,6 +1,7 @@
 #include "Emulator.h"
 
 #include "Board.h"
+#include "Midi.h"
 #include "Motor.h"
 #include "MovementManager.h"
 #include "Pin.h"
@@ -15,7 +16,8 @@ Emulator::Emulator()
       movementManager_(Board::get().getTimer2(),
                        Motor<uint8_t>(Pin(Pin::Region::D, Pin::Id::P5), 0.0F),
                        Motor<uint8_t>(Pin(Pin::Region::D, Pin::Id::P4), 0.0F)),
-      bidirectionalLed_(Pin::Region::B, Pin::Id::P5, Pin::Id::P4) {}
+      bidirectionalLed_(Pin::Region::B, Pin::Id::P5, Pin::Id::P4),
+      midi_(Pin::Region::D, Pin::Id::P3) {}
 
 void Emulator::executeNextInstruction(uint16_t data) {
     const Emulator::Instruction instruction =
@@ -35,8 +37,6 @@ void Emulator::executeNextInstruction(uint16_t data) {
         return;
     }
 
-    INFO("Instruction: %02x(%02x) (%04x)\n", static_cast<uint8_t>(instruction), operand, data);
-
     switch (instruction) {
         case Emulator::Instruction::WAIT:
             Board::get().getWatchdogTimer().sleep(
@@ -52,10 +52,10 @@ void Emulator::executeNextInstruction(uint16_t data) {
             bidirectionalLed_.setColor(BidirectionalLed::Color::OFF);
             break;
         case Emulator::Instruction::PLAY_SOUND:
-            // TODO: Add play sound.
+            this->midi_.playNote(operand);
             break;
         case Emulator::Instruction::STOP_SOUND:
-            // TODO: Add stop sound.
+            this->midi_.stop();
             break;
         case Emulator::Instruction::STOP_MOTOR_0:
         case Emulator::Instruction::STOP_MOTOR_1:

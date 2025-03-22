@@ -187,7 +187,7 @@ uint8_t Memory24::read(const uint16_t address) const {
 }
 
 void Memory24::read(const uint16_t address, uint8_t* data,
-                        uint8_t length) const {
+                    uint8_t length) const {
     //______________ Attente de la fin d'un cycle d'ecriture ______________
     for (;;) {
         TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
@@ -302,57 +302,11 @@ void Memory24::read(const uint16_t address, uint8_t* data,
 /*                                                                            */
 /******************************************************************************/
 void Memory24::write(const uint16_t address, const uint8_t data) const {
-    //______________ Attente de la fin d'un cycle d'ecriture ______________
-    for (;;) {
-        TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-        while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-            ;
-
-        TWDR = this->peripheral_address_; // Controle - bit 0 a 0, ecriture
-        TWCR =
-            _BV(TWINT) | _BV(TWEN); // R. a Z., interrupt. - Depart de transm.
-        while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-            ;
-
-        if (TWSR == TW_MT_SLA_ACK)
-            break; // 0x18 = cycle d'ecriture termine
-    }
-
-    //_______________ Transmission de la condition de depart ________________
-    TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN); // Condition de depart
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
-
-    //__________________ Transmission du code de controle ___________________
-    TWDR = this->peripheral_address_; // Controle - bit 0 a 0, ecriture
-    TWCR = _BV(TWINT) | _BV(TWEN);    // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0)  // Attente de fin de transmission
-        ;
-
-    //______________ Transmission du poids fort de l'adresse ________________
-    TWDR = address >> UINT8_WIDTH;   // 8 bits de poids fort de l'adresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
-
-    //_____________ Transmission du poids faible de l'adresse _______________
-    TWDR = address;                  // 8 bits de poids faible de l'adresse
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
-
-    //______________________ Transmission de la donnee ______________________
-    TWDR = data;
-    TWCR = _BV(TWINT) | _BV(TWEN);   // R. a Z., interrupt. - Depart de transm.
-    while ((TWCR & _BV(TWINT)) == 0) // Attente de fin de transmission
-        ;
-
-    //________________ Transmission de la condition d'arret _________________
-    TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN); // Demarrage du cycle d'ecriture
+    this->write(address, &data, sizeof(data));
 }
 
 void Memory24::write(const uint16_t address, const uint8_t* data,
-                         const uint8_t length) const {
+                     const uint8_t length) const {
     uint16_t addressCopy = address;
     uint8_t lengthCopy = length;
     while (lengthCopy > 0) {
@@ -364,7 +318,7 @@ void Memory24::write(const uint16_t address, const uint8_t* data,
 }
 
 uint8_t Memory24::write_page(const uint16_t address, const uint8_t* data,
-                                 const uint8_t length) const {
+                             const uint8_t length) const {
     uint8_t rv = 0;
     uint8_t lengthCopy = length;
 

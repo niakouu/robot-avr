@@ -33,26 +33,17 @@ int main() {
     uint16_t data = 0;
     uint16_t size = 0;
 
-    // We must go through reinterpret_cast because of pointer cast.
-    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
-    memory.read(0, reinterpret_cast<uint8_t*>(&size), sizeof(size));
-    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
-
-    size -= sizeof(size); // Size's size included.
-
-    INFO("Size is %04x\n", size);
+    size = (memory.read(0) << UINT8_WIDTH) | memory.read(1);
 
     while (!emulator.isDone()) {
-        if (emulator.getInstructionPointer() >= size) {
+        const uint16_t address = sizeof(size) + emulator.getInstructionPointer();
+
+        if (address >= size) {
             ERROR("End w/o finish\n");
             break;
         }
 
-        // We must go through reinterpret_cast because of pointer cast.
-        // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
-        memory.read(sizeof(size) + emulator.getInstructionPointer(),
-                    reinterpret_cast<uint8_t*>(&data), sizeof(data));
-        // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
+        data = (memory.read(address) << UINT8_WIDTH) | memory.read(address + 1);
 
         emulator.executeNextInstruction(data);
     }

@@ -6,13 +6,15 @@
 
 namespace {
     constexpr const uint16_t BAUD_RATE = 2400;
+    constexpr const uint8_t BLOCK_SIZE = 64;
 } // namespace
 
 int main() {
-    const Uart& uart = Board::get().getUart0();
+    Uart& uart = Board::get().getUart0();
     uart.configure(::BAUD_RATE, false, Uart::Parity::DISABLED,
                    Uart::StopBit::ONE_BIT);
     uart.start();
+    stdout = uart.getEmulatedFile();
     INFO("Ready to receive\n");
 
     const Memory24& memory = Board::get().getMemory();
@@ -20,26 +22,29 @@ int main() {
     uint16_t size = uart.receive() << UINT8_WIDTH;
     size |= uart.receive();
 
-    // We must go through reinterpret_cast because of pointer cast.
-    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
-    memory.write(0, reinterpret_cast<const uint8_t *>(&size), sizeof(size));
-    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
+    uint8_t block[BLOCK_SIZE];
+    block[0] = static_cast<uint8_t>(size >> UINT8_WIDTH);
+    block[1] = static_cast<uint8_t>(size);
 
-    uint16_t errors = 0;
     for (uint16_t address = sizeof(size); address < size; ++address) {
-        const uint8_t byteToWrite = uart.receive();
-        memory.write(address, &byteToWrite, sizeof(uint8_t));
+        if (address % sizeof(block) == 0) {
+            memory.write(address - sizeof(block), block, sizeof(block));
+        }
 
-        const uint8_t readBack = memory.read(address);
-        if (readBack != byteToWrite)
-            ++errors;
+        block[address % sizeof(block)] = uart.receive();
     }
 
-    if (errors > 0) {
-        ERROR("Got %d errors!\n", errors);
-    }
+    memory.write(size - (size % sizeof(block)), block, size % sizeof(block));
 
-    INFO("All done\n");
+#ifdef DEBUG
+    INFO("size is: %d\n", size);
+    for (uint16_t i = 0; i < size; ++i) {
+        fprintf(Board::get().getUart0().getEmulatedFile(), "%02x ", memory.read(i));
+    }
+    uart.transmit('\n');
+#endif
+
+    INFO("All done!\n");
 
     return 0;
 }

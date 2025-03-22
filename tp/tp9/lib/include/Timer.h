@@ -123,7 +123,7 @@ public:
         TimerCompareOutputModeB compareOutputModeB;
 
         static ConfigFrequency
-        fromFrequency(uint32_t frequency,
+        fromFrequency(float frequency,
                       TimerCompareOutputModeA compareOutputModeA,
                       TimerCompareOutputModeB compareOutputModeB);
     };

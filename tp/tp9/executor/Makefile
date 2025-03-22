@@ -28,13 +28,13 @@ release: libutil $(RELEASE_DIR)/$(TRG) $(RELEASE_DIR)/$(HEXROMTRG)
 debug: libutil $(DEBUG_DIR)/$(TRG) $(DEBUG_DIR)/$(HEXROMTRG)
 simulation: libutil $(SIMULATION_DIR)/$(TRG) $(SIMULATION_DIR)/$(HEXROMTRG)
 
-$(RELEASE_DIR)/$(TRG): $(RELEASE_OBJDEPS)
+$(RELEASE_DIR)/$(TRG): $(RELEASE_OBJDEPS) libutil
 	$(call link_executable,release,$(RELEASE_OBJDEPS),$(RELEASE_LDFLAGS),$(RELEASE_LIBS))
 
-$(DEBUG_DIR)/$(TRG): $(DEBUG_OBJDEPS)
+$(DEBUG_DIR)/$(TRG): $(DEBUG_OBJDEPS) libutil
 	$(call link_executable,debug,$(DEBUG_OBJDEPS),$(DEBUG_LDFLAGS),$(RELEASE_LIBS))
 
-$(SIMULATION_DIR)/$(TRG): $(SIMULATION_OBJDEPS)
+$(SIMULATION_DIR)/$(TRG): $(SIMULATION_OBJDEPS) libutil
 	$(call link_executable,simulation,$(SIMULATION_OBJDEPS),$(SIMULATION_LDFLAGS),$(SIMULATION_LIBS))
 
 libutil:

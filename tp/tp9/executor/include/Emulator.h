@@ -5,6 +5,7 @@
 #include "MovementManager.h"
 #include "Led.h"
 #include "Pin.h"
+#include "Midi.h"
 
 class Emulator {
 public:
@@ -46,6 +47,7 @@ private:
     State state_;
     MovementManager<uint8_t, TimerPrescalerAsynchronous> movementManager_;
     BidirectionalLed bidirectionalLed_;
+    Midi midi_;
 };
 
 #endif /* _EMULATOR_H */

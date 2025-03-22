@@ -8,13 +8,14 @@
 class Midi {
 public:
     Midi(Pin::Region region, Pin::Id id);
-    ~Midi();
+    ~Midi() = default;
 
-    void playNote(uint8_t note);
+    void playNote(uint8_t note) const;
+    void stop() const;
 
 private:
-    Pin MidiPin_;
-    // Timer1& timer_;
+    Timer1& timer_;
+    Pin pin_;
 };
 
 #endif /* _MIDI_H */

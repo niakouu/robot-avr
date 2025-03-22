@@ -304,35 +304,31 @@ Timer1::~Timer1() {
 }
 
 Timer1::ConfigFrequency Timer1::ConfigFrequency::fromFrequency(
-    uint32_t frequency, TimerCompareOutputModeA compareOutputModeA,
+    float frequency, TimerCompareOutputModeA compareOutputModeA,
     TimerCompareOutputModeB compareOutputModeB) {
 
-    TimerPrescalerSynchronous::Value prescaleFactor{
-        TimerPrescalerSynchronous::Value::CLK_NONE_DIV};
+    const TimerPrescalerSynchronous PRESCALERS[] = {
+        TimerPrescalerSynchronous::Value::CLK_NONE_DIV,
+        TimerPrescalerSynchronous::Value::CLK_DIV_8,
+        TimerPrescalerSynchronous::Value::CLK_DIV_64,
+        TimerPrescalerSynchronous::Value::CLK_DIV_256,
+        TimerPrescalerSynchronous::Value::CLK_DIV_1024,
+    };
 
-    if (frequency
-        <= ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_1024>)
-        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_1024;
-    else if (frequency
-             <= ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_256>)
-        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_256;
-    else if (frequency
-             <= ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_64>)
-        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_64;
-    else if (frequency
-             <= ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_8>)
-        prescaleFactor = TimerPrescalerSynchronous::Value::CLK_DIV_8;
-    else if (frequency
-             > ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>)
-        frequency = ::maxFrequency<TimerPrescaler::PrescaleFactor::FACTOR_NONE>;
+    const TimerPrescalerSynchronous* prescaler = &PRESCALERS[0];
+    uint32_t top = 0;
+    for (const TimerPrescalerSynchronous& i : PRESCALERS) {
+        prescaler = &i;
 
-    const uint32_t numerator =
-        (F_CPU / 2) / static_cast<uint16_t>(prescaleFactor);
+        const uint32_t numerator =
+            (F_CPU / 2) / static_cast<uint16_t>(prescaler->getDivisionFactor());
+        
+        top = static_cast<uint32_t>(roundf(static_cast<float>(numerator) / frequency));
+        if (top < UINT16_MAX)
+            break;
+    }
 
-    const uint16_t top = static_cast<uint16_t>(
-        roundf(static_cast<float>(numerator) / static_cast<float>(frequency)));
-
-    return {top, prescaleFactor, compareOutputModeA, compareOutputModeB};
+    return {static_cast<uint16_t>(top), *prescaler, compareOutputModeA, compareOutputModeB};
 }
 
 void Timer1::setAsPwmFrequency(const ConfigFrequency& configFrequency) {
@@ -342,7 +338,7 @@ void Timer1::setAsPwmFrequency(const ConfigFrequency& configFrequency) {
         this->stop();
 
         *this->registers_.counter = 0;
-        *this->registers_.compareA = configFrequency.top;
+        *this->registers_.compareA = configFrequency.top / 2;
 
         *this->registers_.controlA =
             static_cast<uint8_t>(configFrequency.compareOutputModeA)
