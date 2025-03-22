@@ -1,8 +1,10 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
+#include <util/delay.h>
 
 #include "Board.h"
 #include "Emulator.h"
+#include "Led.h"
 #include "debug.h"
 
 constexpr uint16_t BAUD_RATE = 2400;
@@ -26,6 +28,21 @@ void initializer() {
     sei();
 }
 
+void bootStart() {
+    const BidirectionalLed bidirectionalLed{Pin::Region::A, Pin::Id::P1,
+                                            Pin::Id::P0};
+
+    for (int i = 0; i < 5; i++) {
+        bidirectionalLed.setColor(BidirectionalLed::Color::RED);
+        _ delay_ms(250);
+        bidirectionalLed.setColor(BidirectionalLed::Color::OFF);
+        _ delay_ms(250);
+    }
+
+    // Random song avec MIDIplayer
+    bidirectionalLed.setColor(BidirectionalLed::Color::GREEN);
+}
+
 int main() {
     initializer();
     Emulator emulator;
@@ -35,8 +52,11 @@ int main() {
 
     size = (memory.read(0) << UINT8_WIDTH) | memory.read(1);
 
+    bootStart();
+
     while (!emulator.isDone()) {
-        const uint16_t address = sizeof(size) + emulator.getInstructionPointer();
+        const uint16_t address =
+            sizeof(size) + emulator.getInstructionPointer();
 
         if (address >= size) {
             ERROR("End w/o finish\n");
