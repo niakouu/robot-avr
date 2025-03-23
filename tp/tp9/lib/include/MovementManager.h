@@ -23,7 +23,7 @@ private:
     Timer<T, U>& timer_;
     Motor<T> motorLeft_, motorRight_;
 
-    void kickstartMotors();
+    void kickstartMotors(bool left, bool right);
 };
 
 #endif /* _MOVEMENT_MANAGER_H */

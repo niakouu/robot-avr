@@ -9,8 +9,6 @@
 #include "WatchdogTimer.h"
 
 constexpr uint16_t BAUD_RATE = 2400;
-constexpr uint8_t LED_UP_TIME_MS = 250;
-constexpr uint8_t FLASH_NUMBER = 5;
 
 ISR(INT0_vect) {
     Board::get().getButton().setPressed();
@@ -31,21 +29,6 @@ namespace {
         uart0.start();
         sei();
     }
-
-    void bootStart() {
-        const BidirectionalLed bidirectionalLed{Pin::Region::A, Pin::Id::P1,
-                                                Pin::Id::P0};
-
-        for (int i = 0; i < FLASH_NUMBER; i++) {
-            bidirectionalLed.setColor(BidirectionalLed::Color::RED);
-            Board::get().getWatchdogTimer().sleep(LED_UP_TIME_MS, WatchdogTimer::SleepMode::IDLE);
-            bidirectionalLed.setColor(BidirectionalLed::Color::OFF);
-            Board::get().getWatchdogTimer().sleep(LED_UP_TIME_MS, WatchdogTimer::SleepMode::IDLE);
-        }
-
-        // Random song avec MIDIplayer
-        bidirectionalLed.setColor(BidirectionalLed::Color::GREEN);
-    }
 } // namespace
 
 int main() {
@@ -56,7 +39,7 @@ int main() {
     const Memory24& memory = Board::get().getMemory();
     const uint16_t size = (memory.read(0) << UINT8_WIDTH) | memory.read(1);
 
-    bootStart();
+    emulator.bootStart();
 
     while (!emulator.isDone()) {
         const uint16_t address =

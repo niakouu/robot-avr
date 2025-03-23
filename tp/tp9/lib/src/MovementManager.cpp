@@ -22,7 +22,7 @@ MovementManager<T, U>::~MovementManager() {
 
 template <typename T, typename U>
 void MovementManager<T, U>::moveForward(float speedRatio) {
-    this->kickstartMotors();
+    this->kickstartMotors(true, true);
 
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
@@ -36,7 +36,7 @@ void MovementManager<T, U>::moveForward(float speedRatio) {
 
 template <typename T, typename U>
 void MovementManager<T, U>::moveBackward(float speedRatio) {
-    this->kickstartMotors();
+    this->kickstartMotors(true, true);
 
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
@@ -50,7 +50,7 @@ void MovementManager<T, U>::moveBackward(float speedRatio) {
 
 template <typename T, typename U>
 void MovementManager<T, U>::moveLeft(float speedRatio, float curveRatio) {
-    this->kickstartMotors();
+    this->kickstartMotors(false, true);
 
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
@@ -63,7 +63,7 @@ void MovementManager<T, U>::moveLeft(float speedRatio, float curveRatio) {
 
 template <typename T, typename U>
 void MovementManager<T, U>::moveRight(float speedRatio, float curveRatio) {
-    this->kickstartMotors();
+    this->kickstartMotors(true, false);
 
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
@@ -93,13 +93,13 @@ void MovementManager<T, U>::setMotorOffsets(float offsetLeft,
 }
 
 template <typename T, typename U>
-void MovementManager<T, U>::kickstartMotors() {
+void MovementManager<T, U>::kickstartMotors(bool leftActive, bool rightActive) {
     constexpr const T MAX_SPEED = ~0;
 
     this->timer_.setAsPwm(
         {.prescaler = U::Value::CLK_DIV_8,
-         .speedA = MAX_SPEED,
-         .speedB = MAX_SPEED,
+         .speedA = rightActive ? MAX_SPEED : static_cast<T>(0),
+         .speedB = leftActive ? MAX_SPEED : static_cast<T>(0),
          .compareOutputModeA = TimerCompareOutputModeA::CLEAR,
          .compareOutputModeB = TimerCompareOutputModeB::CLEAR});
     this->timer_.start();

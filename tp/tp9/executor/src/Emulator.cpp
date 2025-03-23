@@ -11,7 +11,7 @@
 #include "debug.h"
 
 constexpr uint8_t WAIT_TIME_MS = 25;
-constexpr uint8_t TURN_TIME_MS = 1000;
+constexpr uint16_t TURN_TIME_MS = 1000;
 
 
 Emulator::Emulator()
@@ -22,6 +22,18 @@ Emulator::Emulator()
                        Motor<uint8_t>(Pin(Pin::Region::B, Pin::Id::P5), 0.0F)),
       bidirectionalLed_(Pin::Region::B, Pin::Id::P1, Pin::Id::P0),
       midi_(Pin::Region::D, Pin::Id::P3) {}
+
+void Emulator::bootStart() {
+    for (int i = 0; i < FLASH_NUMBER; i++) {
+        this->bidirectionalLed_.setColor(BidirectionalLed::Color::RED);
+        Board::get().getWatchdogTimer().sleep(LED_UP_TIME_MS, WatchdogTimer::SleepMode::IDLE);
+        this->bidirectionalLed_.setColor(BidirectionalLed::Color::OFF);
+        Board::get().getWatchdogTimer().sleep(LED_UP_TIME_MS, WatchdogTimer::SleepMode::IDLE);
+    }
+
+    // TODO(kybou): Random song avec MIDIplayer
+    this->bidirectionalLed_.setColor(BidirectionalLed::Color::GREEN);
+}
 
 void Emulator::executeNextInstruction(uint16_t data) {
     const Emulator::Instruction instruction =
@@ -95,7 +107,7 @@ void Emulator::executeNextInstruction(uint16_t data) {
             this->movementManager_.stop();
             this->bidirectionalLed_.setColor(BidirectionalLed::Color::OFF);
             this->state_ = State::DONE;
-            // TODO: Add sound.
+            // TODO(edali): Add sound.
             break;
         default:
             break;

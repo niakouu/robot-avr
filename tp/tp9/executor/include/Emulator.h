@@ -12,6 +12,7 @@ public:
     Emulator();
     ~Emulator() = default;
 
+    void bootStart();
     void executeNextInstruction(uint16_t data);
     uint16_t getInstructionPointer() const;
     bool isDone() const;
@@ -40,6 +41,9 @@ private:
         END_LOOP = 0xC1,
         END = 0xFF
     };
+
+    static constexpr uint8_t LED_UP_TIME_MS = 250;
+    static constexpr uint8_t FLASH_NUMBER = 5;
 
     uint16_t instructionPointer_;
     uint16_t returnAddress_;
