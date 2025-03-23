@@ -4,10 +4,8 @@
 #include "Board.h"
 #include "debug.h"
 
-namespace {
-    constexpr const uint16_t BAUD_RATE = 2400;
-    constexpr const uint8_t BLOCK_SIZE = 64;
-} // namespace
+constexpr const uint16_t BAUD_RATE = 2400;
+constexpr const uint8_t BLOCK_SIZE = 64;
 
 int main() {
     Uart& uart = Board::get().getUart0();
