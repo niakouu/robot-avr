@@ -10,13 +10,17 @@
 #include "common.h"
 #include "debug.h"
 
+constexpr uint8_t WAIT_TIME_MS = 25;
+constexpr uint8_t TURN_TIME_MS = 1000;
+
+
 Emulator::Emulator()
     : instructionPointer_(0x0), returnAddress_(0x0), cycleCount_(0),
       state_(Emulator::State::NOT_STARTED),
-      movementManager_(Board::get().getTimer2(),
-                       Motor<uint8_t>(Pin(Pin::Region::D, Pin::Id::P5), 0.0F),
-                       Motor<uint8_t>(Pin(Pin::Region::D, Pin::Id::P4), 0.0F)),
-      bidirectionalLed_(Pin::Region::B, Pin::Id::P5, Pin::Id::P4),
+      movementManager_(Board::get().getTimer0(),
+                       Motor<uint8_t>(Pin(Pin::Region::B, Pin::Id::P2), 0.0F),
+                       Motor<uint8_t>(Pin(Pin::Region::B, Pin::Id::P5), 0.0F)),
+      bidirectionalLed_(Pin::Region::B, Pin::Id::P1, Pin::Id::P0),
       midi_(Pin::Region::D, Pin::Id::P3) {}
 
 void Emulator::executeNextInstruction(uint16_t data) {
@@ -71,9 +75,11 @@ void Emulator::executeNextInstruction(uint16_t data) {
             break;
         case Emulator::Instruction::TURN_RIGHT:
             movementManager_.moveRight(1.0F, 0.0F);
+            Board::get().getWatchdogTimer().sleep(TURN_TIME_MS, WatchdogTimer::SleepMode::IDLE);
             break;
         case Emulator::Instruction::TURN_LEFT:
             movementManager_.moveLeft(1.0F, 0.0F);
+            Board::get().getWatchdogTimer().sleep(TURN_TIME_MS, WatchdogTimer::SleepMode::IDLE);
             break;
         case Emulator::Instruction::START_LOOP:
             this->cycleCount_ = operand;

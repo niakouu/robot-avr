@@ -22,6 +22,8 @@ public:
 private:
     Timer<T, U>& timer_;
     Motor<T> motorLeft_, motorRight_;
+
+    void kickstartMotors();
 };
 
 #endif /* _MOVEMENT_MANAGER_H */

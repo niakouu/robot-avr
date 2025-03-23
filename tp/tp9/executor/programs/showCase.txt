@@ -31,22 +31,22 @@ det;  //Turn off LED
 att 8;//Wait 200ms
 
 mav 64;//Forward (25% PWM)
-att 40;//Wait 1000ms
+att 80;//Wait 2000ms
 mar;   //Stop
 mre 64;//Backward (25% PWM)
-att 40;//Wait 1000ms
+att 80;//Wait 2000ms
 mar;   //Stop
 mav 128;//Forward (50% PWM)
-att 20;//Wait 500ms
+att 80;//Wait 2000ms
 mar;   //Stop
 mre 128;//Backward (50% PWM)
-att 20;//Wait 500ms
+att 80;//Wait 2000ms
 mar;   //Stop
 mav 255;//Forward (100% PWM)
-att 10;//Wait 250ms
+att 80;//Wait 2000ms
 mar;   //Stop
 mre 255;//Backward (100% PWM)
-att 10;//Wait 250ms
+att 80;//Wait 2000ms
 mar;   //Stop
 
 dbc 1; //Loop 2 times
