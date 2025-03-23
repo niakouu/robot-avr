@@ -2,10 +2,11 @@
 #define _EMULATOR_H
 
 #include "Board.h"
-#include "MovementManager.h"
 #include "Led.h"
-#include "Pin.h"
 #include "Midi.h"
+#include "MovementManager.h"
+#include "Pin.h"
+#include "Sounds.h"
 
 class Emulator {
 public:
@@ -18,11 +19,7 @@ public:
     bool isDone() const;
 
 private:
-    enum class State : uint8_t {
-        NOT_STARTED,
-        RUNNING,
-        DONE
-    };
+    enum class State : uint8_t { NOT_STARTED, RUNNING, DONE };
 
     enum class Instruction : uint8_t {
         START = 0x01,
@@ -42,7 +39,7 @@ private:
         END = 0xFF
     };
 
-    static constexpr uint8_t LED_UP_TIME_MS = 250;
+    static constexpr uint8_t LED_UP_TIME_MS = 100;
     static constexpr uint8_t FLASH_NUMBER = 5;
 
     uint16_t instructionPointer_;
@@ -52,6 +49,8 @@ private:
     MovementManager<uint8_t, TimerPrescalerSynchronous> movementManager_;
     BidirectionalLed bidirectionalLed_;
     Midi midi_;
+
+    void playSong(const sounds::MidiNote* song, uint8_t notes) const;
 };
 
 #endif /* _EMULATOR_H */

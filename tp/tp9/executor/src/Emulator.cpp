@@ -13,7 +13,6 @@
 constexpr uint8_t WAIT_TIME_MS = 25;
 constexpr uint16_t TURN_TIME_MS = 1000;
 
-
 Emulator::Emulator()
     : instructionPointer_(0x0), returnAddress_(0x0), cycleCount_(0),
       state_(Emulator::State::NOT_STARTED),
@@ -26,12 +25,16 @@ Emulator::Emulator()
 void Emulator::bootStart() {
     for (int i = 0; i < FLASH_NUMBER; i++) {
         this->bidirectionalLed_.setColor(BidirectionalLed::Color::RED);
-        Board::get().getWatchdogTimer().sleep(LED_UP_TIME_MS, WatchdogTimer::SleepMode::IDLE);
+        Board::get().getWatchdogTimer().sleep(LED_UP_TIME_MS,
+                                              WatchdogTimer::SleepMode::IDLE);
         this->bidirectionalLed_.setColor(BidirectionalLed::Color::OFF);
-        Board::get().getWatchdogTimer().sleep(LED_UP_TIME_MS, WatchdogTimer::SleepMode::IDLE);
+        Board::get().getWatchdogTimer().sleep(LED_UP_TIME_MS,
+                                              WatchdogTimer::SleepMode::IDLE);
     }
 
-    // TODO(kybou): Random song avec MIDIplayer
+    this->playSong(sounds::WINDOWS_BOOT, sizeof(sounds::WINDOWS_BOOT)
+                                             / sizeof(*sounds::WINDOWS_BOOT));
+
     this->bidirectionalLed_.setColor(BidirectionalLed::Color::GREEN);
 }
 
@@ -87,11 +90,13 @@ void Emulator::executeNextInstruction(uint16_t data) {
             break;
         case Emulator::Instruction::TURN_RIGHT:
             movementManager_.moveRight(1.0F, 0.0F);
-            Board::get().getWatchdogTimer().sleep(TURN_TIME_MS, WatchdogTimer::SleepMode::IDLE);
+            Board::get().getWatchdogTimer().sleep(
+                TURN_TIME_MS, WatchdogTimer::SleepMode::IDLE);
             break;
         case Emulator::Instruction::TURN_LEFT:
             movementManager_.moveLeft(1.0F, 0.0F);
-            Board::get().getWatchdogTimer().sleep(TURN_TIME_MS, WatchdogTimer::SleepMode::IDLE);
+            Board::get().getWatchdogTimer().sleep(
+                TURN_TIME_MS, WatchdogTimer::SleepMode::IDLE);
             break;
         case Emulator::Instruction::START_LOOP:
             this->cycleCount_ = operand;
@@ -107,7 +112,10 @@ void Emulator::executeNextInstruction(uint16_t data) {
             this->movementManager_.stop();
             this->bidirectionalLed_.setColor(BidirectionalLed::Color::OFF);
             this->state_ = State::DONE;
-            // TODO(edali): Add sound.
+            this->playSong(sounds::WINDOWS_SHUTDOWN,
+                           sizeof(sounds::WINDOWS_SHUTDOWN)
+                               / sizeof(*sounds::WINDOWS_SHUTDOWN));
+
             break;
         default:
             break;
@@ -120,4 +128,17 @@ uint16_t Emulator::getInstructionPointer() const {
 
 bool Emulator::isDone() const {
     return this->state_ == Emulator::State::DONE;
+}
+
+void Emulator::playSong(const sounds::MidiNote* song, uint8_t notes) const {
+    for (uint8_t i = 0; i < notes; ++i) {
+        const sounds::MidiNote* note = &song[i];
+        midi_.playNote(note->note);
+        Board::get().getWatchdogTimer().sleep(note->sustainTimeMs,
+                                              WatchdogTimer::SleepMode::IDLE);
+
+        midi_.stop();
+        Board::get().getWatchdogTimer().sleep(note->silenceTimeMs,
+                                              WatchdogTimer::SleepMode::IDLE);
+    }
 }
