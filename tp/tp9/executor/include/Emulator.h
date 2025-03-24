@@ -41,6 +41,10 @@ private:
 
     static constexpr uint8_t LED_UP_TIME_MS = 100;
     static constexpr uint8_t FLASH_NUMBER = 5;
+    static constexpr uint8_t WAIT_TIME_MS = 25;
+    static constexpr uint16_t TURN_TIME_MS = 250;
+    static constexpr float OFFSET_LEFT = 0.0F;
+    static constexpr float OFFSET_RIGHT = 0.0F;
 
     uint16_t instructionPointer_;
     uint16_t returnAddress_;

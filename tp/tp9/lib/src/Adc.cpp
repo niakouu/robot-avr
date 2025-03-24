@@ -11,6 +11,7 @@
  */
 
 #include "Adc.h"
+
 #include "common.h"
 
 // constructeur: initialisation du convertisseur

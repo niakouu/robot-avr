@@ -94,9 +94,11 @@ void Timer<T, U>::setAsCounter(const ConfigCounter& configCounter) {
         *this->registers_.counter = 0;
         *this->registers_.compareA = configCounter.maxTicks;
         *this->registers_.compareB = 0;
-        *this->registers_.controlA =
-            static_cast<uint8_t>(configCounter.compareOutputMode)
-            | (*this->registers_.controlA & ~(_BV(COM0B1) | _BV(COM0B0)));
+
+        this->compareOutputModeFlags_ =
+            static_cast<uint8_t>(configCounter.compareOutputMode);
+
+        *this->registers_.controlA &= ~(_BV(COM0B1) | _BV(COM0B0));
         *this->registers_.controlB = 0;
         if (this->registers_.controlC != nullptr)
             *this->registers_.controlC = 0;
@@ -126,9 +128,11 @@ void Timer<T, U>::setAsPwm(const ConfigPwm& configPwm) {
         *this->registers_.compareA = configPwm.speedA;
         *this->registers_.compareB = configPwm.speedB;
 
-        *this->registers_.controlA =
+        this->compareOutputModeFlags_ =
             static_cast<uint8_t>(configPwm.compareOutputModeA)
-            | static_cast<uint8_t>(configPwm.compareOutputModeB) | _BV(WGM00);
+            | static_cast<uint8_t>(configPwm.compareOutputModeB);
+
+        *this->registers_.controlA = _BV(WGM00);
 
         *this->registers_.controlB = *this->registers_.controlB & ~(_BV(WGM02));
 
@@ -168,6 +172,11 @@ template <typename T, typename U>
 void Timer<T, U>::start() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         this->counterExpired_ = false;
+        *this->registers_.controlA &=
+            ~(_BV(COM0A0) | _BV(COM0A1) | _BV(COM0B1) | _BV(COM0B1));
+        *this->registers_.controlA |= this->compareOutputModeFlags_;
+
+        *this->registers_.controlB &= ~(_BV(CS12) | _BV(CS11) | _BV(CS10));
         *this->registers_.controlB |= this->prescalerFlags_;
     }
 }
@@ -175,7 +184,11 @@ void Timer<T, U>::start() {
 template <typename T, typename U>
 void Timer<T, U>::stop() const {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        *this->registers_.controlA &=
+            ~(_BV(COM0A0) | _BV(COM0A1) | _BV(COM0B1) | _BV(COM0B1));
         *this->registers_.controlB &= ~(_BV(CS12) | _BV(CS11) | _BV(CS10));
+        this->registers_.waveformA.unset();
+        this->registers_.waveformB.unset();
     }
 }
 
@@ -322,13 +335,15 @@ Timer1::ConfigFrequency Timer1::ConfigFrequency::fromFrequency(
 
         const uint32_t numerator =
             (F_CPU / 2) / static_cast<uint16_t>(prescaler->getDivisionFactor());
-        
-        top = static_cast<uint32_t>(roundf(static_cast<float>(numerator) / frequency));
+
+        top = static_cast<uint32_t>(
+            roundf(static_cast<float>(numerator) / frequency));
         if (top < UINT16_MAX)
             break;
     }
 
-    return {static_cast<uint16_t>(top), *prescaler, compareOutputModeA, compareOutputModeB};
+    return {static_cast<uint16_t>(top), *prescaler, compareOutputModeA,
+            compareOutputModeB};
 }
 
 void Timer1::setAsPwmFrequency(const ConfigFrequency& configFrequency) {
@@ -340,10 +355,11 @@ void Timer1::setAsPwmFrequency(const ConfigFrequency& configFrequency) {
         *this->registers_.counter = 0;
         *this->registers_.compareA = configFrequency.top / 2;
 
-        *this->registers_.controlA =
+        this->compareOutputModeFlags_ =
             static_cast<uint8_t>(configFrequency.compareOutputModeA)
-            | static_cast<uint8_t>(configFrequency.compareOutputModeB)
-            | _BV(WGM10);
+            | static_cast<uint8_t>(configFrequency.compareOutputModeB);
+
+        *this->registers_.controlA = _BV(WGM10);
 
         *this->registers_.controlB |= _BV(WGM13);
         *this->registers_.controlB &= ~_BV(WGM12);

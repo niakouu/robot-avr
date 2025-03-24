@@ -69,7 +69,7 @@ private:
     friend class Timer1;
     static const uint16_t MILLIS_IN_SECONDS = 1000;
     const Registers& registers_;
-    uint8_t prescalerFlags_;
+    uint8_t prescalerFlags_, compareOutputModeFlags_;
     volatile bool counterExpired_;
 };
 
