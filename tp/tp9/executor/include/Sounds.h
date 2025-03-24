@@ -16,7 +16,7 @@ namespace sounds {
 
     constexpr const MidiNote WINDOWS_SHUTDOWN[] = {{80, 300, 0},
                                                    {75, 300, 0},
-                                                   {68, 450, 0},
+                                                   {68, 300, 0},
                                                    {70, 450, 0}};
 } // namespace sounds
 
