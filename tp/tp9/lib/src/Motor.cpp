@@ -21,7 +21,7 @@ T Motor<T>::move(float speedRatio, bool forward) const {
     else
         this->directionPin_.set();
 
-    T speed = (TimerConstants::TOP_PWM * speedRatio) + this->offset_;
+    T speed = (TimerConstants::TOP_PWM * speedRatio * this->offset_);
     if (speed >= TimerConstants::TOP_PWM)
         speed = TimerConstants::TOP_PWM - 1;
     return speed;
