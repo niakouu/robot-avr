@@ -6,7 +6,7 @@ Board::Board() noexcept
     : timer0_(TimerConstants::TIMER0_REGISTERS),
       timer1_(TimerConstants::TIMER1_REGISTERS),
       timer2_(TimerConstants::TIMER2_REGISTERS), uart0_(USART0_REGISTERS),
-      button_(Pin::Region::D, Pin::Id::P2, true) {}
+      button_(Button::Interrupt::I0, true) {}
 
 Board::~Board() = default;
 

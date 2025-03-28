@@ -29,10 +29,10 @@ public:
 
     void updateDirection(Direction direction) const;
 
-    bool read() const;
-    void write(bool set) const;
-    void set() const;
-    void unset() const;
+    bool read() const volatile;
+    void write(bool set) const volatile;
+    void set() const volatile;
+    void unset() const volatile;
 
 private:
     static const constexpr Mappings& getMappings(Region region, Id id);

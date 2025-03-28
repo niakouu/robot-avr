@@ -42,6 +42,21 @@
             "cppStandard": "c++14",
             "intelliSenseMode": "gcc-x86",
             "compilerPath": "/usr/bin/avr-gcc"
+        },
+        {
+            "name": "Project",
+            "includePath": [
+                "projet/lib/include",
+                "projet/app/include"
+            ],
+            "defines": [
+                "__AVR_ATmega324PA__",
+                "F_CPU=8000000"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-x86",
+            "compilerPath": "/usr/bin/avr-gcc"
         }
     ],
     "version": 4

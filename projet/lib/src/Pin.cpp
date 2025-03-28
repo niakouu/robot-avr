@@ -9,22 +9,22 @@ Pin::Pin(Region region, Id id, Direction direction) : Pin(region, id) {
     this->updateDirection(direction);
 }
 
-bool Pin::read() const {
+bool Pin::read() const volatile {
     return (*this->registers_.pin & this->mappings_.pinBit) != 0;
 }
 
-void Pin::write(bool set) const {
+void Pin::write(bool set) const volatile {
     if (set)
         this->set();
     else
         this->unset();
 }
 
-void Pin::set() const {
+void Pin::set() const volatile {
     *this->registers_.port |= this->mappings_.portBit;
 }
 
-void Pin::unset() const {
+void Pin::unset() const volatile {
     *this->registers_.port &= ~this->mappings_.portBit;
 }
 

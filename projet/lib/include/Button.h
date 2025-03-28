@@ -5,18 +5,32 @@
 
 class Button {
 public:
-    Button(Pin::Region region, Pin::Id id, bool pressedIsHigh);
-    ~Button() = default;
+    enum class Interrupt : uint8_t { I0, I1, I2 };
 
-    bool isPressed() const;
-    bool isEvent() const;
-    void consumeEvent();
-    void restoreEvent();
-    void setPressed();
+    Button(Pin::Region region, Pin::Id id, bool pressedIsHigh);
+    Button(Interrupt interrupt, bool pressedIsHigh);
+    ~Button();
+
+    bool isPressed() const volatile;
+    bool isEvent() const volatile;
+    void consumeEvent() volatile;
+    void restoreEvent() volatile;
+    void setPressed() volatile;
 
 private:
-    bool isPressed_, eventConsumed_, pressedIsHigh_;
+    bool pressedIsHigh_;
+    volatile bool isPressed_, eventConsumed_;
     Pin buttonPin_;
+
+    struct InterruptMappings {
+        uint8_t senseControl[2];
+        uint8_t interruptMask;
+    };
+
+    struct {
+        bool enabled_;
+        InterruptMappings mappings_;
+    } interrupts_;
 };
 
 #endif /* _BUTTON_H */
