@@ -5,13 +5,13 @@
 
 class DistanceSensor {
 public:
-    DistanceSensor();
+    DistanceSensor(Pin::Id distancePinId);
     ~DistanceSensor() = default;
 
     uint8_t getDistanceCm();
 
 private:
-    Pin distancePin_;
+    Pin::Id distancePinId_;
 };
 
 #endif /* _DISTANCE_SENSOR_H */

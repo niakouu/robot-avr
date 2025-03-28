@@ -4,7 +4,9 @@ PROJECTNAME = util
 SRCSDIR = src
 SRCSCLASS = Adc.cpp Board.cpp Button.cpp Led.cpp Memory24.cpp Motor.cpp \
 			MovementManager.cpp Photoresistance.cpp Pin.cpp Timer.cpp \
-			Uart.cpp WatchdogTimer.cpp Midi.cpp
+			Uart.cpp WatchdogTimer.cpp Midi.cpp DistanceSensor.cpp \
+			LineSensor.cpp
+
 SRCS = $(SRCSCLASS:%=$(SRCSDIR)/%)
 
 TRG = lib$(PROJECTNAME).a
