@@ -3,6 +3,7 @@
 
 #include "Board.h"
 #include "debug.h"
+#include "DistanceSensor.h"
 
 constexpr const uint16_t BAUD_RATE = 2400;
 
@@ -33,8 +34,11 @@ int main() {
     INFO("Hello, world!\n");
     INFO("EICRA: %d\n", EICRA);
     INFO("EIMSK: %d\n", EIMSK);
+    const DistanceSensor ds{Pin::Id::P5};
 
-    while (1) {
+    while (true) {
+        INFO("Values is %d\n", ds.getDistanceCm());
+
         if (Board::get().getButton().isEvent()) {
             INFO("Interrupt event: %d\n", Board::get().getButton().isPressed());
             Board::get().getButton().consumeEvent();

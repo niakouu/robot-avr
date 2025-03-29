@@ -27,7 +27,7 @@ public:
         ODD = _BV(UPM01) | _BV(UPM00)
     };
 
-    enum class StopBit : uint8_t { ONE_BIT = 0, TWO_BITS = _BV(USBS0) };
+    enum class StopBit : uint8_t { ONE_BIT = 0U, TWO_BITS = _BV(USBS0) };
 
     struct Registers {
         volatile uint8_t *data, *controlStatusA, *controlStatusB,

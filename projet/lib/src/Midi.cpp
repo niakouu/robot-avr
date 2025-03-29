@@ -8,7 +8,7 @@ Midi::Midi(Pin::Region region, Pin::Id id)
     this->pin_.unset();
 }
 
-static constexpr const uint8_t FIRST_NOTE = 45;
+static constexpr const uint8_t FIRST_NOTE = 45U;
 static constexpr const float FREQUENCIES[] = {
     110.0F,  116.54F,
     123.47F, 130.81F,

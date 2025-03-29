@@ -5,7 +5,7 @@
 
 class Pin {
 public:
-    static constexpr uint8_t NUMBER_OF_PINS = 8;
+    static constexpr uint8_t NUMBER_OF_PINS = 8U;
 
     enum class Region : uint8_t { A, B, C, D };
 

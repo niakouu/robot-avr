@@ -7,7 +7,7 @@ template class MovementManager<uint16_t, TimerPrescalerSynchronous>;
 template class MovementManager<uint8_t, TimerPrescalerAsynchronous>;
 
 namespace {
-    const constexpr uint16_t KICKSTART_TIME_MS = 250;
+    const constexpr uint16_t KICKSTART_TIME_MS = 250U;
 }
 
 template <typename T, typename U>

@@ -8,10 +8,15 @@ public:
     DistanceSensor(Pin::Id distancePinId);
     ~DistanceSensor() = default;
 
-    uint8_t getDistanceCm();
+    uint8_t getDistanceCm() const;
 
 private:
-    Pin::Id distancePinId_;
+    static constexpr uint8_t MIN_DISTANCE = 10U;
+    static constexpr uint8_t MAX_DISTANCE = 80U;
+    static constexpr float MAX_VOLTAGE = 2.25F;
+    uint8_t distancePinId_;
+
+    static uint8_t calculateDistanceFromVoltage(float voltageIn);
 };
 
 #endif /* _DISTANCE_SENSOR_H */

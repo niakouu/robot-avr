@@ -27,7 +27,7 @@
 
 class Memory24 {
 public:
-    enum class Bank : uint8_t { ZERO = 0, ONE = 1, TWO = 2, THREE = 3 };
+    enum class Bank : uint8_t { ZERO = 0U, ONE = 1U, TWO = 2U, THREE = 3U };
 
     Memory24(Memory24&) = delete;
     void operator=(const Memory24&) = delete;
@@ -61,10 +61,10 @@ protected:
     ~Memory24() = default;
 
 private:
-    static constexpr uint8_t PAGE_SIZE = 128;
-    static constexpr uint8_t PERIPHERAL_ADDRESS = 0xA0;
+    static constexpr uint8_t PAGE_SIZE = 128U;
+    static constexpr uint8_t PERIPHERAL_ADDRESS = 0xA0U;
     static constexpr uint32_t SCL_FREQUENCY = 100000UL;
-    static constexpr uint8_t SCL_OFFSET = 16;
+    static constexpr uint8_t SCL_OFFSET = 16U;
     uint8_t peripheral_address_;
 
     uint8_t write_page(const uint16_t address, const uint8_t* data,

@@ -28,6 +28,9 @@
 
 class Adc {
 public:
+    static constexpr float VOLTAGE_REFERENCE = 5.0F;
+    static constexpr uint8_t MAX_ADC_VALUE = 1024;
+
     Adc(Adc&) = delete;
     void operator=(const Adc&) = delete;
 

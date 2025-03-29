@@ -6,7 +6,7 @@
 class BidirectionalLed {
 public:
     enum class Color : uint8_t { RED, GREEN, OFF };
-    static constexpr uint8_t AMBER_CYCLE_TIME_MS = 10;
+    static constexpr uint8_t AMBER_CYCLE_TIME_MS = 10U;
 
     /// @brief Creates a bidirectional LED with pin region settings.
     /// @param positiveRegion Positive pin's region.

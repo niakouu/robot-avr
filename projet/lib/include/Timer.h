@@ -67,7 +67,7 @@ protected:
 
 private:
     friend class Timer1;
-    static const uint16_t MILLIS_IN_SECONDS = 1000;
+    static const uint16_t MILLIS_IN_SECONDS = 1000U;
     const Registers& registers_;
     uint8_t prescalerFlags_, compareOutputModeFlags_;
     volatile bool counterExpired_;
@@ -76,13 +76,13 @@ private:
 class TimerPrescaler {
 public:
     enum class PrescaleFactor : uint16_t {
-        FACTOR_NONE = 1,
-        FACTOR_8 = 8,
-        FACTOR_32 = 32,
-        FACTOR_64 = 64,
-        FACTOR_128 = 128,
-        FACTOR_256 = 256,
-        FACTOR_1024 = 1024
+        FACTOR_NONE = 1U,
+        FACTOR_8 = 8U,
+        FACTOR_32 = 32U,
+        FACTOR_64 = 64U,
+        FACTOR_128 = 128U,
+        FACTOR_256 = 256U,
+        FACTOR_1024 = 1024U
     };
 
     virtual uint8_t getFlags() const = 0;
@@ -162,7 +162,7 @@ private:
 };
 
 namespace TimerConstants {
-    const uint8_t TOP_PWM = 0xFF;
+    const uint8_t TOP_PWM = 0xFFU;
 
     extern const Timer<uint8_t, TimerPrescalerSynchronous>::Registers
         TIMER0_REGISTERS;

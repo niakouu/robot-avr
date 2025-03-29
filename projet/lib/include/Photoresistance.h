@@ -14,8 +14,8 @@ public:
     Intensity readIntensity() const;
 
 private:
-    static constexpr uint8_t HIGH_LIGHT_THRESHOLD = 0xE9;
-    static constexpr uint8_t LOW_LIGHT_THRESHOLD = 0xB5;
+    static constexpr uint8_t HIGH_LIGHT_THRESHOLD = 0xE9U;
+    static constexpr uint8_t LOW_LIGHT_THRESHOLD = 0xB5U;
     const Adc& adc_;
     Pin::Id pinId_;
 };
