@@ -27,6 +27,7 @@ T Motor<T>::move(float speedRatio, bool forward) const {
     return speed;
 }
 
+
 template <typename T>
 void Motor<T>::setOffset(float offset) {
     this->offset_ = offset;
