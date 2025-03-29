@@ -2,8 +2,6 @@
 
 #include "Board.h"
 #include "Pin.h"
-#include "debug.h"
-#define DEBUG
 
 DistanceSensor::DistanceSensor(Pin::Id distancePinId)
     : distancePinId_(static_cast<uint8_t>(distancePinId)) {}
