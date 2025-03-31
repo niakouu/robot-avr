@@ -24,8 +24,7 @@ public:
     LineSensor(Pins linePins);
     ~LineSensor() = default;
 
-    bool isDark(Direction direction) const;
-
+    bool isDark(Direction direction) const; 
 private:
     Pins linePins_;
 };
