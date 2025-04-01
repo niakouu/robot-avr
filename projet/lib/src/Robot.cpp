@@ -5,13 +5,11 @@ Robot Robot::robot_{};
 Robot::Robot() noexcept
     : board_(Board::get()), distanceSensor_(Pin::Id::P7),
       bidirectionalLed_(Pin::Region::C, Pin::Id::P7, Pin::Id::P6),
-      lineSensor_({
-          Pin(Pin::Region::A, Pin::Id::P0), // left
-          Pin(Pin::Region::A, Pin::Id::P1), // semi_left
-          Pin(Pin::Region::A, Pin::Id::P2), // center
-          Pin(Pin::Region::A, Pin::Id::P3), // semi_right
-          Pin(Pin::Region::A, Pin::Id::P4)  // right
-      }),
+      lineSensor_({.left = Pin(Pin::Region::A, Pin::Id::P0),
+                   .semiLeft = Pin(Pin::Region::A, Pin::Id::P1),
+                   .center = Pin(Pin::Region::A, Pin::Id::P2),
+                   .semiRight = Pin(Pin::Region::A, Pin::Id::P3),
+                   .right = Pin(Pin::Region::A, Pin::Id::P4)}),
       midi_(Pin::Region::D, Pin::Id::P4),
       button_(Pin::Region::D, Pin::Id::P2, true),
       movementManager_(Board::get().getTimer1(),

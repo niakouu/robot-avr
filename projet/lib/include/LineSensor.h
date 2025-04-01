@@ -15,9 +15,9 @@ public:
 
     struct Pins {
         Pin left;
-        Pin semi_left;
+        Pin semiLeft;
         Pin center;
-        Pin semi_right;
+        Pin semiRight;
         Pin right;
     };
 
