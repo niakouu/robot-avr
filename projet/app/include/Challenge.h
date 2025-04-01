@@ -22,6 +22,7 @@ private:
         FINISH
     };
     State currentState_;
+    
 
     static void initiazliationHandler();
     static void followLineHandler();
