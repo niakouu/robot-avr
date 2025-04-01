@@ -35,8 +35,6 @@ int main() {
     const DistanceSensor ds{Pin::Id::P5};
 
     while (true) {
-        INFO("Values is %d\n", ds.getDistanceCm());
-
         Robot::get().followLine();
 
         Board::get().getWatchdogTimer().sleep(100, WatchdogTimer::SleepMode::IDLE);
