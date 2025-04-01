@@ -35,6 +35,9 @@ public:
 
     void followLine();
 
+    static constexpr float OFFSET_LEFT = 1.0F;
+    static constexpr float OFFSET_RIGHT = 0.94F;
+
 private:
     static Robot robot_;
     Board& board_;

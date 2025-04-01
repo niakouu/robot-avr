@@ -14,9 +14,9 @@ Robot::Robot() noexcept
       button_(Pin::Region::D, Pin::Id::P2, true),
       movementManager_(Board::get().getTimer1(),
                        {Pin(Pin::Region::D, Pin::Id::P5, Pin::Direction::OUT),
-                        0},
+                        OFFSET_LEFT},
                        {Pin(Pin::Region::D, Pin::Id::P4, Pin::Direction::OUT),
-                        0}) {}
+                        OFFSET_RIGHT}) {}
 
 Robot::~Robot() = default;
 
