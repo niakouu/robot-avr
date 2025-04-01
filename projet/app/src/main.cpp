@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "Board.h"
+#include "Robot.h"
 #include "debug.h"
 #include "DistanceSensor.h"
 
@@ -31,26 +32,14 @@ int main() {
     Button extraButton { Button::Interrupt::I1, false };
     sei();
 
-    INFO("Hello, world!\n");
-    INFO("EICRA: %d\n", EICRA);
-    INFO("EIMSK: %d\n", EIMSK);
     const DistanceSensor ds{Pin::Id::P5};
 
     while (true) {
         INFO("Values is %d\n", ds.getDistanceCm());
 
-        if (Board::get().getButton().isEvent()) {
-            INFO("Interrupt event: %d\n", Board::get().getButton().isPressed());
-            Board::get().getButton().consumeEvent();
-        }
+        Robot::get().followLine();
 
-
-        if (EXTRA_BUTTON.isEvent()) {
-            INFO("Extra button event: %d\n", EXTRA_BUTTON.isPressed());
-            EXTRA_BUTTON.consumeEvent();
-        }
-
-        Board::get().getWatchdogTimer().sleep(25, WatchdogTimer::SleepMode::IDLE);
+        Board::get().getWatchdogTimer().sleep(100, WatchdogTimer::SleepMode::IDLE);
     };
 
     return 0;
