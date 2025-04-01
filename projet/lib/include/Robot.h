@@ -7,6 +7,7 @@
 #include "Led.h" //BidirectionalLed
 #include "LineSensor.h"
 #include "Midi.h"
+#include "MovementManager.h"
 
 class Robot {
 public:
@@ -20,6 +21,8 @@ public:
     const LineSensor& getLineSensor() const;
     const Midi& getMidi() const;
     const Button& getButton() const;
+    template <typename T, typename U>
+    const MovementManager<T, U>& getMovementManager() const;
 
     Board& getBoard();
     DistanceSensor& getDistanceSensor();
@@ -27,6 +30,10 @@ public:
     LineSensor& getLineSensor();
     Midi& getMidi();
     Button& getButton();
+    template <typename T, typename U>
+    MovementManager<T, U>& getMovementManager();
+
+    void followLine();
 
 private:
     static Robot robot_;
@@ -36,6 +43,7 @@ private:
     LineSensor lineSensor_;
     Midi midi_;
     Button button_;
+    MovementManager<uint16_t, TimerPrescalerSynchronous> movementManager_;
     Robot() noexcept;
     ~Robot();
 };
