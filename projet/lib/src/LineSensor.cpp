@@ -24,3 +24,13 @@ bool LineSensor::isDark(Direction direction) const {
             return false;
     }
 }
+
+LineSensor::Readings LineSensor::getReadings() const {
+    return {
+        .isLeftDark = this->isDark(Direction::LEFT),
+        .isSemiLeftDark = this->isDark(Direction::SEMI_LEFT),
+        .isCenterDark = this->isDark(Direction::CENTER),
+        .isSemiRightDark = this->isDark(Direction::SEMI_RIGHT),
+        .isRightDark = this->isDark(Direction::RIGHT),
+    };
+}

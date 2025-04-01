@@ -21,10 +21,19 @@ public:
         Pin right;
     };
 
+    struct Readings {
+        bool isLeftDark : 1;
+        bool isSemiLeftDark : 1;
+        bool isCenterDark : 1;
+        bool isSemiRightDark : 1;
+        bool isRightDark : 1;
+    };
+
     LineSensor(Pins linePins);
     ~LineSensor() = default;
 
-    bool isDark(Direction direction) const; 
+    bool isDark(Direction direction) const;
+    Readings getReadings() const;
 private:
     Pins linePins_;
 };
