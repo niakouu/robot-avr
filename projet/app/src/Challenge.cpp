@@ -2,30 +2,50 @@
 
 Challenge::Challenge() : currentState_(State::INITIALIZATION) {}
 
-void Challenge::startChallenge(){
+void Challenge::startChallenge() {
 
+    switch (currentState_) {
+        case State::INITIALIZATION:
+            initiazliationHandler();
+            break;
+        case State::FOLLOW_LINE:
+            followLineHandler();
+            break;
+        case State::LOCATE:
+            locateHandler();
+            break;
+        case State::FORK_CHALLENGE:
+            forkChallengeHandler();
+            break;
+        case State::HOUSE_CHALLENGE:
+            houseChallengeHandler();
+            break;
+        case State::MAZE_CHALLENGE:
+            mazeChallengeHandler();
+            break;
+        case State::PARK:
+            parkHandler();
+            break;
+        case State::FINISH:
+            finishHandler();
+            break;
+        default:
+            break;
+    }
 }
-void Challenge::initiazliationHandler(){
 
-}
-void Challenge::followLineHandler(){
+void Challenge::initiazliationHandler() {}
 
-}
-void Challenge::locateHandler(){
+void Challenge::followLineHandler() {}
 
-}
-void Challenge::forkChallengeHandler(){
+void Challenge::locateHandler() {}
 
-}
-void Challenge::houseChallengeHandler(){
+void Challenge::forkChallengeHandler() {}
 
-}
-void Challenge::mazeChallengeHandler(){
+void Challenge::houseChallengeHandler() {}
 
-}
-void Challenge::parkHandler(){
+void Challenge::mazeChallengeHandler() {}
 
-}
-void Challenge::finishHandler(){
+void Challenge::parkHandler() {}
 
-}
+void Challenge::finishHandler() {}
