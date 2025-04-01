@@ -1,11 +1,11 @@
 #include "LineSensor.h"
 
 LineSensor::LineSensor(Pins linePins) : linePins_(linePins) {
-    linePins_.left.updateDirection(Pin::Direction::OUT);
-    linePins_.semiLeft.updateDirection(Pin::Direction::OUT);
-    linePins_.center.updateDirection(Pin::Direction::OUT);
-    linePins_.semiRight.updateDirection(Pin::Direction::OUT);
-    linePins_.right.updateDirection(Pin::Direction::OUT);
+    linePins_.left.updateDirection(Pin::Direction::IN);
+    linePins_.semiLeft.updateDirection(Pin::Direction::IN);
+    linePins_.center.updateDirection(Pin::Direction::IN);
+    linePins_.semiRight.updateDirection(Pin::Direction::IN);
+    linePins_.right.updateDirection(Pin::Direction::IN);
 }
 
 bool LineSensor::isDark(Direction direction) const {

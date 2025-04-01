@@ -21,8 +21,7 @@ public:
     const LineSensor& getLineSensor() const;
     const Midi& getMidi() const;
     const Button& getButton() const;
-    template <typename T, typename U>
-    const MovementManager<T, U>& getMovementManager() const;
+    const MovementManager<uint8_t, TimerPrescalerSynchronous>& getMovementManager() const;
 
     Board& getBoard();
     DistanceSensor& getDistanceSensor();
@@ -30,10 +29,7 @@ public:
     LineSensor& getLineSensor();
     Midi& getMidi();
     Button& getButton();
-    template <typename T, typename U>
-    MovementManager<T, U>& getMovementManager();
-
-    void followLine();
+    MovementManager<uint8_t, TimerPrescalerSynchronous>& getMovementManager();
 
     static constexpr float OFFSET_LEFT = 1.0F;
     static constexpr float OFFSET_RIGHT = 0.94F;
@@ -46,7 +42,7 @@ private:
     LineSensor lineSensor_;
     Midi midi_;
     Button button_;
-    MovementManager<uint16_t, TimerPrescalerSynchronous> movementManager_;
+    MovementManager<uint8_t, TimerPrescalerSynchronous> movementManager_;
     Robot() noexcept;
     ~Robot();
 };

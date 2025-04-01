@@ -78,9 +78,6 @@ void MovementManager<T, U>::kickstartMotors(KickstartDirection left,
                                           WatchdogTimer::SleepMode::IDLE);
 }
 
-#define DEBUG
-#include "debug.h"
-
 template <typename T, typename U>
 void MovementManager<T, U>::move(bool leftForward, float leftSpeedRatio,
                                  bool rightForward, float rightSpeedRatio) {

@@ -2,13 +2,14 @@
 #include <stdio.h>
 
 #include "Board.h"
+#include "DistanceSensor.h"
+#include "LineFollower.h"
 #include "Robot.h"
 #include "debug.h"
-#include "DistanceSensor.h"
 
 constexpr const uint16_t BAUD_RATE = 2400;
 
-static volatile Button EXTRA_BUTTON { Button::Interrupt::I1, false };
+static volatile Button EXTRA_BUTTON{Button::Interrupt::I1, false};
 
 ISR(WDT_vect) {
     Board::get().getWatchdogTimer().setSleepDone();
@@ -29,15 +30,24 @@ int main() {
     uart.start();
     stdout = uart.getEmulatedFile();
 
-    Button extraButton { Button::Interrupt::I1, false };
+    Button extraButton{Button::Interrupt::I1, false};
     sei();
 
     const DistanceSensor ds{Pin::Id::P5};
+    LineFollower<uint8_t, TimerPrescalerSynchronous> lf{
+        Robot::get().getMovementManager(), Robot::get().getLineSensor(), 1.0f};
 
+    lf.start();
     while (true) {
-        Robot::get().followLine();
+        lf.update();
 
-        Board::get().getWatchdogTimer().sleep(100, WatchdogTimer::SleepMode::IDLE);
+        if (lf.isEvent()) {
+            INFO("Minions!! hihihih hahahaha huhuhuh hohohoho\n");
+            lf.start();
+        }
+
+        Board::get().getWatchdogTimer().sleep(100,
+                                              WatchdogTimer::SleepMode::IDLE);
     };
 
     return 0;
