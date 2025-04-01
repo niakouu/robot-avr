@@ -2,11 +2,13 @@
 #define _CHALLENGE_H
 
 #include "stdint.h"
+#include "Robot.h"
 
 class Challenge {
 public:
-    Challenge();
-    ~Challenge() = default;
+static Challenge& get();
+Challenge(Challenge&) = delete;
+void operator=(const Challenge&) = delete;
 
     void startChallenge();
 
@@ -22,7 +24,7 @@ private:
         FINISH
     };
     State currentState_;
-    
+    static Challenge challenge_;
 
     static void initiazliationHandler();
     static void followLineHandler();
@@ -32,6 +34,9 @@ private:
     static void mazeChallengeHandler();
     static void parkHandler();
     static void finishHandler();
+
+    Challenge() noexcept;
+    ~Challenge() = default;
 };
 
 #endif /* _CHALLENGE_H */

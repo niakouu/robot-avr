@@ -2,6 +2,9 @@
 
 Challenge::Challenge() : currentState_(State::INITIALIZATION) {}
 
+Challenge& Challenge::get() {
+    return Challenge::challenge_;
+}
 void Challenge::startChallenge() {
 
     switch (currentState_) {
