@@ -6,6 +6,7 @@
 #include "LineFollower.h"
 #include "Robot.h"
 #include "debug.h"
+#include "Challenge.h"
 
 constexpr const uint16_t BAUD_RATE = 2400;
 
@@ -49,6 +50,8 @@ int main() {
         Board::get().getWatchdogTimer().sleep(100,
                                               WatchdogTimer::SleepMode::IDLE);
     };
+    
+    // Challenge::get().startChallenge();
 
     return 0;
 }
