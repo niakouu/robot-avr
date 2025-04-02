@@ -26,7 +26,7 @@ private:
         FINISH
     };
     State currentState_;
-    uint8_t challengeStateTracker_; //
+    uint8_t challengeStateTracker_ = 0; //
 
     static void initiazliationHandler();
     static void followLineHandler();
