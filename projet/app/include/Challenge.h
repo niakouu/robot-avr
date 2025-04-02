@@ -1,18 +1,20 @@
 #ifndef _CHALLENGE_H
 #define _CHALLENGE_H
 
-#include "stdint.h"
 #include "Robot.h"
+#include "stdint.h"
 
 class Challenge {
 public:
-static Challenge& get();
-Challenge(Challenge&) = delete;
-void operator=(const Challenge&) = delete;
+    static Challenge& get();
+    Challenge(Challenge&) = delete;
+    void operator=(const Challenge&) = delete;
 
     void startChallenge();
 
 private:
+    static Challenge challenge_;
+
     enum class State : uint8_t {
         INITIALIZATION,
         FOLLOW_LINE,
@@ -24,7 +26,7 @@ private:
         FINISH
     };
     State currentState_;
-    static Challenge challenge_;
+    uint8_t challengeStateTracker_; //
 
     static void initiazliationHandler();
     static void followLineHandler();

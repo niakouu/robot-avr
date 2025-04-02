@@ -1,10 +1,12 @@
 #include "Challenge.h"
 
-Challenge::Challenge() noexcept: currentState_(State::INITIALIZATION) {}
+Challenge::Challenge() noexcept
+    : currentState_(State::INITIALIZATION), stateTracker_(0) {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
 }
+
 void Challenge::startChallenge() {
 
     switch (currentState_) {
@@ -19,12 +21,15 @@ void Challenge::startChallenge() {
             break;
         case State::FORK_CHALLENGE:
             forkChallengeHandler();
+            challengeStateTracker_++;
             break;
         case State::HOUSE_CHALLENGE:
             houseChallengeHandler();
+            challengeStateTracker_++;
             break;
         case State::MAZE_CHALLENGE:
             mazeChallengeHandler();
+            challengeStateTracker_++;
             break;
         case State::PARK:
             parkHandler();
@@ -51,4 +56,14 @@ void Challenge::mazeChallengeHandler() {}
 
 void Challenge::parkHandler() {}
 
-void Challenge::finishHandler() {}
+void Challenge::finishHandler() {
+    const uint8_t frequence = 2;
+    const uint8_t period = (1 / frequence) * 1000;
+
+    Robot::get().getMovementManager().stop();
+
+    Robot::get().getBidirectionalLed().setColor(BidirectionalLed::Color::RED);
+    Board::get().getWatchdogTimer().sleep(period, WatchdogTimer::SleepMode::IDLE);
+    Robot::get().getBidirectionalLed().setColor(BidirectionalLed::Color::GREEN);
+    Board::get().getWatchdogTimer().sleep(period, WatchdogTimer::SleepMode::IDLE);
+}
