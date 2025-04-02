@@ -1,6 +1,6 @@
 #include "Challenge.h"
 
-Challenge::Challenge() : currentState_(State::INITIALIZATION) {}
+Challenge::Challenge() noexcept: currentState_(State::INITIALIZATION) {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
