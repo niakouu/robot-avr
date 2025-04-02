@@ -6,10 +6,6 @@ template class MovementManager<uint8_t, TimerPrescalerSynchronous>;
 template class MovementManager<uint16_t, TimerPrescalerSynchronous>;
 template class MovementManager<uint8_t, TimerPrescalerAsynchronous>;
 
-namespace {
-    const constexpr uint16_t KICKSTART_TIME_MS = 250U;
-}
-
 template <typename T, typename U>
 MovementManager<T, U>::MovementManager(Timer<T, U>& timer,
                                        const Motor<T>&& motorLeft,
@@ -23,33 +19,21 @@ MovementManager<T, U>::~MovementManager() {
 
 template <typename T, typename U>
 void MovementManager<T, U>::moveForward(float speedRatio) {
-    this->kickstartMotors(KickstartDirection::FORWARD,
-                          KickstartDirection::FORWARD);
-
     this->move(true, speedRatio, true, speedRatio);
 }
 
 template <typename T, typename U>
 void MovementManager<T, U>::moveBackward(float speedRatio) {
-    this->kickstartMotors(KickstartDirection::BACKWARD,
-                          KickstartDirection::BACKWARD);
-
     this->move(false, speedRatio, false, speedRatio);
 }
 
 template <typename T, typename U>
 void MovementManager<T, U>::moveLeft(float speedRatio, float curveRatio) {
-    this->kickstartMotors(KickstartDirection::NONE,
-                          KickstartDirection::FORWARD);
-
     this->move(false, speedRatio * curveRatio, true, speedRatio);
 }
 
 template <typename T, typename U>
 void MovementManager<T, U>::moveRight(float speedRatio, float curveRatio) {
-    this->kickstartMotors(KickstartDirection::FORWARD,
-                          KickstartDirection::NONE);
-
     this->move(true, speedRatio, false, speedRatio * curveRatio);
 }
 
@@ -68,13 +52,14 @@ void MovementManager<T, U>::setMotorOffsets(float offsetLeft,
 
 template <typename T, typename U>
 void MovementManager<T, U>::kickstartMotors(KickstartDirection left,
-                                            KickstartDirection right) {
+                                            KickstartDirection right,
+                                            uint16_t durationMs) {
     this->move(left == KickstartDirection::FORWARD,
                left == KickstartDirection::NONE ? 0.0F : 1.0F,
                right == KickstartDirection::FORWARD,
                right == KickstartDirection::NONE ? 0.0F : 1.0F);
 
-    Board::get().getWatchdogTimer().sleep(KICKSTART_TIME_MS,
+    Board::get().getWatchdogTimer().sleep(durationMs,
                                           WatchdogTimer::SleepMode::IDLE);
 }
 

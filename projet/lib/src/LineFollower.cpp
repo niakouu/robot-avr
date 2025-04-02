@@ -1,5 +1,7 @@
 #include "LineFollower.h"
+
 #include "Board.h"
+#include "common.h"
 
 template class LineFollower<uint8_t, TimerPrescalerSynchronous>;
 template class LineFollower<uint16_t, TimerPrescalerSynchronous>;
@@ -23,6 +25,7 @@ void LineFollower<T, U>::stop() {
 
 template <typename T, typename U>
 void LineFollower<T, U>::start() {
+    this->movementManager_.kickstartMotors(KickstartDirection::FORWARD, KickstartDirection::FORWARD);
     this->setState(LineFollower::State::FORWARD);
 }
 
@@ -62,32 +65,27 @@ void LineFollower<T, U>::setState(State state) {
 
 template <typename T, typename U>
 void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings) {
-    if (this->switchedState_) {
-        this->movementManager_.moveForward(this->speed_);
-    }
-
-    if (readings.isCenterDark && !readings.isLeftDark
-        && !readings.isRightDark) {
+    const int8_t average = readings.getAverage();
+    const uint8_t darkLines = readings.getDarkLineCount();
+    if (darkLines == 0 || darkLines > 2) {
+        if (average < 0)
+            this->currentState_ = State::TURNING_LEFT;
+        else if (average > 0)
+            this->currentState_ = State::TURNING_RIGHT;
+        else
+            this->currentState_ = State::LOST;
         return;
     }
 
-    if (!readings.isLeftDark && !readings.isSemiLeftDark
-        && !readings.isCenterDark
-        && (readings.isSemiRightDark || readings.isRightDark)) {
-        this->currentState_ = State::TURNING_RIGHT;
-    } else if ((readings.isLeftDark || readings.isSemiLeftDark)
-               && !readings.isCenterDark && !readings.isSemiRightDark
-               && !readings.isRightDark) {
-        this->currentState_ = State::TURNING_LEFT;
-    } else {
-        this->currentState_ = State::LOST;
-    }
+    const float leftOffset = static_cast<float>(average) * (this->speed_ / 4.0F);
+    this->movementManager_.move(true, clamp(this->speed_ + leftOffset, 0.0F, this->speed_),
+                                true, clamp(this->speed_ - leftOffset, 0.0F, this->speed_));
 }
 
 template <typename T, typename U>
 void LineFollower<T, U>::turningHandler(LineSensor::Readings readings) {
     Board& board = Board::get();
-    
+
     if (this->switchedState_) {
         this->movementManager_.moveForward(this->speed_);
         board.getWatchdogTimer().sleep(100, WatchdogTimer::SleepMode::IDLE);

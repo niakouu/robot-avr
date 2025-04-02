@@ -34,3 +34,38 @@ LineSensor::Readings LineSensor::getReadings() const {
         .isRightDark = linePins_.right.read(),
     };
 }
+
+int8_t LineSensor::Readings::getAverage() const {
+    int8_t average = 0;
+    int8_t members = 0;
+
+    if (this->isLeftDark) {
+        average -= 4;
+        ++members;
+    }
+
+    if (this->isSemiLeftDark) {
+        average -= 2;
+        ++members;
+    }
+
+    if (this->isCenterDark) {
+        ++members;
+    }
+
+    if (this->isSemiRightDark) {
+        average += 2;
+        ++members;
+    }
+
+    if (this->isRightDark) {
+        average += 4;
+        ++members;
+    }
+
+    return members == 0 ? 0 : average / members;
+}
+
+uint8_t LineSensor::Readings::getDarkLineCount() const {
+    return this->isLeftDark + this->isSemiLeftDark + this->isCenterDark + this->isSemiRightDark + this->isRightDark;
+}

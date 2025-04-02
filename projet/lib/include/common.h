@@ -3,8 +3,7 @@
 
 #include <stdint.h>
 
-namespace
-{
+namespace {
     constexpr uint8_t UINT8_WIDTH = 8U;
     constexpr uint16_t UINT16_WIDTH = 16U;
 } // namespace
@@ -39,6 +38,12 @@ struct isType<T, T> {
 template <typename T>
 constexpr T&& move(T&& value) {
     return static_cast<T&&>(value);
+}
+
+/// Taken from https://en.cppreference.com/w/cpp/algorithm/clamp
+template <class T>
+constexpr const T clamp(const T value, const T low, const T high) {
+    return value < low ? low : value > high ? hi : value;
 }
 
 #endif /* _COMMON_H */

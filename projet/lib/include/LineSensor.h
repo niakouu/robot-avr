@@ -27,6 +27,10 @@ public:
         bool isCenterDark : 1;
         bool isSemiRightDark : 1;
         bool isRightDark : 1;
+
+        int8_t getAverage() const;
+        uint8_t getDarkLineCount() const;
+        bool isSinglePath() const;
     };
 
     LineSensor(Pins linePins);
