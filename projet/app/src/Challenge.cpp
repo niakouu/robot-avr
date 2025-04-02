@@ -1,7 +1,7 @@
 #include "Challenge.h"
 
 Challenge::Challenge() noexcept
-    : currentState_(State::INITIALIZATION){}
+    : currentState_(State::INITIALIZATION), challengeStateTracker_(0) {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
