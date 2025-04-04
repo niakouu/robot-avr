@@ -3,20 +3,15 @@
 
 #include <stdint.h>
 
+#include "ChallengeHandler.h"
 #include "LineFollower.h"
 #include "Robot.h"
-#include "ChallengeHandler.h"
 
 class Challenge {
 public:
     static Challenge& get();
     Challenge(Challenge&) = delete;
     void operator=(const Challenge&) = delete;
-
-    void update(uint16_t deltaTimeMs);
-
-private:
-    static Challenge challenge_;
 
     enum class State : uint8_t {
         INITIALIZATION,
@@ -28,9 +23,16 @@ private:
         PARK,
         FINISH
     };
+
+    void update(uint16_t deltaTimeMs);
+    void setState(State state);
+
+    LineFollower<uint8_t, TimerPrescalerSynchronous>& getLineFollower();
+private:
+    static Challenge challenge_;
+
     State currentState_;
     uint8_t challengeStateTracker_;
-    Robot& robot_;
     LineFollower<uint8_t, TimerPrescalerSynchronous> lineFollower_;
 
     static void initiazliationHandler();

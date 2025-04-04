@@ -2,8 +2,8 @@
 
 Challenge::Challenge() noexcept
     : currentState_(State::INITIALIZATION), challengeStateTracker_(0),
-      robot_(Robot::get()),
-      lineFollower_(robot_.getMovementManager(), robot_.getLineSensor(), SPEED) {}
+      lineFollower_(Robot::get().getMovementManager(),
+                    Robot::get().getLineSensor(), SPEED) {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
@@ -41,6 +41,10 @@ void Challenge::update(uint16_t deltaTimeMs) {
         default:
             break;
     }
+}
+
+LineFollower<uint8_t, TimerPrescalerSynchronous>& Challenge::getLineFollower() {
+    return this->lineFollower_;
 }
 
 void Challenge::initiazliationHandler() {}
