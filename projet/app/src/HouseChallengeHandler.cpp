@@ -19,19 +19,30 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     switch (this->point_) {
         case Point::E_INITIAL:
             lineFollower.start();
+            this->point_ = Point::F;
             break;
         case Point::F:
             lineFollower.start(
-                LineFollower<uint8_t,
-                             TimerPrescalerSynchronous>::State::TURNING_RIGHT);
+                LineFollowerState::TURNING_RIGHT);
+            this->point_ = Point::G;
             break;
         case Point::G:
             if (this->sweepTimeLeftMs_ != 0) {
                 this->sweepForPole(deltaTimeMs);
             } else if (this->isPolePresent_) {
+                this->point_ = Point::I;
+                lineFollower.start(
+                    LineFollowerState::
+                        TURNING_RIGHT);
+            } else {
+                this->point_ = Point::H;
+                lineFollower.start(
+                    LineFollowerState::FORWARD);
             }
             break;
         case Point::H:
+            lineFollower.start();
+            this->point_ = Point::I;
             break;
         case Point::I:
             break;

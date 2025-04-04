@@ -4,6 +4,16 @@
 #include "LineSensor.h"
 #include "MovementManager.h"
 
+
+enum class LineFollowerState : uint8_t {
+    FORWARD,
+    DETECTION,
+    TURNING_LEFT,
+    TURNING_RIGHT,
+    LOST,
+    STOP
+};
+
 template <typename T, typename U>
 class LineFollower {
 public:
@@ -13,17 +23,8 @@ public:
     LineFollower(LineFollower&) = delete;
     void operator=(const LineFollower&) = delete;
 
-    enum class State : uint8_t {
-        FORWARD,
-        DETECTION,
-        TURNING_LEFT,
-        TURNING_RIGHT,
-        LOST,
-        STOP
-    };
-
     void stop();
-    void start(State state = State::FORWARD);
+    void start(LineFollowerState state = LineFollowerState::FORWARD);
     void update(uint16_t deltaTimeMs);
     bool isEvent() const;
 
@@ -38,7 +39,7 @@ private:
     MovementManager<T, U>& movementManager_;
     LineSensor& lineSensor_;
 
-    State currentState_;
+    LineFollowerState currentState_;
     bool switchedState_;
 
     LineSensor::Readings lastReadings_;
