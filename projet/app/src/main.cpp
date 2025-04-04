@@ -2,11 +2,11 @@
 #include <stdio.h>
 
 #include "Board.h"
+#include "Challenge.h"
 #include "DistanceSensor.h"
 #include "LineFollower.h"
 #include "Robot.h"
 #include "debug.h"
-#include "Challenge.h"
 
 constexpr const uint16_t BAUD_RATE = 2400;
 
@@ -30,27 +30,65 @@ int main() {
                    Uart::StopBit::ONE_BIT);
     uart.start();
     stdout = uart.getEmulatedFile();
+    stdin = uart.getEmulatedFile();
 
-    Button extraButton{Button::Interrupt::I1, false};
+    Button& button = Board::get().getButton();
     sei();
 
     const DistanceSensor ds{Pin::Id::P5};
     LineFollower<uint8_t, TimerPrescalerSynchronous> lf{
-        Robot::get().getMovementManager(), Robot::get().getLineSensor(), 1.0f};
+        Robot::get().getMovementManager(), Robot::get().getLineSensor(), 0.5f};
 
     lf.start();
     while (true) {
-        lf.update();
+        if (EXTRA_BUTTON.isEvent() && EXTRA_BUTTON.isPressed()) {
+            EXTRA_BUTTON.consumeEvent();
 
-        if (lf.isEvent()) {
-            INFO("Minions!! hihihih hahahaha huhuhuh hohohoho\n");
             lf.start();
         }
+
+        if (button.isEvent() && button.isPressed()) {
+            button.consumeEvent();
+            char value = '?';
+            float input = 0.0f;
+            printf("s %f\n", lf.speed_);
+            printf("p %f\n", lf.PID_KP);
+            printf("d %f\n", lf.PID_KD);
+            printf("i %f\n", lf.PID_KI);
+            while (getchar() != 'S')
+                ;
+            scanf("%c %f", &value, &input);
+            switch (value) {
+                case 'p':
+                    lf.PID_KP = input;
+                    break;
+                case 's':
+                    lf.speed_ = input;
+                    break;
+                case 'd':
+                    lf.PID_KD = input;
+                    break;
+                case 'i':
+                    lf.PID_KI = input;
+                    break;
+                default:
+                    printf("wtf?? %c\n", value);
+            }
+            
+            printf(" s -> %f\n", lf.speed_);
+            printf(" p -> %f\n", lf.PID_KP);
+            printf(" d -> %f\n", lf.PID_KD);
+            printf(" i -> %f\n", lf.PID_KI);
+
+            lf.start();
+        }
+
+        lf.update(100);
 
         Board::get().getWatchdogTimer().sleep(100,
                                               WatchdogTimer::SleepMode::IDLE);
     };
-    
+
     // Challenge::get().startChallenge();
 
     return 0;

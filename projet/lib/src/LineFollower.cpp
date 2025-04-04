@@ -1,5 +1,7 @@
 #include "LineFollower.h"
 
+#include <math.h>
+
 #include "Board.h"
 #include "common.h"
 
@@ -20,22 +22,29 @@ LineFollower<T, U>::~LineFollower() {
 
 template <typename T, typename U>
 void LineFollower<T, U>::stop() {
-    this->setState(LineFollower::State::STOP);
+    this->currentState_ = LineFollower::State::STOP;
+    this->switchedState_ = true;
 }
 
 template <typename T, typename U>
 void LineFollower<T, U>::start() {
-    this->movementManager_.kickstartMotors(KickstartDirection::FORWARD, KickstartDirection::FORWARD);
-    this->setState(LineFollower::State::FORWARD);
+    this->movementManager_.kickstartMotors(KickstartDirection::FORWARD,
+                                           KickstartDirection::FORWARD);
+    this->currentState_ = LineFollower::State::FORWARD;
+    this->switchedState_ = true;
 }
 
 template <typename T, typename U>
-void LineFollower<T, U>::update() {
+void LineFollower<T, U>::update(uint16_t deltaTimeMs) {
     LineSensor::Readings readings = this->lineSensor_.getReadings();
 
+    State lastState = this->currentState_;
     switch (this->currentState_) {
         case LineFollower::State::FORWARD:
-            this->forwardHandler(readings);
+            this->forwardHandler(readings, deltaTimeMs);
+            break;
+        case LineFollower::State::DETECTION:
+            this->detectionHandler(readings, deltaTimeMs);
             break;
         case LineFollower::State::TURNING_LEFT:
         case LineFollower::State::TURNING_RIGHT:
@@ -49,7 +58,7 @@ void LineFollower<T, U>::update() {
             break;
     }
 
-    this->switchedState_ = false;
+    this->switchedState_ = lastState != this->currentState_;
 }
 
 template <typename T, typename U>
@@ -58,28 +67,57 @@ bool LineFollower<T, U>::isEvent() const {
 }
 
 template <typename T, typename U>
-void LineFollower<T, U>::setState(State state) {
-    this->currentState_ = state;
-    this->switchedState_ = true;
-}
+void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
+                                        uint16_t deltaTimeMs) {
 
-template <typename T, typename U>
-void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings) {
+    if (this->switchedState_) {
+        this->integralComponent_ = 0;
+        this->lastError_ = 0;
+    }
+
     const int8_t average = readings.getAverage();
     const uint8_t darkLines = readings.getDarkLineCount();
-    if (darkLines == 0 || darkLines > 2) {
-        if (average < 0)
-            this->currentState_ = State::TURNING_LEFT;
-        else if (average > 0)
-            this->currentState_ = State::TURNING_RIGHT;
-        else
-            this->currentState_ = State::LOST;
+    if (darkLines == 0 || darkLines == 5) {
+        this->currentState_ = State::LOST;
         return;
     }
 
-    const float leftOffset = static_cast<float>(average) * (this->speed_ / 4.0F);
-    this->movementManager_.move(true, clamp(this->speed_ + leftOffset, 0.0F, this->speed_),
-                                true, clamp(this->speed_ - leftOffset, 0.0F, this->speed_));
+    if (darkLines >= 3 && false) {
+        this->currentState_ = State::LOST;
+        return;
+    }
+
+    const int8_t error = -average;
+    const int8_t deltaError = error - this->lastError_;
+    this->lastError_ = error;
+    this->integralComponent_ += error;
+
+    float rightOffset =
+        (static_cast<float>(error) * PID_KP)
+        + (static_cast<float>(this->integralComponent_) * PID_KI)
+        + (static_cast<float>(deltaError * PID_KD));
+
+    //printf("speed: %d avg: %d\n", static_cast<uint16_t>(rightOffset * 100.0f),
+     //      average);
+    this->movementManager_.move(
+        true, clamp(this->speed_ - rightOffset, 0.0F, this->speed_), true,
+        clamp(this->speed_ + rightOffset, 0.0F, this->speed_));
+}
+
+template <typename T, typename U>
+void LineFollower<T, U>::detectionHandler(LineSensor::Readings readings,
+                                          uint16_t deltaTimeMs) {
+    // if (this->switchedState_) {
+    //     this->detectionTimeLeft = DETECTION_TIME_MS;
+    //     return;
+    // }
+
+    // if (this->detectionTimeLeft < deltaTimeMs) {
+    // }
+
+    // if (this->detectionTimeLeft < DETECTION_TIME_MS / 2) {
+    // }
+    // this->detectionTimeLeft -= deltaTimeMs;
 }
 
 template <typename T, typename U>

@@ -40,6 +40,7 @@ public:
 
     void transmit(uint8_t data) const;
     uint8_t receive() const;
+    void flushReceiver() const;
     FILE* getEmulatedFile();
 
     void configure(uint16_t baudRate, bool synchronous, Parity parity,

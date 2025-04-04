@@ -104,3 +104,8 @@ int Uart::getChar(FILE* stream) {
 FILE* Uart::getEmulatedFile() {
     return &this->emulatedFile_;
 }
+
+void Uart::flushReceiver() const {
+    while ((*this->registers_.controlStatusA & _BV(RXC0)) != 0)
+        *this->registers_.data;
+}

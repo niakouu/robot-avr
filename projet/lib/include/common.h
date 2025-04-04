@@ -43,7 +43,7 @@ constexpr T&& move(T&& value) {
 /// Taken from https://en.cppreference.com/w/cpp/algorithm/clamp
 template <class T>
 constexpr const T clamp(const T value, const T low, const T high) {
-    return value < low ? low : value > high ? hi : value;
+    return value < low ? low : value > high ? high : value;
 }
 
 #endif /* _COMMON_H */
