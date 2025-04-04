@@ -1,6 +1,7 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 namespace {
@@ -45,5 +46,19 @@ template <class T>
 constexpr const T clamp(const T value, const T low, const T high) {
     return value < low ? low : value > high ? high : value;
 }
+
+// Placement new and delete. Taken from
+// https://github.com/modm-io/avr-libstdcpp/blob/master/include/new
+inline void* operator new(size_t, void* p) noexcept {
+    return p;
+}
+
+inline void* operator new[](size_t, void* p) noexcept {
+    return p;
+}
+
+inline void operator delete(void*, void*) noexcept {}
+
+inline void operator delete[](void*, void*) noexcept {}
 
 #endif /* _COMMON_H */

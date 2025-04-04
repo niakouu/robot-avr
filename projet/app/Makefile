@@ -2,7 +2,7 @@ include ../common.mk
 PROJECTNAME = app
 
 SRCSDIR = src
-SRCSCLASS = main.cpp
+SRCSCLASS = main.cpp HouseChallengeHandler.cpp Challenge.cpp
 SRCS = $(SRCSCLASS:%=$(SRCSDIR)/%)
 
 RELEASE_LIBS = -L../lib/$(RELEASE_DIR) -lutil

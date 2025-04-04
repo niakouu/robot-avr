@@ -45,6 +45,16 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             this->point_ = Point::I;
             break;
         case Point::I:
+            lineFollower.start(LineFollowerState::TURNING_RIGHT);
+            this->point_ = Point::E_FINAL;
+            break;
+        case Point::E_FINAL:
+            lineFollower.start(LineFollowerState::TURNING_RIGHT);
+            this->point_ = Point::F_FINAL;
+            break;
+        case Point::F_FINAL:
+            lineFollower.start();
+            challenge.setState(Challenge::State::FINISH);
             break;
     }
 }

@@ -15,7 +15,8 @@
         "cppcoreguidelines-pro-bounds-array-to-pointer-decay",
         "cppcoreguidelines-pro-bounds-constant-array-index",
         "modernize-avoid-c-arrays",
-        "cert-dcl50-cpp"
+        "cert-dcl50-cpp",
+        "cppcoreguidelines-pro-type-union-access"
     ],
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
     "C_Cpp.codeAnalysis.exclude": {

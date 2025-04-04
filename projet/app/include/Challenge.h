@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "ChallengeHandler.h"
+#include "HouseChallengeHandler.h"
 #include "LineFollower.h"
 #include "Robot.h"
 
@@ -30,12 +31,27 @@ public:
     LineFollower<uint8_t, TimerPrescalerSynchronous>& getLineFollower();
 
     static constexpr float SPEED = 0.5F;
+
 private:
     static Challenge challenge_;
 
-    State currentState_;
     uint8_t challengeStateTracker_;
     LineFollower<uint8_t, TimerPrescalerSynchronous> lineFollower_;
+
+    struct StateHolder {
+        State state;
+
+        union Handler {
+            uint8_t none;
+            HouseChallengeHandler house;
+
+            constexpr Handler() : none{0} {};
+            ~Handler() {};
+        } handler;
+
+        StateHolder(State state);
+        ~StateHolder();
+    } stateHolder_;
 
     static void initiazliationHandler();
     static void followLineHandler();

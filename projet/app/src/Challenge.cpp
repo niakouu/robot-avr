@@ -1,16 +1,21 @@
 #include "Challenge.h"
 
+#include <string.h>
+
+Challenge Challenge::challenge_{};
+
 Challenge::Challenge() noexcept
-    : currentState_(State::INITIALIZATION), challengeStateTracker_(0),
+    : challengeStateTracker_(0),
       lineFollower_(Robot::get().getMovementManager(),
-                    Robot::get().getLineSensor(), SPEED) {}
+                    Robot::get().getLineSensor(), SPEED),
+      stateHolder_(State::INITIALIZATION) {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
 }
 
 void Challenge::update(uint16_t deltaTimeMs) {
-    switch (currentState_) {
+    switch (stateHolder_.state) {
         case State::INITIALIZATION:
             initiazliationHandler();
             break;
@@ -43,6 +48,11 @@ void Challenge::update(uint16_t deltaTimeMs) {
     }
 }
 
+void Challenge::setState(State state) {
+    this->stateHolder_.~StateHolder();
+    new (&this->stateHolder_) StateHolder{state};
+}
+
 LineFollower<uint8_t, TimerPrescalerSynchronous>& Challenge::getLineFollower() {
     return this->lineFollower_;
 }
@@ -73,4 +83,24 @@ void Challenge::finishHandler() {
     Robot::get().getBidirectionalLed().setColor(BidirectionalLed::Color::GREEN);
     Board::get().getWatchdogTimer().sleep(period,
                                           WatchdogTimer::SleepMode::IDLE);
+}
+
+Challenge::StateHolder::StateHolder(State state) : state(state) {
+    switch (state) {
+        case State::HOUSE_CHALLENGE:
+            this->handler.house = HouseChallengeHandler();
+            break;
+        default:
+            this->handler.none = 0;
+    }
+}
+
+Challenge::StateHolder::~StateHolder() {
+    switch (state) {
+        case Challenge::State::HOUSE_CHALLENGE:
+            handler.house.~HouseChallengeHandler();
+            break;
+        default:
+            break;
+    }
 }
