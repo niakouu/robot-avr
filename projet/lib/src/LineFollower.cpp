@@ -13,7 +13,8 @@ template <typename T, typename U>
 LineFollower<T, U>::LineFollower(MovementManager<T, U>& movementManager,
                                  LineSensor& lineSensor, float speed)
     : movementManager_(movementManager), lineSensor_(lineSensor),
-      currentState_(LineFollowerState::STOP), speed_(speed) {}
+      currentState_(LineFollowerState::STOP), speed_(speed),
+      isAutomatic_(true) {}
 
 template <typename T, typename U>
 LineFollower<T, U>::~LineFollower() {
@@ -27,15 +28,18 @@ void LineFollower<T, U>::stop() {
 }
 
 template <typename T, typename U>
-void LineFollower<T, U>::start(LineFollowerState state) {
+void LineFollower<T, U>::start(LineFollowerState state, bool isAutomatic) {
     this->movementManager_.kickstartMotors(
-        state == LineFollowerState::FORWARD || state == LineFollowerState::TURNING_RIGHT
+        state == LineFollowerState::FORWARD
+                || state == LineFollowerState::TURNING_RIGHT
             ? KickstartDirection::FORWARD
             : KickstartDirection::NONE,
-        state == LineFollowerState::FORWARD || state == LineFollowerState::TURNING_LEFT
+        state == LineFollowerState::FORWARD
+                || state == LineFollowerState::TURNING_LEFT
             ? KickstartDirection::FORWARD
             : KickstartDirection::NONE);
 
+    this->isAutomatic_ = isAutomatic;
     this->currentState_ = state;
     this->switchedState_ = true;
 }
@@ -152,7 +156,7 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
             this->movementManager_.moveRight(this->speed_, 0);
     } else {
         if (readings.isCenterDark) {
-            this->currentState_ = LineFollowerState::FORWARD;
+            this->currentState_ = this->isAutomatic_ ? LineFollowerState::FORWARD : LineFollowerState::LOST;
         }
     }
 }

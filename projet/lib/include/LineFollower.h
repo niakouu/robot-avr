@@ -24,7 +24,7 @@ public:
     void operator=(const LineFollower&) = delete;
 
     void stop();
-    void start(LineFollowerState state = LineFollowerState::FORWARD);
+    void start(LineFollowerState state = LineFollowerState::FORWARD, bool isAutomatic = true);
     void update(uint16_t deltaTimeMs);
     bool isEvent() const;
 
@@ -40,7 +40,7 @@ private:
     LineSensor& lineSensor_;
 
     LineFollowerState currentState_;
-    bool switchedState_;
+    bool switchedState_, isAutomatic_;
 
     LineSensor::Readings lastReadings_;
 
