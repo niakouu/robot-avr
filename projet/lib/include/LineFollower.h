@@ -13,17 +13,6 @@ public:
     LineFollower(LineFollower&) = delete;
     void operator=(const LineFollower&) = delete;
 
-    void stop();
-    void start();
-    void update(uint16_t deltaTimeMs);
-    bool isEvent() const;
-
-    // speed 0.5
-    float PID_KP = 0.135F; // speed / 4 kind of
-    float PID_KI = 0.0675F; // PID_KP / 20
-    float PID_KD = 2.025F; // PID_KP * 15
-
-private:
     enum class State : uint8_t {
         FORWARD,
         DETECTION,
@@ -33,6 +22,17 @@ private:
         STOP
     };
 
+    void stop();
+    void start(State state = State::FORWARD);
+    void update(uint16_t deltaTimeMs);
+    bool isEvent() const;
+
+    // speed 0.5
+    float PID_KP = 0.135F; // speed / 4 kind of
+    float PID_KI = 0.0675F; // PID_KP / 20
+    float PID_KD = 2.025F; // PID_KP * 15
+
+private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
 
     MovementManager<T, U>& movementManager_;

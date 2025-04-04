@@ -27,10 +27,16 @@ void LineFollower<T, U>::stop() {
 }
 
 template <typename T, typename U>
-void LineFollower<T, U>::start() {
-    this->movementManager_.kickstartMotors(KickstartDirection::FORWARD,
-                                           KickstartDirection::FORWARD);
-    this->currentState_ = LineFollower::State::FORWARD;
+void LineFollower<T, U>::start(State state) {
+    this->movementManager_.kickstartMotors(
+        state == State::FORWARD || state == State::TURNING_RIGHT
+            ? KickstartDirection::FORWARD
+            : KickstartDirection::NONE,
+        state == State::FORWARD || state == State::TURNING_LEFT
+            ? KickstartDirection::FORWARD
+            : KickstartDirection::NONE);
+
+    this->currentState_ = state;
     this->switchedState_ = true;
 }
 
@@ -109,16 +115,16 @@ void LineFollower<T, U>::detectionHandler(LineSensor::Readings readings,
         this->timeLeft_ = 100;
         return;
     }
-    
+
     if (deltaTimeMs < this->timeLeft_) {
         this->timeLeft_ -= deltaTimeMs;
         return;
     }
-    
+
     this->movementManager_.stop();
-    
+
     this->currentState_ = State::LOST;
-    
+
     if (readings.getDarkLineCount() == 0) {
         if (this->lastReadings_.isLeftDark) {
             this->currentState_ = State::TURNING_LEFT;
