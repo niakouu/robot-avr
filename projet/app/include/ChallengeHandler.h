@@ -3,8 +3,7 @@
 
 #include <stdint.h>
 
-class ChallengeHandler
-{
+class ChallengeHandler {
 public:
     virtual void enter() = 0;
 
