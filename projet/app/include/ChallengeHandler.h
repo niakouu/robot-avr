@@ -7,8 +7,6 @@ class Challenge;
 
 class ChallengeHandler {
 public:
-    virtual void enter() = 0;
-
     virtual void update(uint16_t deltaTimeMs, Challenge& challenge) = 0;
 };
 
