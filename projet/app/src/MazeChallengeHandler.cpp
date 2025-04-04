@@ -7,7 +7,7 @@ MazeChallengeHandler::MazeChallengeHandler()
     : currentState_(isPolePresent(DISTANCE_TO_CENTER)
                         ? MazeChallengeHandler::Point::ENTRY
                         : MazeChallengeHandler::Point::L),
-      rotateTimeLeftMs_(SWEEP_TIME_MS), sweepTimeLeftMs_(SWEEP_TIME_MS) {}
+      rotateTimeLeftMs_(SWEEP_TIME_MS), sweepTimeLeftMs_(SWEEP_TIME_MS), counter_(0) {}
 
 void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
