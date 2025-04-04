@@ -26,7 +26,7 @@ public:
     void stop();
     void start(LineFollowerState state = LineFollowerState::FORWARD, bool isAutomatic = true);
     void update(uint16_t deltaTimeMs);
-    bool isEvent() const;
+    bool isLost() const;
 
     // speed 0.5
     float PID_KP = 0.135F; // speed / 4 kind of

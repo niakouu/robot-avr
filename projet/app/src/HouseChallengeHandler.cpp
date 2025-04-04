@@ -12,7 +12,7 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
         challenge.getLineFollower();
 
-    if (!lineFollower.isEvent()) {
+    if (!lineFollower.isLost()) {
         return;
     }
 

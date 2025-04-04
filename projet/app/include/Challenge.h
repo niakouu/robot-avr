@@ -5,6 +5,7 @@
 
 #include "ChallengeHandler.h"
 #include "HouseChallengeHandler.h"
+#include "MazeChallengeHandler.h"
 #include "LineFollower.h"
 #include "Robot.h"
 
@@ -44,6 +45,7 @@ private:
         union Handler {
             uint8_t none;
             HouseChallengeHandler house;
+            MazeChallengeHandler maze;
 
             constexpr Handler() : none{0} {};
             ~Handler() {};

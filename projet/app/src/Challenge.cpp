@@ -8,7 +8,7 @@ Challenge::Challenge() noexcept
     : challengeStateTracker_(0),
       lineFollower_(Robot::get().getMovementManager(),
                     Robot::get().getLineSensor(), SPEED),
-      stateHolder_(State::INITIALIZATION) {}
+      stateHolder_{State::INITIALIZATION} {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
@@ -88,6 +88,8 @@ Challenge::StateHolder::StateHolder(State state) : state(state) {
         case State::HOUSE_CHALLENGE:
             this->handler.house = HouseChallengeHandler();
             break;
+        case State::MAZE_CHALLENGE:
+            this->handler.maze = MazeChallengeHandler();
         default:
             this->handler.none = 0;
     }
@@ -98,6 +100,8 @@ Challenge::StateHolder::~StateHolder() {
         case Challenge::State::HOUSE_CHALLENGE:
             handler.house.~HouseChallengeHandler();
             break;
+        case Challenge::State::MAZE_CHALLENGE:
+            handler.maze.~MazeChallengeHandler();
         default:
             break;
     }

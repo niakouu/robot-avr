@@ -74,7 +74,7 @@ void LineFollower<T, U>::update(uint16_t deltaTimeMs) {
 }
 
 template <typename T, typename U>
-bool LineFollower<T, U>::isEvent() const {
+bool LineFollower<T, U>::isLost() const {
     return this->currentState_ == LineFollowerState::LOST;
 }
 
