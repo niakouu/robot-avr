@@ -3,7 +3,8 @@
 #include "Challenge.h"
 
 HouseChallengeHandler::HouseChallengeHandler()
-    : point_(Point::E_INITIAL), isPolePresent_(false), sweepTimeLeftMs_(SWEEP_TIME_MS) {}
+    : point_(Point::E_INITIAL), isPolePresent_(false),
+      sweepTimeLeftMs_(SWEEP_TIME_MS) {}
 
 HouseChallengeHandler::~HouseChallengeHandler() {}
 
@@ -25,7 +26,10 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
                              TimerPrescalerSynchronous>::State::TURNING_RIGHT);
             break;
         case Point::G:
-            
+            if (this->sweepTimeLeftMs_ != 0) {
+                this->sweepForPole(deltaTimeMs);
+            } else if (this->isPolePresent_) {
+            }
             break;
         case Point::H:
             break;
@@ -39,10 +43,18 @@ void HouseChallengeHandler::sweepForPole(uint16_t deltaTimeMs) {
 
     constexpr uint16_t TIME_OFFSET_MS = SWEEP_TIME_MS / 4;
 
-    if (this->sweepTimeLeftMs_ < deltaTimeMs)
+    if (this->sweepTimeLeftMs_ == 0)
         robot.getMovementManager().stop();
-    if (this->sweepTimeLeftMs_ > SWEEP_TIME_MS - TIME_OFFSET_MS || this->sweepTimeLeftMs_ < TIME_OFFSET_MS)
+    if (this->sweepTimeLeftMs_ > SWEEP_TIME_MS - TIME_OFFSET_MS
+        || this->sweepTimeLeftMs_ < TIME_OFFSET_MS)
         robot.getMovementManager().moveLeft(Challenge::SPEED, 0.0F);
     else
         robot.getMovementManager().moveRight(Challenge::SPEED, 0.0F);
+
+    this->isPolePresent_ |= robot.getDistanceSensor().getDistanceCm() <= 20;
+
+    if (deltaTimeMs <= this->sweepTimeLeftMs_)
+        this->sweepTimeLeftMs_ -= deltaTimeMs;
+    else
+        this->sweepTimeLeftMs_ = 0;
 }
