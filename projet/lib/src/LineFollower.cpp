@@ -48,9 +48,11 @@ void LineFollower<T, U>::update(uint16_t deltaTimeMs) {
             break;
         case LineFollower::State::TURNING_LEFT:
         case LineFollower::State::TURNING_RIGHT:
-            this->turningHandler(readings);
+            this->turningHandler(readings, deltaTimeMs);
             break;
         case LineFollower::State::LOST:
+            this->lostHandler(readings, deltaTimeMs);
+            break;
         case LineFollower::State::STOP:
             this->movementManager_.stop();
             break;
@@ -77,12 +79,7 @@ void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
 
     const int8_t average = readings.getAverage();
     const uint8_t darkLines = readings.getDarkLineCount();
-    if (darkLines == 0 || darkLines == 5) {
-        this->currentState_ = State::LOST;
-        return;
-    }
-
-    if (darkLines >= 3 && false) {
+    if (darkLines == 0 || darkLines >= 4) {
         this->currentState_ = State::LOST;
         return;
     }
@@ -97,8 +94,9 @@ void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
         + (static_cast<float>(this->integralComponent_) * PID_KI)
         + (static_cast<float>(deltaError * PID_KD));
 
-    //printf("speed: %d avg: %d\n", static_cast<uint16_t>(rightOffset * 100.0f),
-     //      average);
+    // printf("speed: %d avg: %d\n", static_cast<uint16_t>(rightOffset *
+    // 100.0f),
+    //       average);
     this->movementManager_.move(
         true, clamp(this->speed_ - rightOffset, 0.0F, this->speed_), true,
         clamp(this->speed_ + rightOffset, 0.0F, this->speed_));
@@ -107,31 +105,45 @@ void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
 template <typename T, typename U>
 void LineFollower<T, U>::detectionHandler(LineSensor::Readings readings,
                                           uint16_t deltaTimeMs) {
-    // if (this->switchedState_) {
-    //     this->detectionTimeLeft = DETECTION_TIME_MS;
-    //     return;
-    // }
-
-    // if (this->detectionTimeLeft < deltaTimeMs) {
-    // }
-
-    // if (this->detectionTimeLeft < DETECTION_TIME_MS / 2) {
-    // }
-    // this->detectionTimeLeft -= deltaTimeMs;
+    if (this->switchedState_) {
+        this->timeLeft_ = 100;
+        return;
+    }
+    
+    if (deltaTimeMs < this->timeLeft_) {
+        this->timeLeft_ -= deltaTimeMs;
+        return;
+    }
+    
+    this->movementManager_.stop();
+    
+    this->currentState_ = State::LOST;
+    
+    if (readings.getDarkLineCount() == 0) {
+        if (this->lastReadings_.isLeftDark) {
+            this->currentState_ = State::TURNING_LEFT;
+        } else if (this->lastReadings_.isRightDark) {
+            this->currentState_ = State::TURNING_RIGHT;
+        }
+    }
 }
 
 template <typename T, typename U>
-void LineFollower<T, U>::turningHandler(LineSensor::Readings readings) {
-    Board& board = Board::get();
-
+void LineFollower<T, U>::lostHandler(LineSensor::Readings readings,
+                                     uint16_t deltaTimeMs) {
     if (this->switchedState_) {
-        this->movementManager_.moveForward(this->speed_);
-        board.getWatchdogTimer().sleep(100, WatchdogTimer::SleepMode::IDLE);
+        this->movementManager_.stop();
+    }
+}
+
+template <typename T, typename U>
+void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
+                                        uint16_t deltaTimeMs) {
+    if (this->switchedState_) {
         if (this->currentState_ == State::TURNING_LEFT)
             this->movementManager_.moveLeft(this->speed_, 0);
-        else if (this->currentState_ == State::TURNING_RIGHT)
+        else
             this->movementManager_.moveRight(this->speed_, 0);
-        board.getWatchdogTimer().sleep(50, WatchdogTimer::SleepMode::IDLE);
     } else {
         if (readings.isCenterDark) {
             this->currentState_ = State::FORWARD;

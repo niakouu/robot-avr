@@ -37,16 +37,26 @@ private:
 
     MovementManager<T, U>& movementManager_;
     LineSensor& lineSensor_;
+
     State currentState_;
-    public:
-    float speed_;
     bool switchedState_;
+
+    LineSensor::Readings lastReadings_;
+
+    public: // TODO change this
+    float speed_;
+
+    // PID values
     int8_t lastError_;
     int16_t integralComponent_;
 
+    // Turning values
+    uint16_t timeLeft_;
+
     void forwardHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
     void detectionHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
-    void turningHandler(LineSensor::Readings readings);
+    void lostHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
+    void turningHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
 };
 
 #endif /* _LINE_FOLLOWER_H */
