@@ -28,6 +28,8 @@ public:
     void setState(State state);
 
     LineFollower<uint8_t, TimerPrescalerSynchronous>& getLineFollower();
+
+    static constexpr float SPEED = 0.5F;
 private:
     static Challenge challenge_;
 
@@ -43,8 +45,6 @@ private:
     static void mazeChallengeHandler();
     static void parkHandler();
     static void finishHandler();
-
-    static constexpr float SPEED = 0.5F;
 
     Challenge() noexcept;
     ~Challenge() = default;
