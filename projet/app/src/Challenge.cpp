@@ -27,15 +27,12 @@ void Challenge::update(uint16_t deltaTimeMs) {
             break;
         case State::FORK_CHALLENGE:
             forkChallengeHandler();
-            challengeStateTracker_++;
             break;
         case State::HOUSE_CHALLENGE:
-            houseChallengeHandler();
-            challengeStateTracker_++;
+            this->stateHolder_.handler.house.update(deltaTimeMs, *this);
             break;
         case State::MAZE_CHALLENGE:
-            mazeChallengeHandler();
-            challengeStateTracker_++;
+            // this->stateHolder_.handler.maze.update(deltaTimeMs, *this);
             break;
         case State::PARK:
             parkHandler();
@@ -49,6 +46,11 @@ void Challenge::update(uint16_t deltaTimeMs) {
 }
 
 void Challenge::setState(State state) {
+    if (this->stateHolder_.state == State::FORK_CHALLENGE
+        || this->stateHolder_.state == State::HOUSE_CHALLENGE
+        || this->stateHolder_.state == State::MAZE_CHALLENGE)
+        ++this->challengeStateTracker_;
+
     this->stateHolder_.~StateHolder();
     new (&this->stateHolder_) StateHolder{state};
 }
@@ -65,15 +67,11 @@ void Challenge::locateHandler() {}
 
 void Challenge::forkChallengeHandler() {}
 
-void Challenge::houseChallengeHandler() {}
-
-void Challenge::mazeChallengeHandler() {}
-
 void Challenge::parkHandler() {}
 
 void Challenge::finishHandler() {
-    const uint8_t frequence = 2;
-    const uint8_t period = (1 / frequence) * 1000;
+    const float frequency = 2.0F;
+    const float period = (1.0F / frequency) * 1000.0F;
 
     Robot::get().getMovementManager().stop();
 

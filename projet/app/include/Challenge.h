@@ -57,8 +57,6 @@ private:
     static void followLineHandler();
     static void locateHandler();
     static void forkChallengeHandler();
-    static void houseChallengeHandler();
-    static void mazeChallengeHandler();
     static void parkHandler();
     static void finishHandler();
 
