@@ -5,10 +5,13 @@
 
 class DistanceSensor {
 public:
+    uint8_t getDistanceCm() const;
+
+protected:
     DistanceSensor(Pin::Id distancePinId);
     ~DistanceSensor() = default;
 
-    uint8_t getDistanceCm() const;
+    friend class Robot;
 
 private:
     static constexpr uint8_t MIN_DISTANCE = 10U;

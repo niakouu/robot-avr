@@ -1,14 +1,15 @@
 #include "Challenge.h"
 
 Challenge::Challenge() noexcept
-    : currentState_(State::INITIALIZATION), challengeStateTracker_(0) {}
+    : currentState_(State::INITIALIZATION), challengeStateTracker_(0),
+      robot_(Robot::get()),
+      lineFollower_(robot_.getMovementManager(), robot_.getLineSensor(), SPEED) {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
 }
 
-void Challenge::startChallenge() {
-
+void Challenge::update(uint16_t deltaTimeMs) {
     switch (currentState_) {
         case State::INITIALIZATION:
             initiazliationHandler();
@@ -63,7 +64,9 @@ void Challenge::finishHandler() {
     Robot::get().getMovementManager().stop();
 
     Robot::get().getBidirectionalLed().setColor(BidirectionalLed::Color::RED);
-    Board::get().getWatchdogTimer().sleep(period, WatchdogTimer::SleepMode::IDLE);
+    Board::get().getWatchdogTimer().sleep(period,
+                                          WatchdogTimer::SleepMode::IDLE);
     Robot::get().getBidirectionalLed().setColor(BidirectionalLed::Color::GREEN);
-    Board::get().getWatchdogTimer().sleep(period, WatchdogTimer::SleepMode::IDLE);
+    Board::get().getWatchdogTimer().sleep(period,
+                                          WatchdogTimer::SleepMode::IDLE);
 }

@@ -1,8 +1,11 @@
 #ifndef _CHALLENGE_H
 #define _CHALLENGE_H
 
+#include <stdint.h>
+
+#include "LineFollower.h"
 #include "Robot.h"
-#include "stdint.h"
+#include "ChallengeHandler.h"
 
 class Challenge {
 public:
@@ -10,7 +13,7 @@ public:
     Challenge(Challenge&) = delete;
     void operator=(const Challenge&) = delete;
 
-    void startChallenge();
+    void update(uint16_t deltaTimeMs);
 
 private:
     static Challenge challenge_;
@@ -27,6 +30,8 @@ private:
     };
     State currentState_;
     uint8_t challengeStateTracker_;
+    Robot& robot_;
+    LineFollower<uint8_t, TimerPrescalerSynchronous> lineFollower_;
 
     static void initiazliationHandler();
     static void followLineHandler();
@@ -36,6 +41,8 @@ private:
     static void mazeChallengeHandler();
     static void parkHandler();
     static void finishHandler();
+
+    static constexpr float SPEED = 0.5F;
 
     Challenge() noexcept;
     ~Challenge() = default;
