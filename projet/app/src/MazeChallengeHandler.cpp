@@ -66,7 +66,7 @@ void MazeChallengeHandler::determinePointState(uint16_t deltaTimeMs,
 
     rotate(left, deltaTimeMs, SWEEP_TIME_MS);
     if (isPolePresent(DISTANCE_TO_DIAGONAL)) {
-        this->currentState_ = left ? leftPoint : rightPoint;
+        this->currentState_ = left ? rightPoint : leftPoint;
         this->rotateTimeLeftMs_ = SWEEP_TIME_OFFSET_MS;
         this->sweepTimeLeftMs_ = SWEEP_TIME_MS;
         this->counter_ = FIRST_LOST_COUNTER;
