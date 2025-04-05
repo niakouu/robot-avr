@@ -1,4 +1,5 @@
 #include "Robot.h"
+
 #include <math.h>
 
 Robot Robot::robot_{};
@@ -12,7 +13,7 @@ Robot::Robot() noexcept
                    .semiRight = Pin(Pin::Region::A, Pin::Id::P3),
                    .right = Pin(Pin::Region::A, Pin::Id::P4)}),
       midi_(Pin::Region::D, Pin::Id::P4),
-      button_(Pin::Region::D, Pin::Id::P2, true),
+      extraButton_{Button::Interrupt::I1, false},
       movementManager_(Board::get().getTimer0(),
                        {Pin(Pin::Region::B, Pin::Id::P2, Pin::Direction::OUT),
                         OFFSET_LEFT},
@@ -46,10 +47,11 @@ const Midi& Robot::getMidi() const {
 }
 
 const Button& Robot::getButton() const {
-    return this->button_;
+    return this->extraButton_;
 }
 
-const MovementManager<uint8_t, TimerPrescalerSynchronous>& Robot::getMovementManager() const {
+const MovementManager<uint8_t, TimerPrescalerSynchronous>&
+Robot::getMovementManager() const {
     return this->movementManager_;
 }
 
@@ -73,10 +75,11 @@ Midi& Robot::getMidi() {
     return this->midi_;
 }
 
-Button& Robot::getButton() {
-    return this->button_;
+Button& Robot::getExtraButton() {
+    return this->extraButton_;
 }
 
-MovementManager<uint8_t, TimerPrescalerSynchronous>& Robot::getMovementManager() {
+MovementManager<uint8_t, TimerPrescalerSynchronous>&
+Robot::getMovementManager() {
     return this->movementManager_;
 }

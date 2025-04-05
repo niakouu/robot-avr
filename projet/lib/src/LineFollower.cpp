@@ -89,7 +89,9 @@ void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
 
     const int8_t average = readings.getAverage();
     const uint8_t darkLines = readings.getDarkLineCount();
-    if (darkLines == 0 || darkLines >= 4) {
+    if (darkLines == 0 || darkLines >= 4 || !readings.isSinglePath()) {
+        printf("darkLines: %d single: %d\n", darkLines,
+               readings.isSinglePath());
         this->currentState_ = LineFollowerState::LOST;
         return;
     }
@@ -151,12 +153,14 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
                                         uint16_t deltaTimeMs) {
     if (this->switchedState_) {
         if (this->currentState_ == LineFollowerState::TURNING_LEFT)
-            this->movementManager_.moveLeft(this->speed_, 0);
+            this->movementManager_.moveLeft(this->speed_, 1.0F);
         else
-            this->movementManager_.moveRight(this->speed_, 0);
+            this->movementManager_.moveRight(this->speed_, 1.0F);
     } else {
         if (readings.isCenterDark) {
-            this->currentState_ = this->isAutomatic_ ? LineFollowerState::FORWARD : LineFollowerState::LOST;
+            this->currentState_ = this->isAutomatic_
+                                      ? LineFollowerState::FORWARD
+                                      : LineFollowerState::LOST;
         }
     }
 }

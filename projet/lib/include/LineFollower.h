@@ -30,8 +30,8 @@ public:
 
     // speed 0.5
     float PID_KP = 0.135F; // speed / 4 kind of
-    float PID_KI = 0.0675F; // PID_KP / 20
-    float PID_KD = 2.025F; // PID_KP * 15
+    float PID_KI = 0.0F;
+    float PID_KD = 7.5F; // PID_KP * 15
 
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;

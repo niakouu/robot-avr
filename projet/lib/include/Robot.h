@@ -28,7 +28,7 @@ public:
     BidirectionalLed& getBidirectionalLed();
     LineSensor& getLineSensor();
     Midi& getMidi();
-    Button& getButton();
+    Button& getExtraButton();
     MovementManager<uint8_t, TimerPrescalerSynchronous>& getMovementManager();
 
     static constexpr float OFFSET_LEFT = 1.0F;
@@ -41,7 +41,7 @@ private:
     BidirectionalLed bidirectionalLed_;
     LineSensor lineSensor_;
     Midi midi_;
-    Button button_;
+    Button extraButton_;
     MovementManager<uint8_t, TimerPrescalerSynchronous> movementManager_;
     Robot() noexcept;
     ~Robot();

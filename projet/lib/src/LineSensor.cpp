@@ -13,13 +13,13 @@ bool LineSensor::isDark(Direction direction) const {
         case Direction::LEFT:
             return linePins_.left.read();
         case Direction::SEMI_LEFT:
-            return linePins_.semiLeft.read();  
+            return linePins_.semiLeft.read();
         case Direction::CENTER:
-            return linePins_.center.read();  
+            return linePins_.center.read();
         case Direction::SEMI_RIGHT:
-            return linePins_.semiRight.read();  
+            return linePins_.semiRight.read();
         case Direction::RIGHT:
-            return linePins_.right.read();  
+            return linePins_.right.read();
         default:
             return false;
     }
@@ -67,5 +67,30 @@ int8_t LineSensor::Readings::getAverage() const {
 }
 
 uint8_t LineSensor::Readings::getDarkLineCount() const {
-    return this->isLeftDark + this->isSemiLeftDark + this->isCenterDark + this->isSemiRightDark + this->isRightDark;
+    return this->isLeftDark + this->isSemiLeftDark + this->isCenterDark
+           + this->isSemiRightDark + this->isRightDark;
+}
+
+bool LineSensor::Readings::isSinglePath() const {
+    uint8_t changes = 0;
+
+    if (this->isLeftDark)
+        ++changes;
+
+    if (this->isLeftDark != this->isSemiLeftDark)
+        ++changes;
+
+    if (this->isSemiLeftDark != this->isCenterDark)
+        ++changes;
+
+    if (this->isCenterDark != this->isSemiRightDark)
+        ++changes;
+
+    if (this->isSemiRightDark != this->isRightDark)
+        ++changes;
+
+    if (this->isRightDark)
+        ++changes;
+
+    return changes == 2;
 }

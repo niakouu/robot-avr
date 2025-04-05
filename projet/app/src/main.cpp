@@ -11,8 +11,6 @@
 constexpr const uint16_t BAUD_RATE = 2400;
 constexpr const uint16_t UPDATE_DELTA_MS = 100;
 
-static volatile Button EXTRA_BUTTON{Button::Interrupt::I1, false};
-
 ISR(WDT_vect) {
     Board::get().getWatchdogTimer().setSleepDone();
 }
@@ -22,7 +20,7 @@ ISR(INT0_vect) {
 }
 
 ISR(INT1_vect) {
-    EXTRA_BUTTON.setPressed();
+    Robot::get().getExtraButton().setPressed();
 }
 
 int main() {
@@ -36,9 +34,11 @@ int main() {
     sei();
 
     while (true) {
-        if (EXTRA_BUTTON.isEvent() && EXTRA_BUTTON.isPressed()) {
-            EXTRA_BUTTON.consumeEvent();
+        if (Robot::get().getExtraButton().isEvent() && Robot::get().getExtraButton().isPressed()) {
+            Robot::get().getExtraButton().consumeEvent();
 
+            Challenge::get().getLineFollower().start(LineFollowerState::LOST);
+            Challenge::get().setState(Challenge::State::HOUSE_CHALLENGE);
         }
 
         Challenge::get().update(UPDATE_DELTA_MS);

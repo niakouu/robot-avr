@@ -1,5 +1,7 @@
 #include "MovementManager.h"
 
+#include <math.h>
+
 #include "Board.h"
 
 template class MovementManager<uint8_t, TimerPrescalerSynchronous>;
