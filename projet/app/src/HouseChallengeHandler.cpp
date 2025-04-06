@@ -41,6 +41,8 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
                 lineFollower.start(
                     LineFollowerState::FORWARD);
             }
+
+            if (this->sweepTimeLeftMs_ == 0) printf("Pole? %d\n", isPolePresent_);
             break;
         case Point::H:
             lineFollower.start();
@@ -70,9 +72,9 @@ void HouseChallengeHandler::sweepForPole(uint16_t deltaTimeMs) {
         robot.getMovementManager().stop();
     if (this->sweepTimeLeftMs_ > SWEEP_TIME_MS - TIME_OFFSET_MS
         || this->sweepTimeLeftMs_ < TIME_OFFSET_MS)
-        robot.getMovementManager().moveLeft(Challenge::SPEED, 0.0F);
+        robot.getMovementManager().moveLeft(Challenge::SPEED, 1.0F);
     else
-        robot.getMovementManager().moveRight(Challenge::SPEED, 0.0F);
+        robot.getMovementManager().moveRight(Challenge::SPEED, 1.0F);
 
     this->isPolePresent_ |= robot.getDistanceSensor().getDistanceCm() <= 20;
 

@@ -62,6 +62,7 @@ void adjustMode() {
                     break;
                 default:
                     printf("wtf?? %c\n", value);
+                    break;
             }
 
             printf(" s -> %f\n", lineFollower.speed_);

@@ -31,12 +31,12 @@ public:
     // speed 0.5
     float PID_KP = 0.15F; // speed / 4 kind of
     float PID_KI = 0.0F;
-    float PID_KD = 5.0F; // PID_KP * 15
+    float PID_KD = 7.5F; // PID_KP * 15
 
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
-    static const constexpr uint16_t TURN_IGNORE_TIME_MS = 200;
-    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 500;
+    static const constexpr uint16_t TURN_IGNORE_TIME_MS = 500;
+    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 900;
     
 
     MovementManager<T, U>& movementManager_;

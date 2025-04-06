@@ -15,7 +15,7 @@ private:
         E_INITIAL, F, G, H, I, E_FINAL, F_FINAL
     };
 
-    static constexpr uint16_t SWEEP_TIME_MS = 2000;
+    static constexpr uint16_t SWEEP_TIME_MS = 1500;
 
     void sweepForPole(uint16_t deltaTimeMs);
 
