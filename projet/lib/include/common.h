@@ -61,4 +61,9 @@ inline void operator delete(void*, void*) noexcept {}
 
 inline void operator delete[](void*, void*) noexcept {}
 
+template <typename T>
+inline T cappingSubtract(T source, T diff) {
+    return diff < source ? source - diff : 0;
+}
+
 #endif /* _COMMON_H */

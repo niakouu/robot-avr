@@ -4,7 +4,6 @@
 #include "LineSensor.h"
 #include "MovementManager.h"
 
-
 enum class LineFollowerState : uint8_t {
     FORWARD,
     DETECTION,
@@ -24,17 +23,21 @@ public:
     void operator=(const LineFollower&) = delete;
 
     void stop();
-    void start(LineFollowerState state = LineFollowerState::FORWARD, bool isAutomatic = true);
+    void start(LineFollowerState state = LineFollowerState::FORWARD,
+               bool isAutomatic = true);
     void update(uint16_t deltaTimeMs);
     bool isLost() const;
 
     // speed 0.5
-    float PID_KP = 0.135F; // speed / 4 kind of
+    float PID_KP = 0.15F; // speed / 4 kind of
     float PID_KI = 0.0F;
-    float PID_KD = 7.5F; // PID_KP * 15
+    float PID_KD = 5.0F; // PID_KP * 15
 
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
+    static const constexpr uint16_t TURN_IGNORE_TIME_MS = 200;
+    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 500;
+    
 
     MovementManager<T, U>& movementManager_;
     LineSensor& lineSensor_;
@@ -44,7 +47,7 @@ private:
 
     LineSensor::Readings lastReadings_;
 
-    public: // TODO change this
+public: // TODO change this
     float speed_;
 
     // PID values
@@ -52,7 +55,7 @@ private:
     int16_t integralComponent_;
 
     // Turning values
-    uint16_t timeLeft_;
+    uint16_t turnIgnoreTimeLeft_, adjustTimeLeft_;
 
     void forwardHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
     void detectionHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);

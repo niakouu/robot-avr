@@ -32,7 +32,7 @@ void Challenge::update(uint16_t deltaTimeMs) {
             this->stateHolder_.handler.house.update(deltaTimeMs, *this);
             break;
         case State::MAZE_CHALLENGE:
-            // this->stateHolder_.handler.maze.update(deltaTimeMs, *this);
+            this->stateHolder_.handler.maze.update(deltaTimeMs, *this);
             break;
         case State::PARK:
             parkHandler();
@@ -43,6 +43,8 @@ void Challenge::update(uint16_t deltaTimeMs) {
         default:
             break;
     }
+
+    this->lineFollower_.update(deltaTimeMs);
 }
 
 void Challenge::setState(State state) {

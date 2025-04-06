@@ -23,6 +23,62 @@ ISR(INT1_vect) {
     Robot::get().getExtraButton().setPressed();
 }
 
+void adjustMode() {
+    auto& lineFollower = Challenge::get().getLineFollower();
+    lineFollower.start();
+
+    while (true) {
+        if (Robot::get().getExtraButton().isEvent()
+            && Robot::get().getExtraButton().isPressed()) {
+            Robot::get().getExtraButton().consumeEvent();
+
+            lineFollower.start();
+        }
+
+        if (Board::get().getButton().isEvent()
+            && Board::get().getButton().isPressed()) {
+            Board::get().getButton().consumeEvent();
+            char value = '?';
+            float input = 0.0f;
+            printf("s %f\n", lineFollower.speed_);
+            printf("p %f\n", lineFollower.PID_KP);
+            printf("d %f\n", lineFollower.PID_KD);
+            printf("i %f\n", lineFollower.PID_KI);
+            while (getchar() != 'S')
+                ;
+            scanf("%c %f", &value, &input);
+            switch (value) {
+                case 'p':
+                    lineFollower.PID_KP = input;
+                    break;
+                case 's':
+                    lineFollower.speed_ = input;
+                    break;
+                case 'd':
+                    lineFollower.PID_KD = input;
+                    break;
+                case 'i':
+                    lineFollower.PID_KI = input;
+                    break;
+                default:
+                    printf("wtf?? %c\n", value);
+            }
+
+            printf(" s -> %f\n", lineFollower.speed_);
+            printf(" p -> %f\n", lineFollower.PID_KP);
+            printf(" d -> %f\n", lineFollower.PID_KD);
+            printf(" i -> %f\n", lineFollower.PID_KI);
+
+            lineFollower.start();
+        }
+
+        lineFollower.update(UPDATE_DELTA_MS);
+
+        Board::get().getWatchdogTimer().sleep(UPDATE_DELTA_MS,
+                                              WatchdogTimer::SleepMode::IDLE);
+    }
+}
+
 int main() {
     Uart& uart = Board::get().getUart0();
     uart.configure(::BAUD_RATE, false, Uart::Parity::DISABLED,
@@ -33,8 +89,11 @@ int main() {
 
     sei();
 
+    // adjustMode();
+
     while (true) {
-        if (Robot::get().getExtraButton().isEvent() && Robot::get().getExtraButton().isPressed()) {
+        if (Robot::get().getExtraButton().isEvent()
+            && Robot::get().getExtraButton().isPressed()) {
             Robot::get().getExtraButton().consumeEvent();
 
             Challenge::get().getLineFollower().start(LineFollowerState::LOST);

@@ -29,15 +29,16 @@ void LineFollower<T, U>::stop() {
 
 template <typename T, typename U>
 void LineFollower<T, U>::start(LineFollowerState state, bool isAutomatic) {
-    this->movementManager_.kickstartMotors(
-        state == LineFollowerState::FORWARD
-                || state == LineFollowerState::TURNING_RIGHT
-            ? KickstartDirection::FORWARD
-            : KickstartDirection::NONE,
-        state == LineFollowerState::FORWARD
-                || state == LineFollowerState::TURNING_LEFT
-            ? KickstartDirection::FORWARD
-            : KickstartDirection::NONE);
+    KickstartDirection leftDirection = KickstartDirection::NONE;
+    KickstartDirection rightDirection = KickstartDirection::NONE;
+
+    if (state == LineFollowerState::FORWARD || state == LineFollowerState::TURNING_LEFT || state == LineFollowerState::TURNING_RIGHT) {
+        leftDirection = KickstartDirection::FORWARD;
+        rightDirection = KickstartDirection::FORWARD;
+    }
+
+    this->movementManager_.kickstartMotors(leftDirection, rightDirection);
+    printf("KICKSTART!!!\n");
 
     this->isAutomatic_ = isAutomatic;
     this->currentState_ = state;
@@ -117,15 +118,6 @@ void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
 template <typename T, typename U>
 void LineFollower<T, U>::detectionHandler(LineSensor::Readings readings,
                                           uint16_t deltaTimeMs) {
-    if (this->switchedState_) {
-        this->timeLeft_ = 100;
-        return;
-    }
-
-    if (deltaTimeMs < this->timeLeft_) {
-        this->timeLeft_ -= deltaTimeMs;
-        return;
-    }
 
     this->movementManager_.stop();
 
@@ -152,15 +144,28 @@ template <typename T, typename U>
 void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
                                         uint16_t deltaTimeMs) {
     if (this->switchedState_) {
-        if (this->currentState_ == LineFollowerState::TURNING_LEFT)
-            this->movementManager_.moveLeft(this->speed_, 1.0F);
-        else
-            this->movementManager_.moveRight(this->speed_, 1.0F);
-    } else {
-        if (readings.isCenterDark) {
-            this->currentState_ = this->isAutomatic_
-                                      ? LineFollowerState::FORWARD
-                                      : LineFollowerState::LOST;
+        this->turnIgnoreTimeLeft_ = TURN_IGNORE_TIME_MS;
+        this->adjustTimeLeft_ = TURN_WHEEL_ADJUST_TIME_MS;
+        this->movementManager_.moveForward(this->speed_);
+        printf("speed downgrade\n");
+    } else if (this->adjustTimeLeft_ != 0) {
+        this->adjustTimeLeft_ =
+            cappingSubtract(this->adjustTimeLeft_, deltaTimeMs);
+
+        if (this->adjustTimeLeft_ == 0) {
+            if (this->currentState_ == LineFollowerState::TURNING_LEFT) {
+                this->movementManager_.kickstartMotors(KickstartDirection::BACKWARD, KickstartDirection::FORWARD);
+                this->movementManager_.moveLeft(this->speed_, 1.0F);
+            } else {
+                this->movementManager_.kickstartMotors(KickstartDirection::FORWARD, KickstartDirection::BACKWARD);
+                this->movementManager_.moveRight(this->speed_, 1.0F);
+            }
         }
+    } else if (this->turnIgnoreTimeLeft_ > 0) {
+        this->turnIgnoreTimeLeft_ =
+            cappingSubtract(this->turnIgnoreTimeLeft_, deltaTimeMs);
+    } else if (readings.isCenterDark) {
+        this->currentState_ = this->isAutomatic_ ? LineFollowerState::FORWARD
+                                                 : LineFollowerState::LOST;
     }
 }

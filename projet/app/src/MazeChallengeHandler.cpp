@@ -73,10 +73,7 @@ void MazeChallengeHandler::determinePointState(uint16_t deltaTimeMs,
         return;
     }
 
-    if (deltaTimeMs <= this->sweepTimeLeftMs_)
-        this->sweepTimeLeftMs_ -= deltaTimeMs;
-    else
-        this->sweepTimeLeftMs_ = 0;
+    this->sweepTimeLeftMs_ = cappingSubtract(this->sweepTimeLeftMs_, deltaTimeMs);
 }
 
 void MazeChallengeHandler::rotate(bool left, uint16_t deltaTimeMs,
@@ -95,10 +92,7 @@ void MazeChallengeHandler::rotate(bool left, uint16_t deltaTimeMs,
             robot.getMovementManager().moveRight(Challenge::SPEED, 0.0F);
     }
 
-    if (deltaTimeMs <= this->rotateTimeLeftMs_)
-        this->rotateTimeLeftMs_ -= deltaTimeMs;
-    else
-        this->rotateTimeLeftMs_ = 0;
+    this->rotateTimeLeftMs_ = cappingSubtract(this->rotateTimeLeftMs_, deltaTimeMs);
 }
 
 void MazeChallengeHandler::firstStagePointHandler(

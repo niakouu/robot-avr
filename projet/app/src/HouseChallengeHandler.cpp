@@ -16,6 +16,8 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         return;
     }
 
+    printf("got delta, p: %d\n", static_cast<uint8_t>(point_));
+
     switch (this->point_) {
         case Point::E_INITIAL:
             lineFollower.start();
@@ -74,8 +76,5 @@ void HouseChallengeHandler::sweepForPole(uint16_t deltaTimeMs) {
 
     this->isPolePresent_ |= robot.getDistanceSensor().getDistanceCm() <= 20;
 
-    if (deltaTimeMs <= this->sweepTimeLeftMs_)
-        this->sweepTimeLeftMs_ -= deltaTimeMs;
-    else
-        this->sweepTimeLeftMs_ = 0;
+    this->sweepTimeLeftMs_ = cappingSubtract(this->sweepTimeLeftMs_, deltaTimeMs);
 }
