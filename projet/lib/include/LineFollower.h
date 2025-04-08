@@ -42,7 +42,7 @@ public:
 
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
-    static const constexpr uint16_t TURN_IGNORE_TIME_MS = 500;
+    static const constexpr uint16_t TURN_IGNORE_TIME_MS = 350;
     static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 1000;
     
 

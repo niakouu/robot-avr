@@ -64,6 +64,7 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             break;
         case Point::I:
             configuration.state = LineFollowerState::TURNING_RIGHT;
+            configuration.isEventOnThree = false;
             this->point_ = Point::E_FINAL;
             break;
         case Point::E_FINAL:

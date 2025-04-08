@@ -30,10 +30,10 @@ template <typename T, typename U>
 void LineFollower<T, U>::start(const LineFollowerConfiguration& configuration) {
     this->configuration_ = configuration;
 
-    if (this->configuration_.state == LineFollowerState::FORWARD) {
-        this->movementManager_.kickstartMotors(KickstartDirection::FORWARD,
-                                               KickstartDirection::FORWARD);
-    }
+    // if (this->configuration_.state == LineFollowerState::FORWARD) {
+    //     this->movementManager_.kickstartMotors(KickstartDirection::FORWARD,
+    //                                            KickstartDirection::FORWARD);
+    // }
 
     this->switchedState_ = true;
 }
@@ -145,23 +145,25 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
                                         uint16_t deltaTimeMs) {
     if (this->switchedState_) {
         this->turnIgnoreTimeLeft_ = this->configuration_.isTurnBlindAtStart ? 0 : TURN_IGNORE_TIME_MS;
-        this->adjustTimeLeft_ = this->configuration_.isTurnInPlace ? 1 : TURN_WHEEL_ADJUST_TIME_MS;
+        this->adjustTimeLeft_ = this->configuration_.isTurnInPlace ? 0 : TURN_WHEEL_ADJUST_TIME_MS;
         this->movementManager_.moveForward(this->speed_);
         // printf("speed downgrade\n");
-    } else if (this->adjustTimeLeft_ != 0) {
+    }
+    
+    if (this->adjustTimeLeft_ != 0 || (this->switchedState_ && this->configuration_.isTurnInPlace)) {
         this->adjustTimeLeft_ =
             cappingSubtract(this->adjustTimeLeft_, deltaTimeMs);
 
         if (this->adjustTimeLeft_ == 0) {
             if (this->configuration_.state == LineFollowerState::TURNING_LEFT) {
-                this->movementManager_.kickstartMotors(
-                    KickstartDirection::BACKWARD, KickstartDirection::FORWARD,
-                    10);
+                // this->movementManager_.kickstartMotors(
+                //     KickstartDirection::BACKWARD, KickstartDirection::FORWARD,
+                //     10);
                 this->movementManager_.moveLeft(this->speed_ * 0.9F, 1.0F);
             } else {
-                this->movementManager_.kickstartMotors(
-                    KickstartDirection::FORWARD, KickstartDirection::BACKWARD,
-                    10);
+                // this->movementManager_.kickstartMotors(
+                //     KickstartDirection::FORWARD, KickstartDirection::BACKWARD,
+                //     10);
                 this->movementManager_.moveRight(this->speed_ * 0.9F, 1.0F);
             }
         }
@@ -171,6 +173,7 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
     } else if (readings.isSemiLeftDark || readings.isCenterDark
                || readings.isSemiRightDark) {
         printf("found guide!\n");
+        this->movementManager_.stop();
         this->configuration_.state = this->configuration_.isAutomatic
                                          ? LineFollowerState::FORWARD
                                          : LineFollowerState::LOST;
