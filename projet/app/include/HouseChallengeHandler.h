@@ -7,7 +7,7 @@ class HouseChallengeHandler : ChallengeHandler
 {
 public:
     HouseChallengeHandler();
-    ~HouseChallengeHandler();
+    ~HouseChallengeHandler() = default;
 
     void update(uint16_t deltaTimeMs, Challenge& challenge) override;
 private:

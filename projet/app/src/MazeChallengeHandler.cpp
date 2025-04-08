@@ -4,87 +4,125 @@
 #include "Robot.h"
 
 MazeChallengeHandler::MazeChallengeHandler()
-    : currentState_(isPolePresent(DISTANCE_TO_CENTER)
-                        ? MazeChallengeHandler::Point::ENTRY
-                        : MazeChallengeHandler::Point::L),
-      rotateTimeLeftMs_(SWEEP_TIME_MS), sweepTimeLeftMs_(SWEEP_TIME_MS), counter_(0) {}
+    : currentPoint_(Point::ENTRY_ONE), rotateTimeLeftMs_(TURN_TIME_MS),
+      averagePoleDistance_(0), counter_(0), totalReadings_(POLE_READING_COUNT),
+      finishedCalculatingPole_(false) {}
 
 void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
         challenge.getLineFollower();
 
-    if (!lineFollower.isLost()) {
+    if (!lineFollower.isLost())
         return;
-    }
 
-    switch (this->currentState_) {
-        case MazeChallengeHandler::Point::ENTRY:
-            determinePointState(deltaTimeMs, MazeChallengeHandler::Point::M,
-                                MazeChallengeHandler::Point::K);
+    LineFollowerConfiguration configuration{.isAutomatic = true,
+                                            .isEventOnThree = true,
+                                            .isTurnInPlace = false,
+                                            .isSkippingLine = true};
+
+    switch (this->currentPoint_) {
+        case Point::ENTRY_ONE:
+            execFirstDecision(deltaTimeMs, configuration, Point::L,
+                              Point::ENTRY_TWO);
             break;
-        case MazeChallengeHandler::Point::K:
-            firstStagePointHandler(true, lineFollower,
-                                   MazeChallengeHandler::Point::SECOND_ENTRY);
+        case Point::ENTRY_TWO:
+            execSecondDecision(configuration, Point::ENTRY_TO_M,
+                               Point::ENTRY_THREE);
             break;
-        case MazeChallengeHandler::Point::L:
-            pointLHandler(lineFollower);
+        case Point::ENTRY_THREE:
+            configuration.isTurnInPlace = true;
+            switchPoint(Point::ENTRY_TO_K, LineFollowerState::TURNING_RIGHT,
+                        configuration);
             break;
-        case MazeChallengeHandler::Point::M:
-            firstStagePointHandler(false, lineFollower,
-                                   MazeChallengeHandler::Point::SECOND_ENTRY);
+        case Point::ENTRY_TO_K:
+            switchPoint(Point::K, LineFollowerState::TURNING_LEFT,
+                        configuration);
             break;
-        case MazeChallengeHandler::Point::SECOND_ENTRY:
-            if (isPolePresent(DISTANCE_TO_CENTER)) {
-                this->currentState_ = MazeChallengeHandler::Point::O;
-                this->counter_ = 2;
-                break;
-            }
-            determinePointState(deltaTimeMs, MazeChallengeHandler::Point::P,
-                                MazeChallengeHandler::Point::N);
+        case Point::ENTRY_TO_M:
+            switchPoint(Point::M, LineFollowerState::TURNING_RIGHT,
+                        configuration);
             break;
-        case MazeChallengeHandler::Point::N:
-        case MazeChallengeHandler::Point::O:
-            secondStagePointHandler(lineFollower);
+        case Point::K:
+            switchPoint(Point::BETWEEN_K_N, LineFollowerState::FORWARD,
+                        configuration);
             break;
-        case MazeChallengeHandler::Point::P:
-            firstStagePointHandler(false, lineFollower,
-                                   MazeChallengeHandler::Point::SECOND_ENTRY);
+        case Point::L:
+            switchPoint(Point::SECOND_ENTRY_ONE, LineFollowerState::FORWARD,
+                        configuration);
             break;
-        case MazeChallengeHandler::Point::EXIT:
-            endingPointHandler(challenge, lineFollower);
+        case Point::M:
+            switchPoint(Point::BETWEEN_M_P, LineFollowerState::FORWARD,
+                        configuration);
+            break;
+        case Point::BETWEEN_K_N:
+            detectPoleBetweenSidePoints(configuration, Point::N,
+                                        Point::SECOND_ENTRY_ONE);
+            break;
+        case Point::BETWEEN_M_P:
+            detectPoleBetweenSidePoints(configuration, Point::P,
+                                        Point::SECOND_ENTRY_ONE);
+            break;
+        case Point::SECOND_ENTRY_ONE:
+            execFirstDecision(deltaTimeMs, configuration, Point::O,
+                              Point::SECOND_ENTRY_TWO);
+            break;
+        case Point::SECOND_ENTRY_TWO:
+            execSecondDecision(configuration, Point::SECOND_ENTRY_TO_P,
+                               Point::SECOND_ENTRY_THREE);
+        case Point::SECOND_ENTRY_THREE:
+            configuration.isTurnInPlace = true;
+            switchPoint(Point::SECOND_ENTRY_TO_N,
+                        LineFollowerState::TURNING_RIGHT, configuration);
+            break;
+        case Point::K_TO_N:
+            switchPoint(Point::N, LineFollowerState::FORWARD, configuration);
+            break;
+        case Point::M_TO_P:
+            switchPoint(Point::P, LineFollowerState::FORWARD, configuration);
+            break;
+        case Point::SECOND_ENTRY_TO_N:
+            switchPoint(Point::N, LineFollowerState::TURNING_LEFT,
+                        configuration);
+            break;
+        case Point::SECOND_ENTRY_TO_P:
+            switchPoint(Point::P, LineFollowerState::TURNING_RIGHT,
+                        configuration);
+            break;
+        case Point::N:
+            switchPoint(Point::LAST, LineFollowerState::FORWARD, configuration);
+            this->counter_ = 0;
+            break;
+        case Point::O:
+            switchPoint(Point::LAST, LineFollowerState::FORWARD, configuration);
+            this->counter_ = 1;
+            break;
+        case Point::P:
+            switchPoint(Point::LAST, LineFollowerState::FORWARD, configuration);
+            this->counter_ = 2;
+            break;
+        case Point::LAST:
+            switchPoint(Point::EXIT, LineFollowerState::TURNING_RIGHT,
+                        configuration);
+            break;
+        case Point::EXIT:
+            endingPointHandler(challenge, configuration);
             break;
         default:
             break;
     }
+    lineFollower.start(configuration);
 }
 
-void MazeChallengeHandler::determinePointState(uint16_t deltaTimeMs,
-                                               Point leftPoint,
-                                               Point rightPoint) {
-    const bool left =
-        this->sweepTimeLeftMs_ > SWEEP_TIME_MS - SWEEP_TIME_OFFSET_MS;
-
-    rotate(left, deltaTimeMs, SWEEP_TIME_MS);
-    if (isPolePresent(DISTANCE_TO_DIAGONAL)) {
-        this->currentState_ = left ? rightPoint : leftPoint;
-        this->rotateTimeLeftMs_ = SWEEP_TIME_OFFSET_MS;
-        this->sweepTimeLeftMs_ = SWEEP_TIME_MS;
-        this->counter_ = FIRST_LOST_COUNTER;
-        return;
-    }
-
-    this->sweepTimeLeftMs_ = cappingSubtract(this->sweepTimeLeftMs_, deltaTimeMs);
-}
-
-void MazeChallengeHandler::rotate(bool left, uint16_t deltaTimeMs,
+bool MazeChallengeHandler::rotate(bool left, uint16_t deltaTimeMs,
                                   uint16_t turnTimeMs) {
     Robot& robot = Robot::get();
 
     if (this->rotateTimeLeftMs_ == 0) {
         robot.getMovementManager().stop();
         this->rotateTimeLeftMs_ = turnTimeMs;
-        return;
+        return true;
     }
+
     if (this->rotateTimeLeftMs_ == turnTimeMs) {
         if (left)
             robot.getMovementManager().moveLeft(Challenge::SPEED, 0.0F);
@@ -92,71 +130,103 @@ void MazeChallengeHandler::rotate(bool left, uint16_t deltaTimeMs,
             robot.getMovementManager().moveRight(Challenge::SPEED, 0.0F);
     }
 
-    this->rotateTimeLeftMs_ = cappingSubtract(this->rotateTimeLeftMs_, deltaTimeMs);
-}
-
-void MazeChallengeHandler::firstStagePointHandler(
-    bool upperPoint,
-    LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower,
-    Point nextPoint) {
-
-    if (this->counter_ == 0) {
-        if (this->currentState_ == MazeChallengeHandler::Point::P)
-            this->counter_ = 3;
-        this->currentState_ = nextPoint;
-        return;
-    }
-
-    /*
-    if (this->counter_ == 3 || this->counter_ == 1)
-        lineFollower.start(upperPoint ? LineFollowerState::TURNING_LEFT
-                                      : LineFollowerState::TURNING_RIGHT);
-    else if (this->counter_ == 2)
-        lineFollower.start();
-    */
-    this->counter_--;
-}
-
-void MazeChallengeHandler::secondStagePointHandler(
-    LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower) {
-    if (this->counter_ == 0) {
-        this->currentState_ = MazeChallengeHandler::Point::EXIT;
-        return;
-    }
-
-    if (this->counter_ == 3)
-        ; // lineFollower.start(LineFollowerState::TURNING_LEFT);
-    else if (this->counter_ == 2)
-        ; //lineFollower.start();
-    else if (this->counter_ == 1)
-        ; //lineFollower.start(LineFollowerState::TURNING_RIGHT);
-
-    this->counter_--;
-}
-
-void MazeChallengeHandler::pointLHandler(
-    LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower) {
-    if (this->counter_ == 1) {
-        this->currentState_ = MazeChallengeHandler::Point::SECOND_ENTRY;
-        return;
-    }
-
-    // lineFollower.start();
-    this->counter_++;
+    this->rotateTimeLeftMs_ =
+        cappingSubtract(this->rotateTimeLeftMs_, deltaTimeMs);
+    return false;
 }
 
 void MazeChallengeHandler::endingPointHandler(
-    Challenge& challenge,
-    LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower) {
+    Challenge& challenge, LineFollowerConfiguration& configuration) {
     if (counter_ == 0) {
         challenge.setState(Challenge::State::FOLLOW_LINE);
         return;
     }
-    
-    // lineFollower.start();
+
+    configuration.state = LineFollowerState::FORWARD;
     this->counter_--;
 }
 
-bool MazeChallengeHandler::isPolePresent(uint8_t distance) {
-    return Robot::get().getDistanceSensor().getDistanceCm() <= distance;
+bool MazeChallengeHandler::isPolePresent(uint8_t distance) const {
+    return this->averagePoleDistance_ <= distance;
+}
+
+void MazeChallengeHandler::calculatePoleDistance() {
+    if (this->totalReadings_ != 0) {
+        --this->totalReadings_;
+        this->averagePoleDistance_ +=
+            Robot::get().getDistanceSensor().getDistanceCm();
+        this->finishedCalculatingPole_ = false;
+    }
+
+    this->averagePoleDistance_ /= POLE_READING_COUNT;
+    this->finishedCalculatingPole_ = true;
+}
+
+void MazeChallengeHandler::resetDistanceValues() {
+    this->averagePoleDistance_ = 0;
+    this->totalReadings_ = POLE_READING_COUNT;
+    this->finishedCalculatingPole_ = false;
+}
+
+void MazeChallengeHandler::execFirstDecision(
+    uint16_t deltaTimeMs, LineFollowerConfiguration& configuration,
+    Point forward, Point currentNext) {
+    if (!this->finishedCalculatingPole_) {
+        calculatePoleDistance();
+        return;
+    }
+
+    configuration.isTurnInPlace = true;
+
+    if (isPolePresent(DISTANCE_TO_CENTER)) {
+        if (rotate(true, deltaTimeMs, TURN_TIME_MS)) {
+            resetDistanceValues();
+            configuration.state = LineFollowerState::LOST;
+            this->currentPoint_ = currentNext;
+        }
+    } else {
+        resetDistanceValues();
+        configuration.state = LineFollowerState::FORWARD;
+        this->currentPoint_ = forward;
+    }
+}
+
+void MazeChallengeHandler::execSecondDecision(
+    LineFollowerConfiguration& configuration, Point left, Point currentNext) {
+    if (!this->finishedCalculatingPole_) {
+        calculatePoleDistance();
+        return;
+    }
+
+    configuration.isTurnInPlace = true;
+
+    const bool leftPolePresence = isPolePresent(DISTANCE_TO_DIAGONAL);
+    configuration.isAutomatic = !leftPolePresence;
+    configuration.state = leftPolePresence ? LineFollowerState::TURNING_RIGHT
+                                           : LineFollowerState::TURNING_LEFT;
+    this->currentPoint_ = leftPolePresence ? currentNext : left;
+
+    resetDistanceValues();
+}
+
+void MazeChallengeHandler::detectPoleBetweenSidePoints(
+    LineFollowerConfiguration& configuration, Point forward, Point side) {
+    if (!this->finishedCalculatingPole_) {
+        calculatePoleDistance();
+        return;
+    }
+
+    const bool polePresence = isPolePresent(DISTANCE_TO_CENTER);
+    configuration.state = polePresence ? LineFollowerState::TURNING_LEFT
+                                       : LineFollowerState::FORWARD;
+    this->currentPoint_ = polePresence ? side : forward;
+
+    resetDistanceValues();
+}
+
+void MazeChallengeHandler::switchPoint(
+    Point nextPoint, LineFollowerState nextLineState,
+    LineFollowerConfiguration& configuration) {
+    configuration.state = nextLineState;
+    this->currentPoint_ = nextPoint;
 }

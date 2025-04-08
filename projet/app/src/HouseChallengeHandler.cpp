@@ -7,15 +7,12 @@ HouseChallengeHandler::HouseChallengeHandler()
       sweepTimeLeftMs_(SWEEP_TIME_MS), averagePoleDistance_(0),
       totalReadings_(POLE_READING_COUNT) {}
 
-HouseChallengeHandler::~HouseChallengeHandler() {}
-
 void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
         challenge.getLineFollower();
 
-    if (!lineFollower.isLost()) {
+    if (!lineFollower.isLost())
         return;
-    }
 
     LineFollowerConfiguration configuration{.isAutomatic = true,
                                             .isEventOnThree = true,
@@ -46,7 +43,6 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
             this->averagePoleDistance_ /= POLE_READING_COUNT;
 
-            printf("pole? %d\n", this->averagePoleDistance_ < 15);
             if (this->averagePoleDistance_ < 15) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
                 configuration.isTurnInPlace = true;
