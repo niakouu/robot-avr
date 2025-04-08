@@ -17,10 +17,13 @@ Challenge& Challenge::get() {
 void Challenge::update(uint16_t deltaTimeMs) {
     switch (stateHolder_.state) {
         case State::INITIALIZATION:
-            initiazliationHandler();
+            this->stateHolder_.handler.initialization.update(deltaTimeMs,
+                                                             *this);
+
             break;
         case State::FOLLOW_LINE:
             followLineHandler();
+
             break;
         case State::LOCATE:
             locateHandler();
@@ -30,9 +33,11 @@ void Challenge::update(uint16_t deltaTimeMs) {
             break;
         case State::HOUSE_CHALLENGE:
             this->stateHolder_.handler.house.update(deltaTimeMs, *this);
+
             break;
         case State::MAZE_CHALLENGE:
             this->stateHolder_.handler.maze.update(deltaTimeMs, *this);
+
             break;
         case State::PARK:
             parkHandler();
@@ -74,6 +79,8 @@ void Challenge::parkHandler() {}
 void Challenge::finishHandler() {
     const float frequency = 2.0F;
     const float period = (1.0F / frequency) * 1000.0F;
+
+    printf("FINIIIIISHH\n");
 
     Robot::get().getMovementManager().stop();
 

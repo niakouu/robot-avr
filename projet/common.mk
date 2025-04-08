@@ -26,7 +26,7 @@ CXXFLAGS = -fno-exceptions -std=c++14
 RELEASE_LDFLAGS = -Wl,-Map,$(RELEASE_DIR)/$(TRG).map -mmcu=$(MCU)
 RELEASE_CFLAGS = -Oz
 DEBUG_CFLAGS = $(RELEASE_CFLAGS) -DDEBUG=1
-DEBUG_LDFLAGS = -Wl,-Map,$(DEBUG_DIR)/$(TRG).map -mmcu=$(MCU) -Wl,-u,vfprintf -lprintf_flt -lm -Wl,-u,vfscanf -lscanf_flt
+DEBUG_LDFLAGS = -Wl,-Map,$(DEBUG_DIR)/$(TRG).map -mmcu=$(MCU) 
 SIMULATION_LDFLAGS = -Wl,-Map,$(SIMULATION_DIR)/$(TRG).map -mmcu=$(MCU)
 SIMULATION_CFLAGS = -Os -DSIMULATION=1
 
