@@ -25,14 +25,14 @@ ISR(INT1_vect) {
 
 void adjustMode() {
     auto& lineFollower = Challenge::get().getLineFollower();
-    lineFollower.start();
+    lineFollower.start(LineFollowerConfiguration {.state = LineFollowerState::FORWARD});
 
     while (true) {
         if (Robot::get().getExtraButton().isEvent()
             && Robot::get().getExtraButton().isPressed()) {
             Robot::get().getExtraButton().consumeEvent();
 
-            lineFollower.start();
+            lineFollower.start(LineFollowerConfiguration {.state = LineFollowerState::FORWARD});
         }
 
         if (Board::get().getButton().isEvent()
@@ -70,7 +70,7 @@ void adjustMode() {
             printf(" d -> %f\n", lineFollower.PID_KD);
             printf(" i -> %f\n", lineFollower.PID_KI);
 
-            lineFollower.start();
+            lineFollower.start(LineFollowerConfiguration {.state = LineFollowerState::FORWARD});
         }
 
         lineFollower.update(UPDATE_DELTA_MS);
@@ -97,7 +97,7 @@ int main() {
             && Robot::get().getExtraButton().isPressed()) {
             Robot::get().getExtraButton().consumeEvent();
 
-            Challenge::get().getLineFollower().start(LineFollowerState::LOST);
+            Challenge::get().getLineFollower().start(LineFollowerConfiguration {.state = LineFollowerState::LOST});
             Challenge::get().setState(Challenge::State::HOUSE_CHALLENGE);
         }
 

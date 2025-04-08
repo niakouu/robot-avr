@@ -107,12 +107,13 @@ void MazeChallengeHandler::firstStagePointHandler(
         return;
     }
 
+    /*
     if (this->counter_ == 3 || this->counter_ == 1)
         lineFollower.start(upperPoint ? LineFollowerState::TURNING_LEFT
                                       : LineFollowerState::TURNING_RIGHT);
     else if (this->counter_ == 2)
         lineFollower.start();
-
+    */
     this->counter_--;
 }
 
@@ -124,11 +125,11 @@ void MazeChallengeHandler::secondStagePointHandler(
     }
 
     if (this->counter_ == 3)
-        lineFollower.start(LineFollowerState::TURNING_LEFT);
+        ; // lineFollower.start(LineFollowerState::TURNING_LEFT);
     else if (this->counter_ == 2)
-        lineFollower.start();
+        ; //lineFollower.start();
     else if (this->counter_ == 1)
-        lineFollower.start(LineFollowerState::TURNING_RIGHT);
+        ; //lineFollower.start(LineFollowerState::TURNING_RIGHT);
 
     this->counter_--;
 }
@@ -140,7 +141,7 @@ void MazeChallengeHandler::pointLHandler(
         return;
     }
 
-    lineFollower.start();
+    // lineFollower.start();
     this->counter_++;
 }
 
@@ -152,7 +153,7 @@ void MazeChallengeHandler::endingPointHandler(
         return;
     }
     
-    lineFollower.start();
+    // lineFollower.start();
     this->counter_--;
 }
 

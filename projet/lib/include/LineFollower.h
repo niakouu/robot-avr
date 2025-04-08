@@ -13,6 +13,14 @@ enum class LineFollowerState : uint8_t {
     STOP
 };
 
+struct LineFollowerConfiguration {
+    LineFollowerState state;
+    bool isAutomatic : 1;
+    bool isEventOnThree : 1;
+    bool isTurnInPlace : 1;
+    bool isTurnBlindAtStart : 1;
+};
+
 template <typename T, typename U>
 class LineFollower {
 public:
@@ -23,8 +31,7 @@ public:
     void operator=(const LineFollower&) = delete;
 
     void stop();
-    void start(LineFollowerState state = LineFollowerState::FORWARD,
-               bool isAutomatic = true);
+    void start(const LineFollowerConfiguration& configuration);
     void update(uint16_t deltaTimeMs);
     bool isLost() const;
 
@@ -36,14 +43,14 @@ public:
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
     static const constexpr uint16_t TURN_IGNORE_TIME_MS = 500;
-    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 900;
+    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 1000;
     
 
     MovementManager<T, U>& movementManager_;
     LineSensor& lineSensor_;
 
-    LineFollowerState currentState_;
-    bool switchedState_, isAutomatic_;
+    LineFollowerConfiguration configuration_;
+    bool switchedState_;
 
     LineSensor::Readings lastReadings_;
 

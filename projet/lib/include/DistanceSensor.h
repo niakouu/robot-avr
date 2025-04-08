@@ -18,6 +18,7 @@ private:
     static constexpr uint8_t MAX_DISTANCE = 80U;
     static constexpr float MAX_VOLTAGE = 2.25F;
     uint8_t distancePinId_;
+    Pin distancePin_;
 
     static uint8_t calculateDistanceFromVoltage(float voltageIn);
 };
