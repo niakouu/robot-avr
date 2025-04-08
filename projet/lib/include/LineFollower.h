@@ -18,7 +18,7 @@ struct LineFollowerConfiguration {
     bool isAutomatic : 1;
     bool isEventOnThree : 1;
     bool isTurnInPlace : 1;
-    bool isTurnBlindAtStart : 1;
+    bool isSkippingLine : 1;
 };
 
 template <typename T, typename U>
@@ -36,13 +36,12 @@ public:
     bool isLost() const;
 
     // speed 0.5
-    float PID_KP = 0.15F; // speed / 4 kind of
+    float PID_KP = 0.10F; // speed / 4 kind of
     float PID_KI = 0.0F;
-    float PID_KD = 7.5F; // PID_KP * 15
+    float PID_KD = 1.5F; // PID_KP * 15
 
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
-    static const constexpr uint16_t TURN_IGNORE_TIME_MS = 350;
     static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 1000;
     
 
@@ -62,7 +61,8 @@ public: // TODO change this
     int16_t integralComponent_;
 
     // Turning values
-    uint16_t turnIgnoreTimeLeft_, adjustTimeLeft_;
+    uint16_t adjustTimeLeft_;
+    bool isExitingLine_;
 
     void forwardHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
     void detectionHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);

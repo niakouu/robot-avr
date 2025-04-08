@@ -17,12 +17,10 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         return;
     }
 
-    printf("got delta, p: %d\n", static_cast<uint8_t>(point_));
-
     LineFollowerConfiguration configuration{.isAutomatic = true,
                                             .isEventOnThree = true,
                                             .isTurnInPlace = false,
-                                            .isTurnBlindAtStart = true};
+                                            .isSkippingLine = true};
 
     switch (this->point_) {
         case Point::E_INITIAL:
@@ -48,21 +46,29 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
             this->averagePoleDistance_ /= POLE_READING_COUNT;
 
+            printf("pole? %d\n", this->averagePoleDistance_ < 15);
             if (this->averagePoleDistance_ < 15) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
                 configuration.isTurnInPlace = true;
-                configuration.isTurnBlindAtStart = false;
-                this->point_ = Point::I;
+                this->point_ = Point::I_FROM_G;
             } else {
                 configuration.state = LineFollowerState::FORWARD;
                 this->point_ = Point::H;
             }
             break;
         case Point::H:
-            configuration.state = LineFollowerState::FORWARD;
-            this->point_ = Point::I;
+            configuration.state = LineFollowerState::TURNING_RIGHT;
+            this->point_ = Point::I_FROM_H;
             break;
-        case Point::I:
+        case Point::I_FROM_H:
+            Robot::get().getMovementManager().kickstartMotors(KickstartDirection::FORWARD, KickstartDirection::FORWARD);
+            configuration.state = LineFollowerState::TURNING_RIGHT;
+            configuration.isEventOnThree = false;
+            configuration.isTurnInPlace = true;
+            configuration.isSkippingLine = false;
+            this->point_ = Point::E_FINAL;
+            break;
+        case Point::I_FROM_G:
             configuration.state = LineFollowerState::TURNING_RIGHT;
             configuration.isEventOnThree = false;
             this->point_ = Point::E_FINAL;
@@ -78,25 +84,4 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     }
 
     lineFollower.start(configuration);
-}
-
-void HouseChallengeHandler::sweepForPole(uint16_t deltaTimeMs) {
-    Robot& robot = Robot::get();
-
-    // constexpr uint16_t TIME_OFFSET_MS = SWEEP_TIME_MS / 4;
-
-    // if (this->sweepTimeLeftMs_ == 0)
-    //     robot.getMovementManager().moveForward(0.5F);
-    // else if (this->sw)
-
-    // if (this->sweepTimeLeftMs_ > SWEEP_TIME_MS - TIME_OFFSET_MS
-    //     || this->sweepTimeLeftMs_ < TIME_OFFSET_MS)
-    //     robot.getMovementManager().moveLeft(Challenge::SPEED, 1.0F);
-    // else
-    //     robot.getMovementManager().moveRight(Challenge::SPEED, 1.0F);
-
-    // this->isPolePresent_ |= robot.getDistanceSensor().getDistanceCm() <= 20;
-
-    // this->sweepTimeLeftMs_ =
-    //     cappingSubtract(this->sweepTimeLeftMs_, deltaTimeMs);
 }
