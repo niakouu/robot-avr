@@ -1,5 +1,7 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
+#include <util/delay.h>
+
 
 #include "Board.h"
 #include "Challenge.h"
@@ -17,10 +19,16 @@ ISR(WDT_vect) {
 
 ISR(INT0_vect) {
     Board::get().getButton().setPressed();
+    Robot::get().getButton().consumeEvent();
+
 }
 
 ISR(INT1_vect) {
     Robot::get().getExtraButton().setPressed();
+    Robot::get().getExtraButton().consumeEvent();
+    printf("ON EST LA\n");
+
+
 }
 
 void adjustMode() {
@@ -93,18 +101,21 @@ int main() {
     // adjustMode();
 
     while (true) {
-        if (Robot::get().getExtraButton().isEvent()
-            && Robot::get().getExtraButton().isPressed()) {
-            Robot::get().getExtraButton().consumeEvent();
+        // if (Robot::get().getExtraButton().isEvent()
+        // && Robot::get().getExtraButton().isPressed()) {
+        //         printf("zaaaaaaaaaaa\n");
+        //         Robot::get().getExtraButton().consumeEvent();
 
-            Challenge::get().getLineFollower().start(LineFollowerConfiguration {.state = LineFollowerState::LOST});
-            Challenge::get().setState(Challenge::State::HOUSE_CHALLENGE);
-        }
+        // }else{
+        //     //printf("zbbbbbbbbbbb\n");
+        // }
 
         Challenge::get().update(UPDATE_DELTA_MS);
 
-        Board::get().getWatchdogTimer().sleep(UPDATE_DELTA_MS,
-                                              WatchdogTimer::SleepMode::IDLE);
+        // _delay_ms(UPDATE_DELTA_MS);
+
+        // Board::get().getWatchdogTimer().sleep(UPDATE_DELTA_MS,
+        //                                       WatchdogTimer::SleepMode::IDLE);
     };
 
     return 0;

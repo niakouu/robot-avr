@@ -6,6 +6,7 @@
 #include "ChallengeHandler.h"
 #include "HouseChallengeHandler.h"
 #include "MazeChallengeHandler.h"
+#include "InitializationHandler.h"
 #include "LineFollower.h"
 #include "Robot.h"
 
@@ -44,6 +45,7 @@ private:
 
         union Handler {
             uint8_t none;
+            InitializationHandler initialization;
             HouseChallengeHandler house;
             MazeChallengeHandler maze;
 

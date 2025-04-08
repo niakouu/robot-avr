@@ -21,6 +21,7 @@ public:
     const LineSensor& getLineSensor() const;
     const Midi& getMidi() const;
     const Button& getButton() const;
+    const Button& getExtraButton() const;
     const MovementManager<uint8_t, TimerPrescalerSynchronous>& getMovementManager() const;
 
     Board& getBoard();
@@ -29,6 +30,7 @@ public:
     LineSensor& getLineSensor();
     Midi& getMidi();
     Button& getExtraButton();
+    Button& getButton();
     MovementManager<uint8_t, TimerPrescalerSynchronous>& getMovementManager();
 
     static constexpr float OFFSET_LEFT = 1.0F;
