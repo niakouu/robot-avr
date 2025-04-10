@@ -99,7 +99,7 @@ int main() {
             Robot::get().getExtraButton().consumeEvent();
 
             Challenge::get().getLineFollower().start(LineFollowerConfiguration {.state = LineFollowerState::LOST});
-            Challenge::get().setState(Challenge::State::HOUSE_CHALLENGE);
+            Challenge::get().setState(Challenge::State::MAZE_CHALLENGE);
         }
 
         Challenge::get().update(UPDATE_DELTA_MS);

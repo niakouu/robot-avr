@@ -92,6 +92,7 @@ Challenge::StateHolder::StateHolder(State state) : state(state) {
             break;
         case State::MAZE_CHALLENGE:
             this->handler.maze = MazeChallengeHandler();
+            break;
         default:
             this->handler.none = 0;
     }

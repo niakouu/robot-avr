@@ -155,7 +155,7 @@ void MazeChallengeHandler::calculatePoleDistance() {
         --this->totalReadings_;
         this->averagePoleDistance_ +=
             Robot::get().getDistanceSensor().getDistanceCm();
-        this->finishedCalculatingPole_ = false;
+        return;
     }
 
     this->averagePoleDistance_ /= POLE_READING_COUNT;
@@ -178,16 +178,14 @@ void MazeChallengeHandler::execFirstDecision(
 
     configuration.isTurnInPlace = true;
 
-    if (isPolePresent(DISTANCE_TO_CENTER)) {
-        if (rotate(true, deltaTimeMs, TURN_TIME_MS)) {
-            resetDistanceValues();
-            configuration.state = LineFollowerState::LOST;
-            this->currentPoint_ = currentNext;
-        }
-    } else {
+    if (!isPolePresent(DISTANCE_TO_CENTER)) {
         resetDistanceValues();
         configuration.state = LineFollowerState::FORWARD;
         this->currentPoint_ = forward;
+    } else if (rotate(true, deltaTimeMs, TURN_TIME_MS)) {
+        resetDistanceValues();
+        configuration.state = LineFollowerState::LOST;
+        this->currentPoint_ = currentNext;
     }
 }
 
