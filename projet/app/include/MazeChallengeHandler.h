@@ -40,9 +40,9 @@ private:
 
     static const char *toString(Point point); // TODO REMOVE
 
-    static constexpr uint16_t TURN_TIME_MS = 500U;
-    static constexpr uint8_t DISTANCE_TO_CENTER = 15U;
-    static constexpr uint8_t DISTANCE_TO_DIAGONAL = 15U;
+    static constexpr uint16_t TURN_TIME_MS = 250U;
+    static constexpr uint8_t DISTANCE_TO_CENTER = 33U;
+    static constexpr uint8_t DISTANCE_TO_DIAGONAL = 33U;
     static constexpr uint8_t POLE_READING_COUNT = 10U;
 
     Point currentPoint_;

@@ -93,6 +93,7 @@ int main() {
     // adjustMode();
 
     while (true) {
+        // printf("d:%d:%d\n", Robot::get().getDistanceSensor().getDistanceCm(), Board::get().getAdc().read(static_cast<uint8_t>(Pin::Id::P7)));
         if (Robot::get().getExtraButton().isEvent()
             && Robot::get().getExtraButton().isPressed()) {
             Robot::get().getExtraButton().consumeEvent();
