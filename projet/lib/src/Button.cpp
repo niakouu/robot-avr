@@ -4,7 +4,7 @@
 #include <util/delay.h>
 
 namespace {
-    constexpr uint8_t DEBOUNCE_MS = 30;
+    constexpr uint8_t DEBOUNCE_MS = 100;
 
     constexpr Pin::Id pinIdForInterrupt(Button::Interrupt interrupt) {
         switch (interrupt) {

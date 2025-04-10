@@ -24,11 +24,10 @@ ISR(INT0_vect) {
 }
 
 ISR(INT1_vect) {
+    // Robot::get().getExtraButton().consumeEvent();
     Robot::get().getExtraButton().setPressed();
     Robot::get().getExtraButton().consumeEvent();
     printf("ON EST LA\n");
-
-
 }
 
 void adjustMode() {
