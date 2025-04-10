@@ -38,9 +38,11 @@ private:
         EXIT
     };
 
+    static const char *toString(Point point); // TODO REMOVE
+
     static constexpr uint16_t TURN_TIME_MS = 500U;
-    static constexpr uint8_t DISTANCE_TO_CENTER = 20U;
-    static constexpr uint8_t DISTANCE_TO_DIAGONAL = 41U;
+    static constexpr uint8_t DISTANCE_TO_CENTER = 15U;
+    static constexpr uint8_t DISTANCE_TO_DIAGONAL = 15U;
     static constexpr uint8_t POLE_READING_COUNT = 10U;
 
     Point currentPoint_;
@@ -55,7 +57,7 @@ private:
     bool isPolePresent(uint8_t distance) const;
     void calculatePoleDistance();
     void resetDistanceValues();
-    void execFirstDecision(
+    bool execFirstDecision(
         uint16_t deltaTimeMs, LineFollowerConfiguration& configuration,
         Point forward, Point currentNext);
     void execSecondDecision(LineFollowerConfiguration& configuration,

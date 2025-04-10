@@ -62,7 +62,7 @@ public: // TODO change this
 
     // Turning values
     uint16_t adjustTimeLeft_;
-    bool isExitingLine_;
+    bool isExitingLine_, wasLostAndIsSkippingError_;
 
     void forwardHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
     void detectionHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);

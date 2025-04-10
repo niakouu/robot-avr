@@ -28,6 +28,11 @@ void LineFollower<T, U>::stop() {
 
 template <typename T, typename U>
 void LineFollower<T, U>::start(const LineFollowerConfiguration& configuration) {
+    if (this->configuration_.state == LineFollowerState::LOST
+        && configuration.state != LineFollowerState::LOST) {
+        this->wasLostAndIsSkippingError_ = true;
+    }
+
     this->configuration_ = configuration;
 
     // if (this->configuration_.state == LineFollowerState::FORWARD) {
@@ -85,8 +90,13 @@ void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
     const uint8_t darkLines = readings.getDarkLineCount();
     if (darkLines == 0 || darkLines >= 4 || !readings.isSinglePath()
         || (this->configuration_.isEventOnThree && darkLines == 3)) {
-        this->configuration_.state = LineFollowerState::LOST;
-        return;
+        if (!this->wasLostAndIsSkippingError_) {
+            this->configuration_.state = LineFollowerState::LOST;
+            this->movementManager_.stop();
+            return;
+        }
+    } else {
+        this->wasLostAndIsSkippingError_ = false;
     }
 
     const int8_t error = -average;
@@ -144,7 +154,8 @@ template <typename T, typename U>
 void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
                                         uint16_t deltaTimeMs) {
     if (this->switchedState_) {
-        this->isExitingLine_ = readings.getDarkLineCount() != 0 && this->configuration_.isSkippingLine;
+        this->isExitingLine_ = readings.getDarkLineCount() != 0
+                               && this->configuration_.isSkippingLine;
         this->adjustTimeLeft_ =
             this->configuration_.isTurnInPlace ? 0 : TURN_WHEEL_ADJUST_TIME_MS;
 

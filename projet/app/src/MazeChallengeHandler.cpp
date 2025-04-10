@@ -8,6 +8,46 @@ MazeChallengeHandler::MazeChallengeHandler()
       averagePoleDistance_(0), counter_(0), totalReadings_(POLE_READING_COUNT),
       finishedCalculatingPole_(false) {}
 
+      const char* MazeChallengeHandler::toString(Point point) { // TODO REMOVE
+        switch (point) {
+            case Point::ENTRY_ONE: return "ENTRY_ONE";
+            case Point::ENTRY_TWO: return "ENTRY_TWO";
+            case Point::ENTRY_THREE: return "ENTRY_THREE";
+            case Point::ENTRY_TO_K: return "ENTRY_TO_K";
+            case Point::ENTRY_TO_M: return "ENTRY_TO_M";
+            case Point::K: return "K";
+            case Point::L: return "L";
+            case Point::M: return "M";
+            case Point::BETWEEN_K_N: return "BETWEEN_K_N";
+            case Point::BETWEEN_M_P: return "BETWEEN_M_P";
+            case Point::K_TO_N: return "K_TO_N";
+            case Point::M_TO_P: return "M_TO_P";
+            case Point::SECOND_ENTRY_ONE: return "SECOND_ENTRY_ONE";
+            case Point::SECOND_ENTRY_TWO: return "SECOND_ENTRY_TWO";
+            case Point::SECOND_ENTRY_THREE: return "SECOND_ENTRY_THREE";
+            case Point::SECOND_ENTRY_TO_N: return "SECOND_ENTRY_TO_N";
+            case Point::SECOND_ENTRY_TO_P: return "SECOND_ENTRY_TO_P";
+            case Point::N: return "N";
+            case Point::O: return "O";
+            case Point::P: return "P";
+            case Point::LAST: return "LAST";
+            case Point::EXIT: return "EXIT";
+            default: return "UNKNOWN";
+        }
+    }
+
+    const char* toString(LineFollowerState state) {
+        switch (state) {
+            case LineFollowerState::FORWARD: return "FORWARD";
+            case LineFollowerState::DETECTION: return "DETECTION";
+            case LineFollowerState::TURNING_LEFT: return "TURNING_LEFT";
+            case LineFollowerState::TURNING_RIGHT: return "TURNING_RIGHT";
+            case LineFollowerState::LOST: return "LOST";
+            case LineFollowerState::STOP: return "STOP";
+            default: return "UNKNOWN";
+        }
+    }
+
 void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
         challenge.getLineFollower();
@@ -15,14 +55,17 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     if (!lineFollower.isLost())
         return;
 
-    LineFollowerConfiguration configuration{.isAutomatic = true,
+    LineFollowerConfiguration configuration{.state = LineFollowerState::LOST,
+                                            .isAutomatic = true,
                                             .isEventOnThree = true,
                                             .isTurnInPlace = false,
                                             .isSkippingLine = true};
 
+    printf("%s -> ", toString(this->currentPoint_));
+    bool isMotorManual = false;
     switch (this->currentPoint_) {
         case Point::ENTRY_ONE:
-            execFirstDecision(deltaTimeMs, configuration, Point::L,
+            isMotorManual = execFirstDecision(deltaTimeMs, configuration, Point::L,
                               Point::ENTRY_TWO);
             break;
         case Point::ENTRY_TWO:
@@ -63,12 +106,13 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
                                         Point::SECOND_ENTRY_ONE);
             break;
         case Point::SECOND_ENTRY_ONE:
-            execFirstDecision(deltaTimeMs, configuration, Point::O,
+            isMotorManual = execFirstDecision(deltaTimeMs, configuration, Point::O,
                               Point::SECOND_ENTRY_TWO);
             break;
         case Point::SECOND_ENTRY_TWO:
             execSecondDecision(configuration, Point::SECOND_ENTRY_TO_P,
                                Point::SECOND_ENTRY_THREE);
+            break;
         case Point::SECOND_ENTRY_THREE:
             configuration.isTurnInPlace = true;
             switchPoint(Point::SECOND_ENTRY_TO_N,
@@ -110,7 +154,10 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         default:
             break;
     }
-    lineFollower.start(configuration);
+
+    printf("%s %s a:%d e3:%d inplace:%d skip:%d\n", toString(this->currentPoint_), ::toString(configuration.state), configuration.isAutomatic, configuration.isEventOnThree, configuration.isTurnInPlace, configuration.isSkippingLine);
+    if (!isMotorManual)
+        lineFollower.start(configuration);
 }
 
 bool MazeChallengeHandler::rotate(bool left, uint16_t deltaTimeMs,
@@ -159,6 +206,7 @@ void MazeChallengeHandler::calculatePoleDistance() {
     }
 
     this->averagePoleDistance_ /= POLE_READING_COUNT;
+    printf("avg dist: %d\n", averagePoleDistance_);
     this->finishedCalculatingPole_ = true;
 }
 
@@ -168,12 +216,12 @@ void MazeChallengeHandler::resetDistanceValues() {
     this->finishedCalculatingPole_ = false;
 }
 
-void MazeChallengeHandler::execFirstDecision(
+bool MazeChallengeHandler::execFirstDecision(
     uint16_t deltaTimeMs, LineFollowerConfiguration& configuration,
     Point forward, Point currentNext) {
     if (!this->finishedCalculatingPole_) {
         calculatePoleDistance();
-        return;
+        return false;
     }
 
     configuration.isTurnInPlace = true;
@@ -182,11 +230,17 @@ void MazeChallengeHandler::execFirstDecision(
         resetDistanceValues();
         configuration.state = LineFollowerState::FORWARD;
         this->currentPoint_ = forward;
-    } else if (rotate(true, deltaTimeMs, TURN_TIME_MS)) {
+        return false;
+    } 
+    
+    if (rotate(true, deltaTimeMs, TURN_TIME_MS)) {
         resetDistanceValues();
         configuration.state = LineFollowerState::LOST;
         this->currentPoint_ = currentNext;
+        return false;
     }
+
+    return true;
 }
 
 void MazeChallengeHandler::execSecondDecision(
