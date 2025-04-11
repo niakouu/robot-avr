@@ -100,14 +100,14 @@ int main() {
     // adjustMode();
 
     while (true) {
-        // if (Robot::get().getExtraButton().isEvent()
-        // && Robot::get().getExtraButton().isPressed()) {
-        //         printf("zaaaaaaaaaaa\n");
-        //         Robot::get().getExtraButton().consumeEvent();
+        // printf("d:%d:%d\n", Robot::get().getDistanceSensor().getDistanceCm(), Board::get().getAdc().read(static_cast<uint8_t>(Pin::Id::P7)));
+        if (Robot::get().getExtraButton().isEvent()
+            && Robot::get().getExtraButton().isPressed()) {
+            Robot::get().getExtraButton().consumeEvent();
 
-        // }else{
-        //     //printf("zbbbbbbbbbbb\n");
-        // }
+            Challenge::get().getLineFollower().start(LineFollowerConfiguration {.state = LineFollowerState::LOST});
+            Challenge::get().setState(Challenge::State::MAZE_CHALLENGE);
+        }
 
         Challenge::get().update(UPDATE_DELTA_MS);
 

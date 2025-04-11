@@ -99,17 +99,17 @@ void Challenge::finishHandler() {
 
 Challenge::StateHolder::StateHolder(State state) : state(state) {
     switch (state) {
-        case State::HOUSE_CHALLENGE:
-            this->handler.house = HouseChallengeHandler();
-            break;
-        case State::MAZE_CHALLENGE:
-            this->handler.maze = MazeChallengeHandler();
-            break;
         case State::INITIALIZATION:
             this->handler.initialization = InitializationHandler();
             break;
         case State::FORK_CHALLENGE:
             this->handler.fork = ForkChallengeHandler();
+            break;
+        case State::HOUSE_CHALLENGE:
+            this->handler.house = HouseChallengeHandler();
+            break;
+        case State::MAZE_CHALLENGE:
+            this->handler.maze = MazeChallengeHandler();
             break;
         default:
             this->handler.none = 0;

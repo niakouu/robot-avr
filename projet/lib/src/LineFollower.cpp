@@ -28,6 +28,11 @@ void LineFollower<T, U>::stop() {
 
 template <typename T, typename U>
 void LineFollower<T, U>::start(const LineFollowerConfiguration& configuration) {
+    if (this->configuration_.state == LineFollowerState::LOST
+        && configuration.state != LineFollowerState::LOST) {
+        this->wasLostAndIsSkippingError_ = true;
+    }
+
     this->configuration_ = configuration;
 
     // if (this->configuration_.state == LineFollowerState::FORWARD) {
@@ -85,8 +90,13 @@ void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
     const uint8_t darkLines = readings.getDarkLineCount();
     if (darkLines == 0 || darkLines >= 4 || !readings.isSinglePath()
         || (this->configuration_.isEventOnThree && darkLines == 3)) {
-        this->configuration_.state = LineFollowerState::LOST;
-        return;
+        if (!this->wasLostAndIsSkippingError_) {
+            this->configuration_.state = LineFollowerState::LOST;
+            this->movementManager_.stop();
+            return;
+        }
+    } else {
+        this->wasLostAndIsSkippingError_ = false;
     }
 
     const int8_t error = -average;
@@ -144,36 +154,48 @@ template <typename T, typename U>
 void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
                                         uint16_t deltaTimeMs) {
     if (this->switchedState_) {
-        this->turnIgnoreTimeLeft_ = this->configuration_.isTurnBlindAtStart ? 0 : TURN_IGNORE_TIME_MS;
-        this->adjustTimeLeft_ = this->configuration_.isTurnInPlace ? 0 : TURN_WHEEL_ADJUST_TIME_MS;
-        this->movementManager_.moveForward(this->speed_);
-        // printf("speed downgrade\n");
+        this->isExitingLine_ = readings.getDarkLineCount() != 0
+                               && this->configuration_.isSkippingLine;
+        this->adjustTimeLeft_ =
+            this->configuration_.isTurnInPlace ? 0 : TURN_WHEEL_ADJUST_TIME_MS;
+
+        if (!this->configuration_.isTurnInPlace) {
+            this->movementManager_.moveForward(this->speed_);
+            return;
+        }
     }
-    
-    if (this->adjustTimeLeft_ != 0 || (this->switchedState_ && this->configuration_.isTurnInPlace)) {
+
+    if (this->adjustTimeLeft_ != 0
+        || (this->switchedState_ && this->configuration_.isTurnInPlace)) {
         this->adjustTimeLeft_ =
             cappingSubtract(this->adjustTimeLeft_, deltaTimeMs);
 
         if (this->adjustTimeLeft_ == 0) {
             if (this->configuration_.state == LineFollowerState::TURNING_LEFT) {
                 // this->movementManager_.kickstartMotors(
-                //     KickstartDirection::BACKWARD, KickstartDirection::FORWARD,
-                //     10);
-                this->movementManager_.moveLeft(this->speed_ * 0.9F, 1.0F);
+                //     KickstartDirection::BACKWARD,
+                //     KickstartDirection::FORWARD, 10);
+                this->movementManager_.moveLeft(this->speed_, 1.0F);
             } else {
                 // this->movementManager_.kickstartMotors(
-                //     KickstartDirection::FORWARD, KickstartDirection::BACKWARD,
-                //     10);
-                this->movementManager_.moveRight(this->speed_ * 0.9F, 1.0F);
+                //     KickstartDirection::FORWARD,
+                //     KickstartDirection::BACKWARD, 10);
+                this->movementManager_.moveRight(this->speed_, 1.0F);
             }
         }
-    } else if (this->turnIgnoreTimeLeft_ != 0) {
-        this->turnIgnoreTimeLeft_ =
-            cappingSubtract(this->turnIgnoreTimeLeft_, deltaTimeMs);
-    } else if (readings.isSemiLeftDark || readings.isCenterDark
-               || readings.isSemiRightDark) {
-        printf("found guide!\n");
+    } else if (this->isExitingLine_) {
+        this->isExitingLine_ = readings.getDarkLineCount() != 0;
+    } else if (readings.getDarkLineCount() != 0) {
         this->movementManager_.stop();
+        printf("found guide!\n");
+        if (!readings.isCenterDark) {
+            if (readings.getAverage() < 4) {
+                this->movementManager_.moveRight(1.0F, 0.0F);
+            } else {
+                this->movementManager_.moveLeft(1.0F, 0.0F);
+            }
+            this->movementManager_.stop();
+        }
         this->configuration_.state = this->configuration_.isAutomatic
                                          ? LineFollowerState::FORWARD
                                          : LineFollowerState::LOST;
