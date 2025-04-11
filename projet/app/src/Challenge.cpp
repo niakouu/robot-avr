@@ -29,7 +29,7 @@ void Challenge::update(uint16_t deltaTimeMs) {
             locateHandler();
             break;
         case State::FORK_CHALLENGE:
-            forkChallengeHandler();
+            this->stateHolder_.handler.fork.update(deltaTimeMs, *this);
             break;
         case State::HOUSE_CHALLENGE:
             this->stateHolder_.handler.house.update(deltaTimeMs, *this);
@@ -70,7 +70,12 @@ void Challenge::initiazliationHandler() {}
 
 void Challenge::followLineHandler() {}
 
-void Challenge::locateHandler() {}
+void Challenge::locateHandler() {
+
+
+    //TODO LINE FOLLOWER LOGIC    
+
+}
 
 void Challenge::forkChallengeHandler() {}
 
@@ -103,6 +108,9 @@ Challenge::StateHolder::StateHolder(State state) : state(state) {
         case State::INITIALIZATION:
             this->handler.initialization = InitializationHandler();
             break;
+        case State::FORK_CHALLENGE:
+            this->handler.fork = ForkChallengeHandler();
+            break;
         default:
             this->handler.none = 0;
     }
@@ -115,6 +123,8 @@ Challenge::StateHolder::~StateHolder() {
             break;
         case Challenge::State::MAZE_CHALLENGE:
             handler.maze.~MazeChallengeHandler();
+        case Challenge::State::FORK_CHALLENGE:
+            handler.fork.~ForkChallengeHandler();
         default:
             break;
     }
