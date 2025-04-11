@@ -7,6 +7,7 @@
 #include "HouseChallengeHandler.h"
 #include "MazeChallengeHandler.h"
 #include "InitializationHandler.h"
+#include "ForkChallengeHandler.h"
 #include "LineFollower.h"
 #include "Robot.h"
 
@@ -48,6 +49,7 @@ private:
             InitializationHandler initialization;
             HouseChallengeHandler house;
             MazeChallengeHandler maze;
+            ForkChallengeHandler fork;
 
             constexpr Handler() : none{0} {};
             ~Handler() {};

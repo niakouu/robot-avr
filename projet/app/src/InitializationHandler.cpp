@@ -6,6 +6,7 @@
 bool InitializationHandler::isBPointNorth = false;
 bool InitializationHandler::isCPointNorth = false;
 static uint8_t cycleCount = 1;
+static uint8_t counterInt_ = 0;
 
 
 InitializationHandler::InitializationHandler()
@@ -31,14 +32,6 @@ void InitializationHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
 void InitializationHandler::chooseDirection(bool& isPointNorth) {
 
-    // led.setColor(BidirectionalLed::Color::GREEN);
-    // Robot::get().getExtraButton().consumeEvent();
-    // if (Robot::get().getExtraButton().isPressed()) {
-    //     Robot::get().getBidirectionalLed().setColor(BidirectionalLed::Color::RED);
-    //     printf("rouge");
-    // }
-    // // Robot::get().getExtraButton().rest();
-
     if (!Robot::get().getExtraButton().isEvent() && counter_ == 0) {
         printf("CLICKED\n");
         Robot::get().getBidirectionalLed().setColor(
@@ -58,52 +51,35 @@ void InitializationHandler::chooseDirection(bool& isPointNorth) {
         isPointNorth = true;
         counter_ = 2;
         cycleCount++;
-        Robot::get().getExtraButton().restoreEvent(); // ?
+        Robot::get().getExtraButton().restoreEvent(); 
     }
 
 
-    if (!Robot::get().getButton().isEvent() && counter_ == 0) {
+    if (!Robot::get().getButton().isEvent() && counterInt_ == 0) {
         printf("CLICKED\n");
         Robot::get().getBidirectionalLed().setColor(
             BidirectionalLed::Color::GREEN);
         Robot::get().getButton().restoreEvent();
-        counter_ = 1;
+        counterInt_ = 1;
     }
-    if (counter_ == 1)
+    if (counterInt_ == 1)
     Robot::get().getButton().restoreEvent();
         
     if (Robot::get().getButton().isEvent()
-        && Robot::get().getButton().isPressed()
-        && counter_ == 1) {
+        && !Robot::get().getButton().isPressed()
+        && counterInt_ == 1) {
         Robot::get().getBidirectionalLed().setColor(
             BidirectionalLed::Color::OFF);
         printf("SOUTH SAVED\n");
         isPointNorth = false;
-        counter_ = 2;
+        counterInt_ = 2;
         cycleCount++;
         Robot::get().getButton().restoreEvent(); // ?
     }
 
-    // printf("i %d\n", counter_);
-
-
-    // if (!Robot::get().getButton().isEvent()) {
-    //     printf("CLICKED\n");
-    //     Robot::get().getBidirectionalLed().setColor(
-    //         BidirectionalLed::Color::GREEN);
-    //     Robot::get().getButton().restoreEvent();
-    // }
-    // if (Robot::get().getButton().isEvent()
-    //     && Robot::get().getButton().isPressed()) {
-    //     Robot::get().getBidirectionalLed().setColor(
-    //         BidirectionalLed::Color::OFF);
-    //     printf("SOUTH SAVED\n");
-    //     isPointNorth = false;
-    //     counter_++;
-    // }
-
     if (cycleCount == 2) {
         counter_ = 0;
+        counterInt_ = 0;
         this->currentState_ = InitializationHandler::Point::C;
     } else if (cycleCount == 3) {
         this->currentState_ = InitializationHandler::Point::EXIT;

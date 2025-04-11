@@ -1,61 +1,92 @@
-// #include "ForkChallengeHandler.h"
+#include "ForkChallengeHandler.h"
 
-// #include "Challenge.h"
-// #include "Robot.h"
-// #include "InitializationHandler.h"
+#include "Challenge.h"
+#include "InitializationHandler.h"
+#include "Robot.h"
 
-// ForkChallengeHandler::ForkChallengeHandler()
-//     : currentState_(ForkChallengeHandler::Point::B), counter_(0) {}
+ForkChallengeHandler::ForkChallengeHandler()
+    : currentState_(ForkChallengeHandler::Point::B), counter_(0) {}
 
-// void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
-//     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
-//         challenge.getLineFollower();
+void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
+    LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
+        challenge.getLineFollower();
 
-//     if (!lineFollower.isLost()) {
-//         return;
-//     }
+    if (!lineFollower.isLost())
+        return;
 
-//     switch (this->currentState_) {
-//         case ForkChallengeHandler::Point::B:
-//             goNextPoint(InitializationHandler::isBPointNorth, lineFollower, challenge);
-//             break;
-//         case ForkChallengeHandler::Point::C:
-//         goNextPoint(InitializationHandler::isCPointNorth, lineFollower, challenge);
-//             break;
-//         case ForkChallengeHandler::Point::EXIT:
-//             endingPointHandler(challenge, lineFollower);
-//             break;
-//         default:
-//             break;
-//     }
-// }
+    LineFollowerConfiguration configuration{.isAutomatic = true,
+                                            .isEventOnThree = true,
+                                            .isTurnInPlace = false,
+                                            .isSkippingLine = false};
 
+    // printf("ON EST DANS FORK\n");
 
-// void ForkChallengeHandler::goNextPoint(bool& isPointNorth, LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower, Challenge& challenge){
+    switch (this->currentState_) {
+        case ForkChallengeHandler::Point::BSound:
+            // TODO SOUND
+            currentState_ = ForkChallengeHandler::Point::B;
+            break;
+        case ForkChallengeHandler::Point::B:
+            // TODO SON
+            //  goNextPoint(InitializationHandler::isBPointNorth, lineFollower,
+            //  challenge);
 
-//     Robot& robot = Robot::get();
-//     int rotateTime = 250;
+            if (InitializationHandler::isBPointNorth) {
+                configuration.state = LineFollowerState::TURNING_LEFT;
+            } else {
+                configuration.state = LineFollowerState::TURNING_RIGHT;
+            }
+            if (configuration.state == LineFollowerState::LOST)
+                currentState_ = ForkChallengeHandler::Point::BToC;
+            break;
+        case ForkChallengeHandler::Point::BToC:
+            configuration.isEventOnThree = false;
+            configuration.state = LineFollowerState::FORWARD;
+            if (configuration.state == LineFollowerState::LOST)
+                currentState_ = ForkChallengeHandler::Point::CSound;
+            break;
+        case ForkChallengeHandler::Point::CSound:
+            // TODO SOUND
+            currentState_ = ForkChallengeHandler::Point::C;
+            break;
+        case ForkChallengeHandler::Point::C:
+            configuration.isEventOnThree = true;
+            if (InitializationHandler::isCPointNorth) {
+                configuration.state = LineFollowerState::TURNING_LEFT;
+            } else {
+                configuration.state = LineFollowerState::TURNING_RIGHT;
+            }
+            if (configuration.state == LineFollowerState::LOST)
+                currentState_ = ForkChallengeHandler::Point::CToD;
+            break;
+        case ForkChallengeHandler::Point::CToD:
+            configuration.isEventOnThree = false;
+            configuration.state = LineFollowerState::FORWARD;
+            if (configuration.state == LineFollowerState::LOST)
+                currentState_ = ForkChallengeHandler::Point::EXIT;
+            break;
+        case ForkChallengeHandler::Point::EXIT:
+            endingPointHandler(challenge);
+            break;
+        default:
+            break;
+    }
+}
+
+// void ForkChallengeHandler::goNextPoint(bool& isPointNorth,
+// LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower, Challenge&
+// challenge){
+
+//     printf("ON EST DANS GONEXTPOINT\n");
 
 //     if(isPointNorth){
-//         robot.getMovementManager().moveLeft(Challenge::SPEED, 0.0F);
-//         Board::get().getWatchdogTimer().sleep(rotateTime, WatchdogTimer::SleepMode::IDLE);
-//         robot.getMovementManager().moveForward(Challenge::SPEED);
-//         Board::get().getWatchdogTimer().sleep(rotateTime, WatchdogTimer::SleepMode::IDLE);
+//         configuration.state = LineFollowerState::TURNING_LEFT;
 //     }else{
-//         robot.getMovementManager().moveRight(Challenge::SPEED, 0.0F);
-//         Board::get().getWatchdogTimer().sleep(rotateTime, WatchdogTimer::SleepMode::IDLE);
-//         robot.getMovementManager().moveForward(Challenge::SPEED);
-//         Board::get().getWatchdogTimer().sleep(rotateTime, WatchdogTimer::SleepMode::IDLE);
+//         configuration.state = LineFollowerState::TURNING_RIGHT;
 //     }
 
-//     lineFollower.start();
 // }
 
-
-
-// void ForkChallengeHandler::endingPointHandler(
-//     Challenge& challenge,
-//     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower) {
-//     challenge.setState(Challenge::State::FOLLOW_LINE);
-//     lineFollower.start();
-// }
+void ForkChallengeHandler::endingPointHandler(Challenge& challenge) {
+    challenge.setState(Challenge::State::FOLLOW_LINE);
+}
