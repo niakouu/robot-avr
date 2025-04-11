@@ -18,7 +18,7 @@ struct LineFollowerConfiguration {
     bool isAutomatic : 1;
     bool isEventOnThree : 1;
     bool isTurnInPlace : 1;
-    bool isSkippingLine : 1;
+    bool isSkippingStartingLine : 1;
 };
 
 template <typename T, typename U>

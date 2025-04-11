@@ -155,7 +155,7 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
                                         uint16_t deltaTimeMs) {
     if (this->switchedState_) {
         this->isExitingLine_ = readings.getDarkLineCount() != 0
-                               && this->configuration_.isSkippingLine;
+                               && this->configuration_.isSkippingStartingLine;
         this->adjustTimeLeft_ =
             this->configuration_.isTurnInPlace ? 0 : TURN_WHEEL_ADJUST_TIME_MS;
 

@@ -17,7 +17,7 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollowerConfiguration configuration{.isAutomatic = true,
                                             .isEventOnThree = true,
                                             .isTurnInPlace = false,
-                                            .isSkippingLine = true};
+                                            .isSkippingStartingLine = true};
 
     switch (this->point_) {
         case Point::E_INITIAL:
@@ -61,7 +61,7 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             configuration.state = LineFollowerState::TURNING_RIGHT;
             configuration.isEventOnThree = false;
             configuration.isTurnInPlace = true;
-            configuration.isSkippingLine = false;
+            configuration.isSkippingStartingLine = false;
             this->point_ = Point::E_FINAL;
             break;
         case Point::I_FROM_G:
