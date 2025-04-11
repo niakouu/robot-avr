@@ -12,7 +12,7 @@ Robot::Robot() noexcept
                    .center = Pin(Pin::Region::A, Pin::Id::P2),
                    .semiRight = Pin(Pin::Region::A, Pin::Id::P3),
                    .right = Pin(Pin::Region::A, Pin::Id::P4)}),
-      midi_(Pin::Region::D, Pin::Id::P4),
+      midi_(Pin::Region::D, Pin::Id::P5),
       extraButton_{Button::Interrupt::I1, false},
       movementManager_(Board::get().getTimer0(),
                        {Pin(Pin::Region::B, Pin::Id::P2, Pin::Direction::OUT),

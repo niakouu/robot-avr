@@ -4,7 +4,7 @@
 #include <util/delay.h>
 
 namespace {
-    constexpr uint8_t DEBOUNCE_MS = 100;
+    constexpr uint8_t DEBOUNCE_MS = 30;
 
     constexpr Pin::Id pinIdForInterrupt(Button::Interrupt interrupt) {
         switch (interrupt) {
@@ -88,6 +88,9 @@ void Button::setPressed() volatile {
     const bool oldValue = this->isPressed_;
 
     this->isPressed_ = this->buttonPin_.read();
+    if (!this->pressedIsHigh_) {
+        this->isPressed_ = !this->isPressed_;
+    }
 
     if (oldValue != this->isPressed_) {
         this->restoreEvent();
