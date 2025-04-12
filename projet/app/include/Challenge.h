@@ -38,7 +38,9 @@ public:
 private:
     static Challenge challenge_;
 
-    uint8_t challengeStateTracker_;
+    bool isTurnLeftFork_[2];
+    uint8_t challengeStateTracker_, buttonCounter_;
+    BidirectionalLed::Color ledColor_;
     LineFollower<uint8_t, TimerPrescalerSynchronous> lineFollower_;
 
     struct StateHolder {
@@ -46,7 +48,7 @@ private:
 
         union Handler {
             uint8_t none;
-            InitializationHandler initialization;
+            //InitializationHandler initialization;
             HouseChallengeHandler house;
             MazeChallengeHandler maze;
             ForkChallengeHandler fork;
@@ -59,12 +61,12 @@ private:
         ~StateHolder();
     } stateHolder_;
 
-    static void initiazliationHandler();
-    static void followLineHandler();
-    static void locateHandler();
-    static void forkChallengeHandler();
-    static void parkHandler();
-    static void finishHandler();
+    void initiazliationHandler();
+    void followLineHandler();
+    void locateHandler();
+    void forkChallengeHandler();
+    void parkHandler();
+    void finishHandler();
 
     Challenge() noexcept;
     ~Challenge() = default;

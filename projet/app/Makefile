@@ -3,7 +3,7 @@ PROJECTNAME = app
 
 SRCSDIR = src
 SRCSCLASS = main.cpp HouseChallengeHandler.cpp Challenge.cpp MazeChallengeHandler.cpp \
-			InitializationHandler.cpp ForkChallengeHandler.cpp
+			ForkChallengeHandler.cpp
 SRCS = $(SRCSCLASS:%=$(SRCSDIR)/%)
 
 RELEASE_LIBS = -L../lib/$(RELEASE_DIR) -lutil

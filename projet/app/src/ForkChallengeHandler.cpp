@@ -31,13 +31,13 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             //  goNextPoint(InitializationHandler::isBPointNorth, lineFollower,
             //  challenge);
 
-            if (InitializationHandler::isBPointNorth) {
-                configuration.state = LineFollowerState::TURNING_LEFT;
-            } else {
-                configuration.state = LineFollowerState::TURNING_RIGHT;
-            }
-            if (configuration.state == LineFollowerState::LOST)
-                currentState_ = ForkChallengeHandler::Point::BToC;
+            // if (InitializationHandler::isBPointNorth) {
+            //     configuration.state = LineFollowerState::TURNING_LEFT;
+            // } else {
+            //     configuration.state = LineFollowerState::TURNING_RIGHT;
+            // }
+            // if (configuration.state == LineFollowerState::LOST)
+            //     currentState_ = ForkChallengeHandler::Point::BToC;
             break;
         case ForkChallengeHandler::Point::BToC:
             configuration.isEventOnThree = false;
@@ -51,13 +51,13 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             break;
         case ForkChallengeHandler::Point::C:
             configuration.isEventOnThree = true;
-            if (InitializationHandler::isCPointNorth) {
-                configuration.state = LineFollowerState::TURNING_LEFT;
-            } else {
-                configuration.state = LineFollowerState::TURNING_RIGHT;
-            }
-            if (configuration.state == LineFollowerState::LOST)
-                currentState_ = ForkChallengeHandler::Point::CToD;
+            // if (InitializationHandler::isCPointNorth) {
+            //     configuration.state = LineFollowerState::TURNING_LEFT;
+            // } else {
+            //     configuration.state = LineFollowerState::TURNING_RIGHT;
+            // }
+            // if (configuration.state == LineFollowerState::LOST)
+            //     currentState_ = ForkChallengeHandler::Point::CToD;
             break;
         case ForkChallengeHandler::Point::CToD:
             configuration.isEventOnThree = false;
