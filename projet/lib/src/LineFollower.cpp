@@ -13,7 +13,7 @@ template <typename T, typename U>
 LineFollower<T, U>::LineFollower(MovementManager<T, U>& movementManager,
                                  LineSensor& lineSensor, float speed)
     : movementManager_(movementManager), lineSensor_(lineSensor), speed_(speed),
-      configuration_{.state = LineFollowerState::STOP} {}
+      configuration_{.state = LineFollowerState::LOST} {}
 
 template <typename T, typename U>
 LineFollower<T, U>::~LineFollower() {

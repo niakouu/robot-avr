@@ -120,6 +120,6 @@ void InitializationHandler::chooseDirection(bool& isPointNorth) {
 
 void InitializationHandler::endingPointHandler(Challenge& challenge) {
     Board::get().getWatchdogTimer().sleep(2000, WatchdogTimer::SleepMode::IDLE);
-    printf("FINISH\n");
+    printf("FINISHED INITIALISATION\n");
     challenge.setState(Challenge::State::FORK_CHALLENGE);
 }

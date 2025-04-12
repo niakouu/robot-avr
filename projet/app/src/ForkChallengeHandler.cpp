@@ -12,71 +12,89 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
         challenge.getLineFollower();
 
-    // if (!lineFollower.isLost())
-    //     return;
+    if (!lineFollower.isLost())
+        return;
 
-    LineFollowerConfiguration configuration{.isAutomatic = true,
-                                            .isEventOnThree = true,
-                                            .isTurnInPlace = false,
-                                            .isSkippingLine = false};
+    LineFollowerConfiguration configuration{
+        .state = LineFollowerState::LOST,
+        .isAutomatic = true,    // Continue toujours forward
+        .isEventOnThree = true, // Lost aussi si 3 allum
+        .isTurnInPlace = false, // surplace
+        .isSkippingLine = false};
 
-    printf("CounterMIDI: %d\n", counterMidiMs);
+    // printf("CounterMIDI: %d\n", counterMidiMs);
+
+    // configuration.state = LineFollowerState::TURNING_LEFT
 
     switch (this->currentState_) {
         case Point::BSound:
             printf("ON EST DANS BSound\n");
-            if (this->counterMidiMs == MIDI_TIME_MS) {
-                Robot::get().getMidi().playNote(80);
-            }
-            
-            if (this->counterMidiMs != 0) {
-                this->counterMidiMs =
-                    cappingSubtract(this->counterMidiMs, deltaTimeMs);
-            } else {
+
+            if (this->counterMidiMs == 0) {
                 Robot::get().getMidi().stop();
+                this->counterMidiMs = MIDI_TIME_MS;
                 currentState_ = Point::B;
+                return;
             }
+
+            if (this->counterMidiMs == MIDI_TIME_MS) {
+                Robot::get().getMidi().playNote(45);
+            }
+
+            this->counterMidiMs =
+                cappingSubtract(this->counterMidiMs, deltaTimeMs);
+
             break;
         case Point::B:
+            currentState_ = Point::BToC;
+    
             printf("ON EST DANS B\n");
-
-            if (InitializationHandler::isBPointNorth)
+            if (true) { // InitializationHandler::isBPointNorth
                 configuration.state = LineFollowerState::TURNING_LEFT;
-            else
+                printf("ON EST DANS B EN TRAIN DE TOURNER A GAUCHE\n");
+            } else {
+                printf("ON EST DANS B EN TRAIN DE TOURNER A DROITE\n");
                 configuration.state = LineFollowerState::TURNING_RIGHT;
-
-            if (configuration.state == LineFollowerState::LOST)
-                currentState_ = Point::BToC;
+            }
 
             break;
+
         case Point::BToC:
             printf("ON EST DANS BToC\n");
 
             configuration.isEventOnThree = false;
             configuration.state = LineFollowerState::FORWARD;
-            if (configuration.state == LineFollowerState::LOST)
-                currentState_ = Point::CSound;
+            currentState_ = Point::CSound;
             break;
         case Point::CSound:
             printf("ON EST DANS CSound\n");
 
-            Robot::get().getMidi().playNote(80);
-            Board::get().getWatchdogTimer().sleep(
-                1000, WatchdogTimer::SleepMode::IDLE);
-            Robot::get().getMidi().stop();
-            currentState_ = Point::C;
+            if (this->counterMidiMs == 0) {
+                Robot::get().getMidi().stop();
+                this->counterMidiMs = MIDI_TIME_MS;
+                currentState_ = Point::C;
+                return;
+            }
+
+            if (this->counterMidiMs == MIDI_TIME_MS) {
+                Robot::get().getMidi().playNote(45);
+            }
+
+            this->counterMidiMs =
+                cappingSubtract(this->counterMidiMs, deltaTimeMs);
+
             break;
         case Point::C:
             printf("ON EST DANS C\n");
 
             configuration.isEventOnThree = true;
-            if (InitializationHandler::isCPointNorth) {
+            if (false) { // InitializationHandler::isCPointNorth
                 configuration.state = LineFollowerState::TURNING_LEFT;
             } else {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
             }
-            if (configuration.state == LineFollowerState::LOST)
-                currentState_ = Point::CToD;
+
+            currentState_ = Point::CToD;
             break;
         case Point::CToD:
             printf("ON EST DANS CToD\n");
@@ -94,6 +112,9 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         default:
             break;
     }
+
+    printf("starting with config: %d\n", static_cast<uint8_t>(configuration.state));
+    lineFollower.start(configuration);
 }
 
 void ForkChallengeHandler::endingPointHandler(Challenge& challenge) {

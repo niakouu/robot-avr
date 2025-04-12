@@ -107,6 +107,8 @@ int main() {
         //     Challenge::get().setState(Challenge::State::MAZE_CHALLENGE);
         // }
 
+        // puts("aa");
+
         Challenge::get().update(UPDATE_DELTA_MS);
 
         // if (Robot::get().getExtraButton().isEvent()) {

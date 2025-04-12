@@ -8,7 +8,7 @@ Challenge::Challenge() noexcept
     : challengeStateTracker_(0),
       lineFollower_(Robot::get().getMovementManager(),
                     Robot::get().getLineSensor(), SPEED),
-      stateHolder_{State::INITIALIZATION} {}
+      stateHolder_{State::FORK_CHALLENGE} {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
