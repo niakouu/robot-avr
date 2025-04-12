@@ -1,7 +1,6 @@
 #include "ForkChallengeHandler.h"
 
 #include "Challenge.h"
-#include "InitializationHandler.h"
 #include "Robot.h"
 
 ForkChallengeHandler::ForkChallengeHandler()
@@ -17,7 +16,7 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollowerConfiguration configuration{.isAutomatic = true,
                                             .isEventOnThree = true,
                                             .isTurnInPlace = false,
-                                            .isSkippingLine = false};
+                                            .isSkippingStartingLine = false};
 
     // printf("ON EST DANS FORK\n");
 
