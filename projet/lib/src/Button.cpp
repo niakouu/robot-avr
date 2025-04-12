@@ -88,6 +88,9 @@ void Button::setPressed() volatile {
     const bool oldValue = this->isPressed_;
 
     this->isPressed_ = this->buttonPin_.read();
+    if (!this->pressedIsHigh_) {
+        this->isPressed_ = !this->isPressed_;
+    }
 
     if (oldValue != this->isPressed_) {
         this->restoreEvent();

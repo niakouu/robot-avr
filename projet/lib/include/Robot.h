@@ -20,9 +20,9 @@ public:
     const BidirectionalLed& getBidirectionalLed() const;
     const LineSensor& getLineSensor() const;
     const Midi& getMidi() const;
-    const Button& getButton() const;
     const Button& getExtraButton() const;
-    const MovementManager<uint8_t, TimerPrescalerSynchronous>& getMovementManager() const;
+    const MovementManager<uint8_t, TimerPrescalerSynchronous>&
+    getMovementManager() const;
 
     Board& getBoard();
     DistanceSensor& getDistanceSensor();
@@ -30,7 +30,6 @@ public:
     LineSensor& getLineSensor();
     Midi& getMidi();
     Button& getExtraButton();
-    Button& getButton();
     MovementManager<uint8_t, TimerPrescalerSynchronous>& getMovementManager();
 
     static constexpr float OFFSET_LEFT = 1.0F;
