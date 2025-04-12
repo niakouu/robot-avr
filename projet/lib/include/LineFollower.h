@@ -42,7 +42,7 @@ public:
 
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
-    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 1000;
+    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 1400;
     
 
     MovementManager<T, U>& movementManager_;
@@ -62,7 +62,7 @@ public: // TODO change this
 
     // Turning values
     uint16_t adjustTimeLeft_;
-    bool isExitingLine_, wasLostAndIsSkippingError_;
+    bool isExitingLine_, wasLostAndIsSkippingError_, hasFoundGuide_;
 
     void forwardHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
     void detectionHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);

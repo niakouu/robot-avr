@@ -154,6 +154,7 @@ template <typename T, typename U>
 void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
                                         uint16_t deltaTimeMs) {
     if (this->switchedState_) {
+        this->hasFoundGuide_ = false;
         this->isExitingLine_ = readings.getDarkLineCount() != 0
                                && this->configuration_.isSkippingStartingLine;
         this->adjustTimeLeft_ =
@@ -171,33 +172,44 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
             cappingSubtract(this->adjustTimeLeft_, deltaTimeMs);
 
         if (this->adjustTimeLeft_ == 0) {
+            const float turnSpeed = this->speed_ * 0.95F;
+
             if (this->configuration_.state == LineFollowerState::TURNING_LEFT) {
                 // this->movementManager_.kickstartMotors(
                 //     KickstartDirection::BACKWARD,
                 //     KickstartDirection::FORWARD, 10);
-                this->movementManager_.moveLeft(this->speed_, 1.0F);
+                this->movementManager_.moveLeft(turnSpeed, 1.0F);
             } else {
                 // this->movementManager_.kickstartMotors(
                 //     KickstartDirection::FORWARD,
                 //     KickstartDirection::BACKWARD, 10);
-                this->movementManager_.moveRight(this->speed_, 1.0F);
+                this->movementManager_.moveRight(turnSpeed, 1.0F);
             }
         }
     } else if (this->isExitingLine_) {
         this->isExitingLine_ = readings.getDarkLineCount() != 0;
-    } else if (readings.getDarkLineCount() != 0) {
+    } else if (readings.getDarkLineCount() != 0 || this->hasFoundGuide_) {
         this->movementManager_.stop();
-        printf("found guide!\n");
-        if (!readings.isCenterDark) {
-            if (readings.getAverage() < 4) {
-                this->movementManager_.moveRight(1.0F, 0.0F);
-            } else {
-                this->movementManager_.moveLeft(1.0F, 0.0F);
-            }
-            this->movementManager_.stop();
+
+        if (!hasFoundGuide_) {
+            printf("found guide!\n");
+            this->hasFoundGuide_ = true;
+            return;
         }
-        this->configuration_.state = this->configuration_.isAutomatic
-                                         ? LineFollowerState::FORWARD
-                                         : LineFollowerState::LOST;
+
+        if (readings.isCenterDark) {
+            this->configuration_.state = this->configuration_.isAutomatic
+                                             ? LineFollowerState::FORWARD
+                                             : LineFollowerState::LOST;
+        } else {
+            if ((readings.getDarkLineCount() != 0 && readings.getAverage() > 0)
+                || (readings.getDarkLineCount() == 0
+                    && this->configuration_.state
+                           == LineFollowerState::TURNING_LEFT)) {
+                this->movementManager_.moveRight(this->speed_ * 0.9F, 1.0F);
+            } else {
+                this->movementManager_.moveLeft(this->speed_ * 0.9F, 1.0F);
+            }
+        }
     }
 }
