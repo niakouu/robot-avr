@@ -10,6 +10,7 @@ public:
     ~HouseChallengeHandler() = default;
 
     void update(uint16_t deltaTimeMs, Challenge& challenge) override;
+    bool isDone() override;
 private:
     enum class Point : uint8_t {
         E_INITIAL, F, G, G_CHECK, H, I_FROM_G, I_FROM_H, E_FINAL, F_FINAL
@@ -19,7 +20,7 @@ private:
     static constexpr uint8_t POLE_READING_COUNT = 10;
 
     Point point_;
-    bool isPolePresent_;
+    bool isPolePresent_, isDone_;
     uint16_t sweepTimeLeftMs_;
 
     uint16_t averagePoleDistance_;

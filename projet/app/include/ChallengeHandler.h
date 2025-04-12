@@ -7,6 +7,7 @@ class Challenge;
 
 class ChallengeHandler {
 public:
+    virtual bool isDone() = 0;
     virtual void update(uint16_t deltaTimeMs, Challenge& challenge) = 0;
 };
 

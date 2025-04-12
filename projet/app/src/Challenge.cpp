@@ -8,21 +8,24 @@ Challenge::Challenge() noexcept
     : challengeStateTracker_(0),
       lineFollower_(Robot::get().getMovementManager(),
                     Robot::get().getLineSensor(), SPEED),
-      stateHolder_{State::INITIALIZATION}, buttonCounter_(0),
-      isTurnLeftFork_{false, false}, ledColor_(BidirectionalLed::Color::OFF) {}
+      switchedState_(true), stateHolder_{State::INITIALIZATION},
+      buttonCounter_(0), nextStateStep_(0), isTurnLeftFork_{false, false},
+      ledColor_(BidirectionalLed::Color::OFF) {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
 }
 
 void Challenge::update(uint16_t deltaTimeMs) {
+    const State lastState = stateHolder_.state;
+    bool done = false;
 
     switch (stateHolder_.state) {
-        case State::INITIALIZATION: 
+        case State::INITIALIZATION:
             initiazliationHandler();
             break;
-        case State::FOLLOW_LINE:
-            followLineHandler();
+        case State::NEXT_STATE:
+            nextStateHandler();
             break;
         case State::LOCATE:
             locateHandler();
@@ -32,10 +35,12 @@ void Challenge::update(uint16_t deltaTimeMs) {
             break;
         case State::HOUSE_CHALLENGE:
             this->stateHolder_.handler.house.update(deltaTimeMs, *this);
+            done = this->stateHolder_.handler.house.isDone();
 
             break;
         case State::MAZE_CHALLENGE:
             this->stateHolder_.handler.maze.update(deltaTimeMs, *this);
+            done = this->stateHolder_.handler.maze.isDone();
             break;
         case State::PARK:
             parkHandler();
@@ -47,15 +52,17 @@ void Challenge::update(uint16_t deltaTimeMs) {
             break;
     }
 
+    if (done) {
+        ++this->challengeStateTracker_;
+
+        this->setState(State::NEXT_STATE);
+    }
+
+    this->switchedState_ = this->stateHolder_.state != lastState;
     this->lineFollower_.update(deltaTimeMs);
 }
 
 void Challenge::setState(State state) {
-    if (this->stateHolder_.state == State::FORK_CHALLENGE
-        || this->stateHolder_.state == State::HOUSE_CHALLENGE
-        || this->stateHolder_.state == State::MAZE_CHALLENGE)
-        ++this->challengeStateTracker_;
-
     this->stateHolder_.~StateHolder();
     new (&this->stateHolder_) StateHolder{state};
 }
@@ -93,17 +100,71 @@ void Challenge::initiazliationHandler() {
         this->isTurnLeftFork_[buttonCounter_] = true;
         bidirectionalLed.setColor(BidirectionalLed::Color::RED);
         ++this->buttonCounter_;
-    } 
+    }
 
     button.consumeEvent();
     extraButton.consumeEvent();
 }
 
-void Challenge::followLineHandler() {}
+void Challenge::nextStateHandler() {
+    if (this->switchedState_) {
+        this->nextStateStep_ = 0;
+    }
+
+    if (this->nextStateStep_ != 0 && !this->lineFollower_.isLost())
+        return;
+
+    LineFollowerConfiguration configuration{.state = LineFollowerState::LOST,
+                                            .isAutomatic = true,
+                                            .isEventOnThree = true,
+                                            .isTurnInPlace = false,
+                                            .isSkippingStartingLine = false};
+
+    switch (this->stateHolder_.state) {
+        case State::FORK_CHALLENGE:
+            if (nextStateStep_ == 0) {
+                configuration.state = LineFollowerState::TURNING_RIGHT;
+            } else {
+                this->setState(State::HOUSE_CHALLENGE);
+            }
+            break;
+        case State::HOUSE_CHALLENGE:
+        case State::MAZE_CHALLENGE:
+            if (nextStateStep_ == 0) {
+                configuration.state = LineFollowerState::FORWARD;
+            } else if (nextStateStep_ == 1) {
+                configuration.state = LineFollowerState::TURNING_RIGHT;
+                configuration.isAutomatic = this->challengeStateTracker_ != 3;
+            } else {
+                if (this->challengeStateTracker_ == 3)
+                    this->setState(State::FINISH);
+                else
+                    this->setState(this->stateHolder_.state
+                                           == State::HOUSE_CHALLENGE
+                                       ? State::MAZE_CHALLENGE
+                                       : State::FORK_CHALLENGE);
+            }
+
+            break;
+    }
+
+    ++nextStateStep_;
+
+    this->lineFollower_.start(configuration);
+}
 
 void Challenge::locateHandler() {
+    if (this->switchedState_) {
+        this->lineFollower_.start(
+            LineFollowerConfiguration{.state = LineFollowerState::FORWARD,
+                                      .isEventOnThree = false});
+    } else if (this->lineFollower_.isLost()) {
+        const uint8_t darkLineCount =
+            Robot::get().getLineSensor().getReadings().getDarkLineCount();
 
-    // TODO LINE FOLLOWER LOGIC
+        this->setState(darkLineCount == 0 ? State::FORK_CHALLENGE
+                                          : State::MAZE_CHALLENGE);
+    }
 }
 
 void Challenge::forkChallengeHandler() {}

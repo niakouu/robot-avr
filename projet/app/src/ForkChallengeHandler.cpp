@@ -72,6 +72,10 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     }
 }
 
+bool ForkChallengeHandler::isDone() {
+    return false;
+}
+
 // void ForkChallengeHandler::goNextPoint(bool& isPointNorth,
 // LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower, Challenge&
 // challenge){

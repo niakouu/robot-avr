@@ -18,7 +18,7 @@ public:
 
     enum class State : uint8_t {
         INITIALIZATION,
-        FOLLOW_LINE,
+        NEXT_STATE,
         LOCATE,
         FORK_CHALLENGE,
         HOUSE_CHALLENGE,
@@ -28,7 +28,6 @@ public:
     };
 
     void update(uint16_t deltaTimeMs);
-    void setState(State state);
 
     LineFollower<uint8_t, TimerPrescalerSynchronous>& getLineFollower();
 
@@ -38,9 +37,10 @@ private:
     static Challenge challenge_;
 
     bool isTurnLeftFork_[2];
-    uint8_t challengeStateTracker_, buttonCounter_;
+    uint8_t challengeStateTracker_, buttonCounter_, nextStateStep_;
     BidirectionalLed::Color ledColor_;
     LineFollower<uint8_t, TimerPrescalerSynchronous> lineFollower_;
+    bool switchedState_;
 
     struct StateHolder {
         State state;
@@ -61,11 +61,13 @@ private:
     } stateHolder_;
 
     void initiazliationHandler();
-    void followLineHandler();
+    void nextStateHandler();
     void locateHandler();
     void forkChallengeHandler();
     void parkHandler();
     void finishHandler();
+
+    void setState(State state);
 
     Challenge() noexcept;
     ~Challenge() = default;

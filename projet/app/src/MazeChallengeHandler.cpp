@@ -4,14 +4,15 @@
 #include "Robot.h"
 
 MazeChallengeHandler::MazeChallengeHandler()
-    : rotateTimeLeftMs_(TURN_TIME_MS), averagePoleDistance_(0), counter_(0),
+    : rotateTimeLeftMs_(TURN_TIME_MS), averagePoleDistance_(0),
+      detectionDanceTimeLeftMs_(0), counter_(0),
       totalReadings_(POLE_READING_COUNT), finishedCalculatingPole_(false),
       poleMap_{false, false, false}, currentStage_(Stage::Stage1),
       orientation_(Orientation::Forward), lane_(Lane::Center),
-      isIntermediateStep_(false), isCheckingInPosition_(false) {}
+      isIntermediateStep_(false), isCheckingInPosition_(false), isDone_(false) {
+}
 
-void MazeChallengeHandler::update(uint16_t /* deltaTimeMs */,
-                                  Challenge& challenge) {
+void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
         challenge.getLineFollower();
 
@@ -28,7 +29,7 @@ void MazeChallengeHandler::update(uint16_t /* deltaTimeMs */,
         const Lane freeLane = this->getFreeLane();
 
         if (this->lane_ == freeLane) {
-            this->handleCurrentLaneIsFreeLane(configuration);
+            this->handleCurrentLaneIsFreeLane(configuration, deltaTimeMs);
         } else if (
             // We move one lane over
             // clang-format off
@@ -53,14 +54,36 @@ void MazeChallengeHandler::update(uint16_t /* deltaTimeMs */,
                 this->handleCheckNextLane(configuration);
         }
     } else {
+        this->isDone_ = true;
+
+        configuration.isAutomatic = false;
         configuration.state = this->orientation_ == Orientation::Forward
                                   ? LineFollowerState::TURNING_RIGHT
                                   : LineFollowerState::FORWARD;
+        
+        if (this->orientation_ == Orientation::Right) {
+            switch (this->lane_)
+            {
+            case Lane::Left:
+                this->lane_ = Lane::Center;
+            case Lane::Center:
+                this->lane_ = Lane::Right;
+                break;
+            case Lane::Right:
+            default:
+                configuration.state = LineFollowerState::STOP;
+                break;
+            }
+        }
     }
 
     this->updateOrientation(configuration.state);
 
     lineFollower.start(configuration);
+}
+
+bool MazeChallengeHandler::isDone() {
+    return this->isDone_;
 }
 
 MazeChallengeHandler::Lane MazeChallengeHandler::getFreeLane() const {
@@ -142,7 +165,13 @@ void MazeChallengeHandler::handleCheckNextLane(
 }
 
 void MazeChallengeHandler::handleCurrentLaneIsFreeLane(
-    LineFollowerConfiguration& configuration) {
+    LineFollowerConfiguration& configuration, uint16_t deltaTimeMs) {
+
+    if (this->orientation_ == Orientation::Forward
+        && !this->isIntermediateStep_) {
+        if (!this->handleDetectionDance(deltaTimeMs))
+            return;
+    }
 
     switch (this->orientation_) {
         case Orientation::Forward:
@@ -247,4 +276,27 @@ void MazeChallengeHandler::resetDistanceValues() {
     this->averagePoleDistance_ = 0;
     this->totalReadings_ = POLE_READING_COUNT;
     this->finishedCalculatingPole_ = false;
+}
+
+bool MazeChallengeHandler::handleDetectionDance(uint16_t deltaTimeMs) {
+    constexpr uint16_t MS_IN_S = 1000U;
+    constexpr uint16_t CYCLE_TIME_MS = (MS_IN_S / FLASH_FREQ) / 2;
+
+    // if (this->detectionDanceTimeLeftMs_ == 0) {
+    //     this->detectionDanceTimeLeftMs_ = FLASH_DURATION;
+    // } else {
+    //     this->detectionDanceTimeLeftMs_ =
+    //         cappingSubtract(this->detectionDanceTimeLeftMs_, deltaTimeMs);
+    // }
+
+    for (uint8_t i = 0; i < FLASH_DURATION_MS / CYCLE_TIME_MS; ++i) {
+        Board::get().getWatchdogTimer().sleep(CYCLE_TIME_MS,
+                                              WatchdogTimer::SleepMode::IDLE);
+
+        Robot::get().getBidirectionalLed().setColor(
+            i % 2 == 0 ? BidirectionalLed::Color::GREEN
+                       : BidirectionalLed::Color::OFF);
+    }
+
+    return true; // this->detectionDanceTimeLeftMs_ != 0;
 }

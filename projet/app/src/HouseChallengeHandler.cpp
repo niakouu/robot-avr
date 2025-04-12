@@ -3,7 +3,7 @@
 #include "Challenge.h"
 
 HouseChallengeHandler::HouseChallengeHandler()
-    : point_(Point::E_INITIAL), isPolePresent_(false),
+    : point_(Point::E_INITIAL), isPolePresent_(false), isDone_(false),
       sweepTimeLeftMs_(SWEEP_TIME_MS), averagePoleDistance_(0),
       totalReadings_(POLE_READING_COUNT) {}
 
@@ -57,7 +57,8 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             this->point_ = Point::I_FROM_H;
             break;
         case Point::I_FROM_H:
-            Robot::get().getMovementManager().kickstartMotors(KickstartDirection::FORWARD, KickstartDirection::FORWARD);
+            Robot::get().getMovementManager().kickstartMotors(
+                KickstartDirection::FORWARD, KickstartDirection::FORWARD);
             configuration.state = LineFollowerState::TURNING_RIGHT;
             configuration.isEventOnThree = false;
             configuration.isTurnInPlace = true;
@@ -74,10 +75,14 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             this->point_ = Point::F_FINAL;
             break;
         case Point::F_FINAL:
-            configuration.state = LineFollowerState::FORWARD;
-            challenge.setState(Challenge::State::FINISH);
+            this->isDone_ = true;
+            configuration.state = LineFollowerState::STOP;
             break;
     }
 
     lineFollower.start(configuration);
+}
+
+bool HouseChallengeHandler::isDone() {
+    return this->isDone_;
 }
