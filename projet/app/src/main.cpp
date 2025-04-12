@@ -104,13 +104,18 @@ int main() {
         //     Challenge::get().setState(Challenge::State::MAZE_CHALLENGE);
         // }
 
+        // puts("aa");
 
         Challenge::get().update(UPDATE_DELTA_MS);
 
-        // _delay_ms(UPDATE_DELTA_MS);
+        // if (Robot::get().getExtraButton().isEvent()) {
+        //     printf("p? %d\n", Robot::get().getExtraButton().isPressed());
 
-        // Board::get().getWatchdogTimer().sleep(UPDATE_DELTA_MS,
-        //                                       WatchdogTimer::SleepMode::IDLE);
+        //     Robot::get().getExtraButton().consumeEvent();
+        // }
+
+        Board::get().getWatchdogTimer().sleep(UPDATE_DELTA_MS,
+                                               WatchdogTimer::SleepMode::IDLE);
     };
 
     return 0;

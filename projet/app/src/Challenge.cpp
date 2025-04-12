@@ -22,16 +22,17 @@ void Challenge::update(uint16_t deltaTimeMs) {
 
     switch (stateHolder_.state) {
         case State::INITIALIZATION:
-            initiazliationHandler();
+            this->initiazliationHandler();
             break;
         case State::NEXT_STATE:
-            nextStateHandler();
+            this->nextStateHandler();
             break;
         case State::LOCATE:
-            locateHandler();
+            this->locateHandler();
             break;
         case State::FORK_CHALLENGE:
-            // this->stateHolder_.handler.fork.update(deltaTimeMs, *this);
+            this->stateHolder_.handler.fork.update(deltaTimeMs, *this);
+            done = this->stateHolder_.handler.fork.isDone();
             break;
         case State::HOUSE_CHALLENGE:
             this->stateHolder_.handler.house.update(deltaTimeMs, *this);
@@ -210,6 +211,7 @@ Challenge::StateHolder::~StateHolder() {
             break;
         case Challenge::State::MAZE_CHALLENGE:
             handler.maze.~MazeChallengeHandler();
+            break;
         case Challenge::State::FORK_CHALLENGE:
             handler.fork.~ForkChallengeHandler();
         default:

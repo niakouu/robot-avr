@@ -30,10 +30,11 @@ public:
     LineSensor& getLineSensor();
     Midi& getMidi();
     Button& getExtraButton();
+    Button& getButton();
     MovementManager<uint8_t, TimerPrescalerSynchronous>& getMovementManager();
 
     static constexpr float OFFSET_LEFT = 1.0F;
-    static constexpr float OFFSET_RIGHT = 1.0F; //0.94F;
+    static constexpr float OFFSET_RIGHT = 1.0F; // 0.94F;
 
 private:
     static Robot robot_;

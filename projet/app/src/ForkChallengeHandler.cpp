@@ -1,10 +1,12 @@
 #include "ForkChallengeHandler.h"
 
 #include "Challenge.h"
+#include "InitializationHandler.h"
 #include "Robot.h"
 
 ForkChallengeHandler::ForkChallengeHandler()
-    : currentState_(ForkChallengeHandler::Point::B), counter_(0) {}
+    : currentState_(ForkChallengeHandler::Point::BSound), counter_(0),
+      isDone_(false), counterMidiMs(MIDI_TIME_MS) {}
 
 void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
@@ -13,83 +15,117 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     if (!lineFollower.isLost())
         return;
 
-    LineFollowerConfiguration configuration{.isAutomatic = true,
-                                            .isEventOnThree = true,
-                                            .isTurnInPlace = false,
-                                            .isSkippingStartingLine = false};
+    LineFollowerConfiguration configuration{
+        .state = LineFollowerState::LOST,
+        .isAutomatic = true,    // Continue toujours forward
+        .isEventOnThree = true, // Lost aussi si 3 allum
+        .isTurnInPlace = false, // surplace
+        .isSkippingStartingLine = false};
 
-    // printf("ON EST DANS FORK\n");
+    // printf("CounterMIDI: %d\n", counterMidiMs);
+
+    // configuration.state = LineFollowerState::TURNING_LEFT
 
     switch (this->currentState_) {
-        case ForkChallengeHandler::Point::BSound:
-            // TODO SOUND
-            currentState_ = ForkChallengeHandler::Point::B;
-            break;
-        case ForkChallengeHandler::Point::B:
-            // TODO SON
-            //  goNextPoint(InitializationHandler::isBPointNorth, lineFollower,
-            //  challenge);
+        case Point::BSound:
+            printf("ON EST DANS BSound\n");
 
-            // if (InitializationHandler::isBPointNorth) {
-            //     configuration.state = LineFollowerState::TURNING_LEFT;
-            // } else {
-            //     configuration.state = LineFollowerState::TURNING_RIGHT;
-            // }
-            // if (configuration.state == LineFollowerState::LOST)
-            //     currentState_ = ForkChallengeHandler::Point::BToC;
+            if (this->counterMidiMs == 0) {
+                Robot::get().getMidi().stop();
+                this->counterMidiMs = MIDI_TIME_MS;
+                currentState_ = Point::B;
+                return;
+            }
+
+            if (this->counterMidiMs == MIDI_TIME_MS) {
+                Robot::get().getMidi().playNote(45);
+            }
+
+            this->counterMidiMs =
+                cappingSubtract(this->counterMidiMs, deltaTimeMs);
+
             break;
-        case ForkChallengeHandler::Point::BToC:
+        case Point::B:
+            currentState_ = Point::BToC;
+
+            printf("ON EST DANS B\n");
+            if (true) { // InitializationHandler::isBPointNorth
+                configuration.state = LineFollowerState::TURNING_LEFT;
+                printf("ON EST DANS B EN TRAIN DE TOURNER A GAUCHE\n");
+            } else {
+                printf("ON EST DANS B EN TRAIN DE TOURNER A DROITE\n");
+                configuration.state = LineFollowerState::TURNING_RIGHT;
+            }
+
+            break;
+
+        case Point::BToC:
+            printf("ON EST DANS BToC\n");
+
             configuration.isEventOnThree = false;
             configuration.state = LineFollowerState::FORWARD;
-            if (configuration.state == LineFollowerState::LOST)
-                currentState_ = ForkChallengeHandler::Point::CSound;
+            currentState_ = Point::CSound;
             break;
-        case ForkChallengeHandler::Point::CSound:
-            // TODO SOUND
-            currentState_ = ForkChallengeHandler::Point::C;
+        case Point::CSound:
+            printf("ON EST DANS CSound\n");
+
+            if (this->counterMidiMs == 0) {
+                Robot::get().getMidi().stop();
+                this->counterMidiMs = MIDI_TIME_MS;
+                currentState_ = Point::C;
+                return;
+            }
+
+            if (this->counterMidiMs == MIDI_TIME_MS) {
+                Robot::get().getMidi().playNote(45);
+            }
+
+            this->counterMidiMs =
+                cappingSubtract(this->counterMidiMs, deltaTimeMs);
+
             break;
-        case ForkChallengeHandler::Point::C:
+        case Point::C:
+            printf("ON EST DANS C\n");
+
             configuration.isEventOnThree = true;
-            // if (InitializationHandler::isCPointNorth) {
-            //     configuration.state = LineFollowerState::TURNING_LEFT;
-            // } else {
-            //     configuration.state = LineFollowerState::TURNING_RIGHT;
-            // }
-            // if (configuration.state == LineFollowerState::LOST)
-            //     currentState_ = ForkChallengeHandler::Point::CToD;
+            if (false) { // InitializationHandler::isCPointNorth
+                configuration.state = LineFollowerState::TURNING_LEFT;
+            } else {
+                configuration.state = LineFollowerState::TURNING_RIGHT;
+            }
+
+            currentState_ = Point::CToTurn;
             break;
-        case ForkChallengeHandler::Point::CToD:
-            configuration.isEventOnThree = false;
-            configuration.state = LineFollowerState::FORWARD;
-            if (configuration.state == LineFollowerState::LOST)
-                currentState_ = ForkChallengeHandler::Point::EXIT;
+        case Point::CToTurn:
+            printf("ON EST DANS CToTurn\n");
+
+            if (false) { // !InitializationHandler::isCPointNorth
+                configuration.state = LineFollowerState::TURNING_RIGHT;
+            } else {
+                configuration.state = LineFollowerState::TURNING_LEFT;
+            }
+
+            currentState_ = Point::EXIT;
+
             break;
-        case ForkChallengeHandler::Point::EXIT:
+        case Point::EXIT:
+            printf("ON EST DANS EXIT\n");
+
             endingPointHandler(challenge);
             break;
         default:
             break;
     }
+
+    printf("starting with config: %d\n",
+           static_cast<uint8_t>(configuration.state));
+    lineFollower.start(configuration);
 }
 
 bool ForkChallengeHandler::isDone() {
-    return false;
+    return this->isDone_;
 }
 
-// void ForkChallengeHandler::goNextPoint(bool& isPointNorth,
-// LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower, Challenge&
-// challenge){
-
-//     printf("ON EST DANS GONEXTPOINT\n");
-
-//     if(isPointNorth){
-//         configuration.state = LineFollowerState::TURNING_LEFT;
-//     }else{
-//         configuration.state = LineFollowerState::TURNING_RIGHT;
-//     }
-
-// }
-
 void ForkChallengeHandler::endingPointHandler(Challenge& challenge) {
-    challenge.setState(Challenge::State::FOLLOW_LINE);
+    this->isDone_ = true;
 }

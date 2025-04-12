@@ -47,7 +47,6 @@ private:
 
         union Handler {
             uint8_t none;
-            //InitializationHandler initialization;
             HouseChallengeHandler house;
             MazeChallengeHandler maze;
             ForkChallengeHandler fork;

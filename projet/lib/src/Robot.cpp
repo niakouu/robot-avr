@@ -12,7 +12,7 @@ Robot::Robot() noexcept
                    .center = Pin(Pin::Region::A, Pin::Id::P2),
                    .semiRight = Pin(Pin::Region::A, Pin::Id::P3),
                    .right = Pin(Pin::Region::A, Pin::Id::P4)}),
-      midi_(Pin::Region::D, Pin::Id::P4),
+      midi_(Pin::Region::D, Pin::Id::P7),
       extraButton_{Button::Interrupt::I1, false},
       movementManager_(Board::get().getTimer0(),
                        {Pin(Pin::Region::B, Pin::Id::P2, Pin::Direction::OUT),
@@ -50,6 +50,7 @@ const Button& Robot::getExtraButton() const {
     return this->extraButton_;
 }
 
+
 const MovementManager<uint8_t, TimerPrescalerSynchronous>&
 Robot::getMovementManager() const {
     return this->movementManager_;
@@ -75,9 +76,15 @@ Midi& Robot::getMidi() {
     return this->midi_;
 }
 
+ Button& Robot::getButton()  {
+    return this->board_.getButton();
+}
+
+
 Button& Robot::getExtraButton() {
     return this->extraButton_;
 }
+
 
 MovementManager<uint8_t, TimerPrescalerSynchronous>&
 Robot::getMovementManager() {

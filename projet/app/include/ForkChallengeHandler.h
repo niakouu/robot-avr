@@ -8,22 +8,23 @@
 
 class ForkChallengeHandler : ChallengeHandler {
 public:
-ForkChallengeHandler();
+    ForkChallengeHandler();
     ~ForkChallengeHandler() = default;
     void update(uint16_t deltaTimeMs, Challenge& challenge) override;
     bool isDone() override;
 
 private:
-    enum class Point : uint8_t { BSound,B,BToC,CSound,C,CToD, EXIT };
-
+    enum class Point : uint8_t { BSound, B, BToC, CSound, C, CToTurn,TurnToD, EXIT };
 
     Point currentState_;
     uint8_t counter_;
+    bool isDone_;
 
-    void rotate(bool left, uint16_t deltaTimeMs, uint16_t turnTimeMs);
+
     void endingPointHandler(Challenge& challenge);
-    void goNextPoint(bool& isPointNorth, LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower, Challenge& challenge);
+    uint16_t counterMidiMs;
 
+    static constexpr const uint16_t MIDI_TIME_MS = 300;
 };
 
 #endif /* _FORK_CHALLENGE_HANDLER_H */
