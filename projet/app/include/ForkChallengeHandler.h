@@ -13,7 +13,7 @@ public:
     void update(uint16_t deltaTimeMs, Challenge& challenge) override;
 
 private:
-    enum class Point : uint8_t { BSound, B, BToC, CSound, C, CToD, EXIT };
+    enum class Point : uint8_t { BSound, B, BToC, CSound, C, CToTurn,TurnToD, EXIT };
 
     Point currentState_;
     uint8_t counter_;

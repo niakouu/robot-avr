@@ -5,7 +5,7 @@
 #include "Robot.h"
 
 ForkChallengeHandler::ForkChallengeHandler()
-    : currentState_(ForkChallengeHandler::Point::BSound), counter_(0),
+    : currentState_(ForkChallengeHandler::Point::BSound), counter_(0), /
       counterMidiMs(MIDI_TIME_MS) {}
 
 void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
@@ -94,15 +94,19 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
             }
 
-            currentState_ = Point::CToD;
+            currentState_ = Point::CToTurn;
             break;
-        case Point::CToD:
-            printf("ON EST DANS CToD\n");
+        case Point::CToTurn:
+            printf("ON EST DANS CToTurn\n");
+            
+            if (false) { // !InitializationHandler::isCPointNorth
+                configuration.state = LineFollowerState::TURNING_RIGHT;
+            } else {
+                configuration.state = LineFollowerState::TURNING_LEFT;
+            }
 
-            configuration.isEventOnThree = false;
-            configuration.state = LineFollowerState::FORWARD;
-            if (configuration.state == LineFollowerState::LOST)
-                currentState_ = Point::EXIT;
+            currentState_ = Point::EXIT;
+
             break;
         case Point::EXIT:
             printf("ON EST DANS EXIT\n");
