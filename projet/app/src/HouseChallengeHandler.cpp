@@ -16,8 +16,8 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
     LineFollowerConfiguration configuration{.isAutomatic = true,
                                             .isEventOnThree = true,
-                                            .isTurnInPlace = false,
-                                            .isSkippingStartingLine = true};
+                                            .isSkippingStartingLine = true,
+                                            .adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
 
     switch (this->point_) {
         case Point::E_INITIAL:
@@ -30,6 +30,7 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             break;
         case Point::G:
             configuration.state = LineFollowerState::TURNING_RIGHT;
+            configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
             configuration.isAutomatic = false;
             this->point_ = Point::G_CHECK;
             break;
@@ -45,7 +46,7 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
             if (this->averagePoleDistance_ < 15) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
-                configuration.isTurnInPlace = true;
+                configuration.adjustTimeMs = 0;
                 this->point_ = Point::I_FROM_G;
             } else {
                 configuration.state = LineFollowerState::FORWARD;
@@ -61,13 +62,14 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
                 KickstartDirection::FORWARD, KickstartDirection::FORWARD);
             configuration.state = LineFollowerState::TURNING_RIGHT;
             configuration.isEventOnThree = false;
-            configuration.isTurnInPlace = true;
+            configuration.adjustTimeMs = 0;
             configuration.isSkippingStartingLine = false;
             this->point_ = Point::E_FINAL;
             break;
         case Point::I_FROM_G:
             configuration.state = LineFollowerState::TURNING_RIGHT;
             configuration.isEventOnThree = false;
+            configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
             this->point_ = Point::E_FINAL;
             break;
         case Point::E_FINAL:

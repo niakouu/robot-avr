@@ -37,7 +37,6 @@ void Challenge::update(uint16_t deltaTimeMs) {
         case State::HOUSE_CHALLENGE:
             this->stateHolder_.handler.house.update(deltaTimeMs, *this);
             done = this->stateHolder_.handler.house.isDone();
-
             break;
         case State::MAZE_CHALLENGE:
             this->stateHolder_.handler.maze.update(deltaTimeMs, *this);
@@ -64,12 +63,17 @@ void Challenge::update(uint16_t deltaTimeMs) {
 }
 
 void Challenge::setState(State state) {
+    this->previousState_ = this->stateHolder_.state;
     this->stateHolder_.~StateHolder();
     new (&this->stateHolder_) StateHolder{state};
 }
 
 LineFollower<uint8_t, TimerPrescalerSynchronous>& Challenge::getLineFollower() {
     return this->lineFollower_;
+}
+
+bool Challenge::isTurnLeftFork(bool first) const {
+    return this->isTurnLeftFork_[first ? 0 : 1];
 }
 
 void Challenge::initiazliationHandler() {
@@ -84,7 +88,7 @@ void Challenge::initiazliationHandler() {
 
     if (this->buttonCounter_ == 2) {
         bidirectionalLed.setColor(BidirectionalLed::Color::OFF);
-        this->setState(State::FORK_CHALLENGE);
+        this->setState(State::LOCATE);
         return;
     }
 
@@ -115,13 +119,16 @@ void Challenge::nextStateHandler() {
     if (this->nextStateStep_ != 0 && !this->lineFollower_.isLost())
         return;
 
-    LineFollowerConfiguration configuration{.state = LineFollowerState::LOST,
-                                            .isAutomatic = true,
-                                            .isEventOnThree = true,
-                                            .isTurnInPlace = false,
-                                            .isSkippingStartingLine = false};
+    printf("next step:%d\n", this->nextStateStep_);
+    LineFollowerConfiguration configuration{
+        .state = LineFollowerState::LOST,
+        .isAutomatic = true,
+        .isEventOnThree = true,
+        .isSkippingStartingLine = false,
+        .adjustTimeMs =
+            LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
 
-    switch (this->stateHolder_.state) {
+    switch (this->previousState_) {
         case State::FORK_CHALLENGE:
             if (nextStateStep_ == 0) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
@@ -136,16 +143,18 @@ void Challenge::nextStateHandler() {
             } else if (nextStateStep_ == 1) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
                 configuration.isAutomatic = this->challengeStateTracker_ != 3;
+                configuration.isEventOnThree = false;
             } else {
                 if (this->challengeStateTracker_ == 3)
                     this->setState(State::FINISH);
                 else
-                    this->setState(this->stateHolder_.state
-                                           == State::HOUSE_CHALLENGE
+                    this->setState(previousState_ == State::HOUSE_CHALLENGE
                                        ? State::MAZE_CHALLENGE
                                        : State::FORK_CHALLENGE);
             }
 
+            break;
+        default:
             break;
     }
 

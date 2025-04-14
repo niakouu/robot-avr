@@ -33,6 +33,8 @@ public:
 
     static constexpr float SPEED = 0.5F;
 
+    bool isTurnLeftFork(bool first) const;
+
 private:
     static Challenge challenge_;
 
@@ -41,6 +43,7 @@ private:
     BidirectionalLed::Color ledColor_;
     LineFollower<uint8_t, TimerPrescalerSynchronous> lineFollower_;
     bool switchedState_;
+    State previousState_;
 
     struct StateHolder {
         State state;

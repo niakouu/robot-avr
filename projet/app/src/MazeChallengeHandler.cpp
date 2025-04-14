@@ -22,11 +22,13 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollowerConfiguration configuration{.state = LineFollowerState::LOST,
                                             .isAutomatic = true,
                                             .isEventOnThree = true,
-                                            .isTurnInPlace = false,
-                                            .isSkippingStartingLine = true};
+                                            .isSkippingStartingLine = true,
+                                            .adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
+
 
     if (this->currentStage_ != Stage::End) {
         const Lane freeLane = this->getFreeLane();
+        printf("stage: %s o:%s l:%s f:%s\n", toString(this->currentStage_), toString(this->orientation_), toString(this->lane_), toString(freeLane));
 
         if (this->lane_ == freeLane) {
             this->handleCurrentLaneIsFreeLane(configuration, deltaTimeMs);
@@ -46,11 +48,11 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             || (this->lane_ == Lane::Right && freeLane == Lane::Left)) {
             this->handleFarLaneIsFreeLane(configuration);
         } else if (freeLane == Lane::Invalid) {
-            if (this->orientation_ == Orientation::Forward
-                && !handleDetection())
-                return;
+            bool finishedDetecting = true;
+            if (this->orientation_ == Orientation::Forward)
+                finishedDetecting = handleDetection(configuration);
 
-            if (this->getFreeLane() == Lane::Invalid)
+            if (finishedDetecting && this->getFreeLane() == Lane::Invalid)
                 this->handleCheckNextLane(configuration);
         }
     } else {
@@ -79,6 +81,7 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
     this->updateOrientation(configuration.state);
 
+    printf("  -> s: %s\n", toString(configuration.state));
     lineFollower.start(configuration);
 }
 
@@ -99,12 +102,19 @@ MazeChallengeHandler::Lane MazeChallengeHandler::getFreeLane() const {
     return Lane::Invalid;
 }
 
-bool MazeChallengeHandler::handleDetection() {
+bool MazeChallengeHandler::handleDetection(LineFollowerConfiguration& configuration) {
+    if (Robot::get().getLineSensor().getReadings().getDarkLineCount() > 2) {
+        configuration.state = LineFollowerState::ALIGN;
+        configuration.isAutomatic = false;
+        return false;
+    }
+
     if (!this->finishedCalculatingPole_) {
         this->calculatePoleDistance();
         return false;
     }
 
+    printf("distance: %d\n", this->averagePoleDistance_);
     const bool isPolePresent = this->isPolePresent(DISTANCE_TO_CENTER);
 
     switch (this->lane_) {
@@ -135,7 +145,11 @@ bool MazeChallengeHandler::handleDetection() {
 void MazeChallengeHandler::handleCheckNextLane(
     LineFollowerConfiguration& configuration) {
     configuration.isAutomatic = false;
-    configuration.isTurnInPlace = false;
+    configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
+
+    if (this->poleMap_.left || this->poleMap_.center || this->poleMap_.right)
+        configuration.adjustTimeMs = 0;
+
     configuration.isSkippingStartingLine = true;
 
     const bool shouldCheckRight = this->lane_ == Lane::Left;
@@ -187,7 +201,7 @@ void MazeChallengeHandler::handleCurrentLaneIsFreeLane(
 
     configuration.isEventOnThree = true;
     configuration.isAutomatic = true;
-    configuration.isTurnInPlace = false;
+    configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
 
     this->isIntermediateStep_ = !this->isIntermediateStep_;
     if (!this->isIntermediateStep_) {
@@ -208,7 +222,7 @@ void MazeChallengeHandler::handleNextLaneIsFreeLane(
     const Lane freeLane = this->getFreeLane();
 
     configuration.isAutomatic = false;
-    configuration.isTurnInPlace = false;
+    configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
     configuration.isSkippingStartingLine = true;
     configuration.isEventOnThree =
         this->currentStage_ == Stage::Stage1 && this->lane_ == Lane::Center;
@@ -228,7 +242,7 @@ void MazeChallengeHandler::handleNextLaneIsFreeLane(
 void MazeChallengeHandler::handleFarLaneIsFreeLane(
     LineFollowerConfiguration& configuration) {
     configuration.isAutomatic = true;
-    configuration.isTurnInPlace = true;
+    configuration.adjustTimeMs = 0;
     configuration.isSkippingStartingLine = true;
 
     configuration.state = this->lane_ == Lane::Left

@@ -6,7 +6,7 @@
 
 enum class LineFollowerState : uint8_t {
     FORWARD,
-    DETECTION,
+    ALIGN,
     TURNING_LEFT,
     TURNING_RIGHT,
     LOST,
@@ -17,8 +17,11 @@ struct LineFollowerConfiguration {
     LineFollowerState state;
     bool isAutomatic : 1;
     bool isEventOnThree : 1;
-    bool isTurnInPlace : 1;
     bool isSkippingStartingLine : 1;
+    uint16_t adjustTimeMs;
+
+    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_SHORT_MS = 800;
+    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_LONG_MS = 1400;
 };
 
 template <typename T, typename U>
@@ -42,8 +45,7 @@ public:
 
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
-    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_MS = 1400;
-    
+    static const constexpr uint16_t ALIGN_TIME_MS = 200;
 
     MovementManager<T, U>& movementManager_;
     LineSensor& lineSensor_;
@@ -61,11 +63,11 @@ public: // TODO change this
     int16_t integralComponent_;
 
     // Turning values
-    uint16_t adjustTimeLeft_;
+    uint16_t adjustTimeLeft_, alignTimeLeft_;
     bool isExitingLine_, wasLostAndIsSkippingError_, hasFoundGuide_;
 
     void forwardHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
-    void detectionHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
+    void alignHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
     void lostHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
     void turningHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
 };

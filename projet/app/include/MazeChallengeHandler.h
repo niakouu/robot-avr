@@ -15,8 +15,8 @@ public:
 
 private:
     static constexpr uint16_t TURN_TIME_MS = 250U;
-    static constexpr uint8_t DISTANCE_TO_CENTER = 33U;
-    static constexpr uint8_t DISTANCE_TO_DIAGONAL = 33U;
+    static constexpr uint8_t DISTANCE_TO_CENTER = 45U;
+    static constexpr uint8_t DISTANCE_TO_DIAGONAL = 45U;
     static constexpr uint8_t POLE_READING_COUNT = 10U;
     static constexpr uint8_t FLASH_FREQ = 4U;
     static constexpr uint16_t FLASH_DURATION_MS = 2000U;
@@ -59,7 +59,7 @@ private:
 
     Lane getFreeLane() const;
 
-    bool handleDetection();
+    bool handleDetection(LineFollowerConfiguration& configuration);
     void handleCheckNextLane(LineFollowerConfiguration& configuration);
     void handleCurrentLaneIsFreeLane(LineFollowerConfiguration& configuration, uint16_t deltaTimeMs);
     void handleNextLaneIsFreeLane(LineFollowerConfiguration& configuration);
@@ -72,6 +72,66 @@ private:
     void resetDistanceValues();
 
     bool handleDetectionDance(uint16_t deltaTimeMs);
+
+    const char* toString(MazeChallengeHandler::Stage stage) {
+        switch (stage) {
+            case MazeChallengeHandler::Stage::Stage1:
+                return "Stage1";
+            case MazeChallengeHandler::Stage::Stage2:
+                return "Stage2";
+            case MazeChallengeHandler::Stage::End:
+                return "End";
+            default:
+                return "UNKNOWN";
+        }
+    }
+    
+    const char* toString(LineFollowerState state) {
+        switch (state) {
+            case LineFollowerState::FORWARD:
+                return "FORWARD";
+            case LineFollowerState::ALIGN:
+                return "ALIGN";
+            case LineFollowerState::TURNING_LEFT:
+                return "TURNING_LEFT";
+            case LineFollowerState::TURNING_RIGHT:
+                return "TURNING_RIGHT";
+            case LineFollowerState::LOST:
+                return "LOST";
+            case LineFollowerState::STOP:
+                return "STOP";
+            default:
+                return "UNKNOWN";
+        }
+    }
+    
+    const char* toString(MazeChallengeHandler::Lane lane) {
+        switch (lane) {
+            case MazeChallengeHandler::Lane::Left:
+                return "Left";
+            case MazeChallengeHandler::Lane::Center:
+                return "Center";
+            case MazeChallengeHandler::Lane::Right:
+                return "Right";
+            case MazeChallengeHandler::Lane::Invalid:
+                return "Invalid";
+            default:
+                return "UNKNOWN";
+        }
+    }
+    
+    const char* toString(MazeChallengeHandler::Orientation orientation) {
+        switch (orientation) {
+            case MazeChallengeHandler::Orientation::Left:
+                return "Left";
+            case MazeChallengeHandler::Orientation::Forward:
+                return "Forward";
+            case MazeChallengeHandler::Orientation::Right:
+                return "Right";
+            default:
+                return "UNKNOWN";
+        }
+    }
 };
 
 #endif /* _MAZE_CHALLENGE_HANDLER_H */
