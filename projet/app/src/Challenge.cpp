@@ -123,6 +123,7 @@ void Challenge::nextStateHandler() {
     LineFollowerConfiguration configuration{
         .state = LineFollowerState::LOST,
         .isAutomatic = true,
+        .isAlignAfterTurn = false,
         .isEventOnThree = true,
         .isSkippingStartingLine = false,
         .adjustTimeMs =
@@ -223,6 +224,7 @@ Challenge::StateHolder::~StateHolder() {
             break;
         case Challenge::State::FORK_CHALLENGE:
             handler.fork.~ForkChallengeHandler();
+            break;
         default:
             break;
     }

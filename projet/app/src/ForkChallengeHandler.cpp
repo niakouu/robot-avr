@@ -18,6 +18,7 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollowerConfiguration configuration{
         .state = LineFollowerState::LOST,
         .isAutomatic = true,     // Continue toujours forward
+        .isAlignAfterTurn = false,
         .isEventOnThree = false, // Lost aussi si 3 allum
         .isSkippingStartingLine = false,
         .adjustTimeMs =
@@ -31,8 +32,6 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
     switch (this->currentState_) {
         case Point::BSound:
-            printf("ON EST DANS BSound\n");
-
             if (this->counterMidiMs == 0) {
                 Robot::get().getMidi().stop();
                 this->counterMidiMs = MIDI_TIME_MS;
@@ -52,12 +51,9 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             currentState_ = Point::BToC;
             configuration.isEventOnThree = true;
 
-            printf("ON EST DANS B\n");
             if (Challenge::get().isTurnLeftFork(true)) {
                 configuration.state = LineFollowerState::TURNING_LEFT;
-                printf("ON EST DANS B EN TRAIN DE TOURNER A GAUCHE\n");
             } else {
-                printf("ON EST DANS B EN TRAIN DE TOURNER A DROITE\n");
                 configuration.state = LineFollowerState::TURNING_RIGHT;
             }
 
@@ -120,7 +116,11 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         case Point::EXIT:
             printf("ON EST DANS EXIT\n");
 
-            endingPointHandler(challenge);
+            configuration.state = LineFollowerState::FORWARD;
+            if (darkLineCount == 0) {
+                configuration.state = LineFollowerState::LOST;
+                endingPointHandler(challenge);
+            }
             break;
         default:
             break;

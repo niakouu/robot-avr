@@ -19,16 +19,20 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     if (!lineFollower.isLost())
         return;
 
-    LineFollowerConfiguration configuration{.state = LineFollowerState::LOST,
-                                            .isAutomatic = true,
-                                            .isEventOnThree = true,
-                                            .isSkippingStartingLine = true,
-                                            .adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
-
+    LineFollowerConfiguration configuration{
+        .state = LineFollowerState::LOST,
+        .isAutomatic = true,
+        .isAlignAfterTurn = false,
+        .isEventOnThree = true,
+        .isSkippingStartingLine = true,
+        .adjustTimeMs =
+            LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
 
     if (this->currentStage_ != Stage::End) {
         const Lane freeLane = this->getFreeLane();
-        printf("stage: %s o:%s l:%s f:%s\n", toString(this->currentStage_), toString(this->orientation_), toString(this->lane_), toString(freeLane));
+        printf("stage: %s o:%s l:%s f:%s\n", toString(this->currentStage_),
+               toString(this->orientation_), toString(this->lane_),
+               toString(freeLane));
 
         if (this->lane_ == freeLane) {
             this->handleCurrentLaneIsFreeLane(configuration, deltaTimeMs);
@@ -49,32 +53,32 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             this->handleFarLaneIsFreeLane(configuration);
         } else if (freeLane == Lane::Invalid) {
             bool finishedDetecting = true;
+            const PoleMap previousPoleMap = this->poleMap_;
             if (this->orientation_ == Orientation::Forward)
                 finishedDetecting = handleDetection(configuration);
 
             if (finishedDetecting && this->getFreeLane() == Lane::Invalid)
-                this->handleCheckNextLane(configuration);
+                this->handleCheckNextLane(configuration, previousPoleMap);
         }
     } else {
-        this->isDone_ = true;
-
         configuration.isAutomatic = false;
         configuration.state = this->orientation_ == Orientation::Forward
                                   ? LineFollowerState::TURNING_RIGHT
                                   : LineFollowerState::FORWARD;
-        
+
         if (this->orientation_ == Orientation::Right) {
-            switch (this->lane_)
-            {
-            case Lane::Left:
-                this->lane_ = Lane::Center;
-            case Lane::Center:
-                this->lane_ = Lane::Right;
-                break;
-            case Lane::Right:
-            default:
-                configuration.state = LineFollowerState::STOP;
-                break;
+            switch (this->lane_) {
+                case Lane::Left:
+                    this->lane_ = Lane::Center;
+                    break;
+                case Lane::Center:
+                    this->lane_ = Lane::Right;
+                    break;
+                case Lane::Right:
+                default:
+                    configuration.state = LineFollowerState::STOP;
+                    this->isDone_ = true;
+                    break;
             }
         }
     }
@@ -102,7 +106,8 @@ MazeChallengeHandler::Lane MazeChallengeHandler::getFreeLane() const {
     return Lane::Invalid;
 }
 
-bool MazeChallengeHandler::handleDetection(LineFollowerConfiguration& configuration) {
+bool MazeChallengeHandler::handleDetection(
+    LineFollowerConfiguration& configuration) {
     if (Robot::get().getLineSensor().getReadings().getDarkLineCount() > 2) {
         configuration.state = LineFollowerState::ALIGN;
         configuration.isAutomatic = false;
@@ -143,12 +148,17 @@ bool MazeChallengeHandler::handleDetection(LineFollowerConfiguration& configurat
 }
 
 void MazeChallengeHandler::handleCheckNextLane(
-    LineFollowerConfiguration& configuration) {
+    LineFollowerConfiguration& configuration, const PoleMap& previousPoleMap) {
     configuration.isAutomatic = false;
     configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
 
-    if (this->poleMap_.left || this->poleMap_.center || this->poleMap_.right)
-        configuration.adjustTimeMs = 0;
+    if (previousPoleMap.left || previousPoleMap.center
+        || previousPoleMap.right) {
+        configuration.adjustTimeMs =
+            this->orientation_ == Orientation::Forward
+                ? 0
+                : LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
+    }
 
     configuration.isSkippingStartingLine = true;
 
@@ -160,6 +170,7 @@ void MazeChallengeHandler::handleCheckNextLane(
                                   ? LineFollowerState::TURNING_RIGHT
                                   : LineFollowerState::TURNING_LEFT;
     } else {
+        configuration.isAlignAfterTurn = true;
         configuration.state = shouldCheckRight
                                   ? LineFollowerState::TURNING_LEFT
                                   : LineFollowerState::TURNING_RIGHT;
@@ -201,7 +212,8 @@ void MazeChallengeHandler::handleCurrentLaneIsFreeLane(
 
     configuration.isEventOnThree = true;
     configuration.isAutomatic = true;
-    configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
+    configuration.adjustTimeMs =
+        LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
 
     this->isIntermediateStep_ = !this->isIntermediateStep_;
     if (!this->isIntermediateStep_) {
@@ -222,7 +234,8 @@ void MazeChallengeHandler::handleNextLaneIsFreeLane(
     const Lane freeLane = this->getFreeLane();
 
     configuration.isAutomatic = false;
-    configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
+    configuration.adjustTimeMs =
+        LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
     configuration.isSkippingStartingLine = true;
     configuration.isEventOnThree =
         this->currentStage_ == Stage::Stage1 && this->lane_ == Lane::Center;

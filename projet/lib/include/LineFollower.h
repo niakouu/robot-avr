@@ -16,6 +16,7 @@ enum class LineFollowerState : uint8_t {
 struct LineFollowerConfiguration {
     LineFollowerState state;
     bool isAutomatic : 1;
+    bool isAlignAfterTurn : 1;
     bool isEventOnThree : 1;
     bool isSkippingStartingLine : 1;
     uint16_t adjustTimeMs;
@@ -46,6 +47,7 @@ public:
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
     static const constexpr uint16_t ALIGN_TIME_MS = 200;
+    static const constexpr uint8_t ALIGN_MAX_ATTEMPTS = 10;
 
     MovementManager<T, U>& movementManager_;
     LineSensor& lineSensor_;
@@ -65,6 +67,7 @@ public: // TODO change this
     // Turning values
     uint16_t adjustTimeLeft_, alignTimeLeft_;
     bool isExitingLine_, wasLostAndIsSkippingError_, hasFoundGuide_;
+    uint8_t alignAttemptsLeft_;
 
     void forwardHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
     void alignHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);

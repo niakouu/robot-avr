@@ -130,6 +130,7 @@ void LineFollower<T, U>::alignHandler(LineSensor::Readings readings,
                                       uint16_t deltaTimeMs) {
     if (this->switchedState_) {
         this->alignTimeLeft_ = ALIGN_TIME_MS;
+        this->alignAttemptsLeft_ = ALIGN_MAX_ATTEMPTS;
     }
 
     printf("align!!\n");
@@ -145,12 +146,13 @@ void LineFollower<T, U>::alignHandler(LineSensor::Readings readings,
     }
 
     if (this->alignTimeLeft_ != 0) {
-        this->alignTimeLeft_ = cappingSubtract(this->alignTimeLeft_, deltaTimeMs);
+        this->alignTimeLeft_ =
+            cappingSubtract(this->alignTimeLeft_, deltaTimeMs);
 
         if (this->alignTimeLeft_ == 0) {
             this->movementManager_.stop();
         }
-    } else if (readings.isCenterDark && readings.getDarkLineCount() == 1) {
+    } else if ((readings.isCenterDark && readings.getDarkLineCount() == 1) || --alignAttemptsLeft_ == 0) {
         printf("done\n");
         this->configuration_.state = this->configuration_.isAutomatic
                                          ? LineFollowerState::FORWARD
@@ -158,9 +160,9 @@ void LineFollower<T, U>::alignHandler(LineSensor::Readings readings,
     } else {
         this->alignTimeLeft_ = ALIGN_TIME_MS;
         if (readings.getAverage() > 0) {
-            this->movementManager_.moveRight(0.35, 1.0F);
+            this->movementManager_.moveRight(this->speed_ * 0.9F, 1.0F);
         } else {
-            this->movementManager_.moveLeft(0.35, 1.0F);
+            this->movementManager_.moveLeft(this->speed_ * 0.9F, 1.0F);
         }
     }
 }
@@ -229,6 +231,11 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
             return;
         }
 
-        this->configuration_.state = LineFollowerState::ALIGN;
+        if (this->configuration_.isAlignAfterTurn)
+            this->configuration_.state = LineFollowerState::ALIGN;
+        else if (this->configuration_.isAutomatic)
+            this->configuration_.state = LineFollowerState::FORWARD;
+        else
+            this->configuration_.state = LineFollowerState::LOST;
     }
 }

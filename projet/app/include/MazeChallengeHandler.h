@@ -60,7 +60,7 @@ private:
     Lane getFreeLane() const;
 
     bool handleDetection(LineFollowerConfiguration& configuration);
-    void handleCheckNextLane(LineFollowerConfiguration& configuration);
+    void handleCheckNextLane(LineFollowerConfiguration& configuration, const PoleMap& previousPoleMap);
     void handleCurrentLaneIsFreeLane(LineFollowerConfiguration& configuration, uint16_t deltaTimeMs);
     void handleNextLaneIsFreeLane(LineFollowerConfiguration& configuration);
     void handleFarLaneIsFreeLane(LineFollowerConfiguration& configuration);

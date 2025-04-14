@@ -14,10 +14,13 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     if (!lineFollower.isLost())
         return;
 
-    LineFollowerConfiguration configuration{.isAutomatic = true,
-                                            .isEventOnThree = true,
-                                            .isSkippingStartingLine = true,
-                                            .adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
+    LineFollowerConfiguration configuration{
+        .isAutomatic = true,
+        .isAlignAfterTurn = false,
+        .isEventOnThree = true,
+        .isSkippingStartingLine = true,
+        .adjustTimeMs =
+            LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
 
     switch (this->point_) {
         case Point::E_INITIAL:
@@ -30,8 +33,11 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             break;
         case Point::G:
             configuration.state = LineFollowerState::TURNING_RIGHT;
-            configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
+            configuration.adjustTimeMs =
+                LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
             configuration.isAutomatic = false;
+            configuration.isAlignAfterTurn = true;
+            configuration.isSkippingStartingLine = false;
             this->point_ = Point::G_CHECK;
             break;
         case Point::G_CHECK:
@@ -69,7 +75,8 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         case Point::I_FROM_G:
             configuration.state = LineFollowerState::TURNING_RIGHT;
             configuration.isEventOnThree = false;
-            configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
+            configuration.adjustTimeMs =
+                LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
             this->point_ = Point::E_FINAL;
             break;
         case Point::E_FINAL:
