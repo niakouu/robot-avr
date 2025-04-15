@@ -30,9 +30,6 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
     if (this->currentStage_ != Stage::End) {
         const Lane freeLane = this->getFreeLane();
-        printf("stage: %s o:%s l:%s f:%s\n", toString(this->currentStage_),
-               toString(this->orientation_), toString(this->lane_),
-               toString(freeLane));
 
         if (this->lane_ == freeLane) {
             this->handleCurrentLaneIsFreeLane(configuration, deltaTimeMs);
@@ -85,7 +82,6 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
     this->updateOrientation(configuration.state);
 
-    printf("  -> s: %s\n", toString(configuration.state));
     lineFollower.start(configuration);
 }
 
@@ -119,7 +115,6 @@ bool MazeChallengeHandler::handleDetection(
         return false;
     }
 
-    printf("distance: %d\n", this->averagePoleDistance_);
     const bool isPolePresent = this->isPolePresent(DISTANCE_TO_CENTER);
 
     switch (this->lane_) {

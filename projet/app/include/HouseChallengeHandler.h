@@ -2,6 +2,7 @@
 #define _HOUSE_CHALLENGE_HANDLER_H
 
 #include "ChallengeHandler.h"
+#include "Led.h"
 
 class HouseChallengeHandler : ChallengeHandler
 {
@@ -16,15 +17,18 @@ private:
         E_INITIAL, F, G, G_CHECK, H, I_FROM_G, I_FROM_H, E_FINAL, F_FINAL
     };
 
-    static constexpr uint16_t SWEEP_TIME_MS = 1000;
-    static constexpr uint8_t POLE_READING_COUNT = 10;
+    static constexpr uint8_t POLE_READING_COUNT = 10U;
+    static constexpr uint8_t FLASH_FREQ = 4U;
+    static constexpr uint16_t FLASH_DURATION_MS = 2000U;
+    static constexpr uint8_t POLE_DISTANCE = 15U;
 
     Point point_;
     bool isPolePresent_, isDone_;
-    uint16_t sweepTimeLeftMs_;
 
     uint16_t averagePoleDistance_;
     uint8_t totalReadings_;
+
+    static void flashLed(BidirectionalLed::Color color);
 };
 
 #endif /* _HOUSE_CHALLENGE_HANDLER_H */

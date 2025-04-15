@@ -109,10 +109,6 @@ void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
         + (static_cast<float>(this->integralComponent_) * PID_KI)
         + (static_cast<float>(deltaError * PID_KD));
 
-    // printf("speed: %d avg: %d\n", static_cast<uint16_t>(rightOffset *
-    // 100.0f),
-    //       average);
-
     if (darkLines == 3) {
         if (readings.isLeftDark)
             rightOffset += 0.2;
@@ -133,7 +129,6 @@ void LineFollower<T, U>::alignHandler(LineSensor::Readings readings,
         this->alignAttemptsLeft_ = ALIGN_MAX_ATTEMPTS;
     }
 
-    printf("align!!\n");
     if (readings.getDarkLineCount() > 2) {
         this->movementManager_.moveForward(this->speed_);
         return;
@@ -153,7 +148,6 @@ void LineFollower<T, U>::alignHandler(LineSensor::Readings readings,
             this->movementManager_.stop();
         }
     } else if ((readings.isCenterDark && readings.getDarkLineCount() == 1) || --alignAttemptsLeft_ == 0) {
-        printf("done\n");
         this->configuration_.state = this->configuration_.isAutomatic
                                          ? LineFollowerState::FORWARD
                                          : LineFollowerState::LOST;
@@ -215,7 +209,6 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
     } else if (readings.getDarkLineCount() != 0 || this->hasFoundGuide_) {
         this->movementManager_.stop();
         if (!hasFoundGuide_) {
-            printf("found guide!\n");
             this->hasFoundGuide_ = true;
             return;
         }

@@ -39,15 +39,14 @@ public:
     void update(uint16_t deltaTimeMs);
     bool isLost() const;
 
-    // speed 0.5
-    float PID_KP = 0.10F; // speed / 4 kind of
-    float PID_KI = 0.0F;
-    float PID_KD = 1.5F; // PID_KP * 15
-
 private:
     static const constexpr uint16_t DETECTION_TIME_MS = 200;
     static const constexpr uint16_t ALIGN_TIME_MS = 200;
     static const constexpr uint8_t ALIGN_MAX_ATTEMPTS = 10;
+
+    static const constexpr float PID_KP = 0.10F; // speed / 4 kind of
+    static const constexpr float PID_KI = 0.0F;
+    static const constexpr float PID_KD = 1.5F; // PID_KP * 15
 
     MovementManager<T, U>& movementManager_;
     LineSensor& lineSensor_;
@@ -57,7 +56,6 @@ private:
 
     LineSensor::Readings lastReadings_;
 
-public: // TODO change this
     float speed_;
 
     // PID values

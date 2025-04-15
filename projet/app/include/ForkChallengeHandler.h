@@ -24,7 +24,7 @@ private:
     void endingPointHandler(Challenge& challenge);
     uint16_t counterMidiMs;
 
-    static constexpr const uint16_t MIDI_TIME_MS = 300;
+    static constexpr const uint16_t MIDI_TIME_MS = 1000;
 };
 
 #endif /* _FORK_CHALLENGE_HANDLER_H */

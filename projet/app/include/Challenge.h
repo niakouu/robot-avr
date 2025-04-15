@@ -40,7 +40,6 @@ private:
 
     bool isTurnLeftFork_[2];
     uint8_t challengeStateTracker_, buttonCounter_, nextStateStep_;
-    BidirectionalLed::Color ledColor_;
     LineFollower<uint8_t, TimerPrescalerSynchronous> lineFollower_;
     bool switchedState_;
     State previousState_;

@@ -5,12 +5,12 @@
 Challenge Challenge::challenge_{};
 
 Challenge::Challenge() noexcept
-    : challengeStateTracker_(0),
+    : isTurnLeftFork_{false, false}, challengeStateTracker_(0),
+      buttonCounter_(0), nextStateStep_(0),
       lineFollower_(Robot::get().getMovementManager(),
                     Robot::get().getLineSensor(), SPEED),
-      switchedState_(true), stateHolder_{State::INITIALIZATION},
-      buttonCounter_(0), nextStateStep_(0), isTurnLeftFork_{false, false},
-      ledColor_(BidirectionalLed::Color::OFF) {}
+      switchedState_(true), previousState_(State::INITIALIZATION),
+      stateHolder_{State::INITIALIZATION} {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
@@ -119,7 +119,6 @@ void Challenge::nextStateHandler() {
     if (this->nextStateStep_ != 0 && !this->lineFollower_.isLost())
         return;
 
-    printf("next step:%d\n", this->nextStateStep_);
     LineFollowerConfiguration configuration{
         .state = LineFollowerState::LOST,
         .isAutomatic = true,
@@ -129,12 +128,30 @@ void Challenge::nextStateHandler() {
         .adjustTimeMs =
             LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
 
+    printf("ns: %d dk: %d r: %d\n", nextStateStep_,
+           Robot::get().getLineSensor().getReadings().getDarkLineCount(),
+           Robot::get().getLineSensor().getReadings().isRightDark);
+
     switch (this->previousState_) {
         case State::FORK_CHALLENGE:
             if (nextStateStep_ == 0) {
-                configuration.state = LineFollowerState::TURNING_RIGHT;
+                if (Robot::get()
+                        .getLineSensor()
+                        .getReadings()
+                        .getDarkLineCount()
+                    == 0) {
+                    configuration.state = LineFollowerState::TURNING_RIGHT;
+                } else {
+                    configuration.state = LineFollowerState::FORWARD;
+                    --nextStateStep_;
+                }
             } else {
-                this->setState(State::HOUSE_CHALLENGE);
+                if (Robot::get().getLineSensor().getReadings().isRightDark) {
+                    this->setState(State::HOUSE_CHALLENGE);
+                } else {
+                    configuration.state = LineFollowerState::FORWARD;
+                    --nextStateStep_;
+                }
             }
             break;
         case State::HOUSE_CHALLENGE:
@@ -183,18 +200,17 @@ void Challenge::forkChallengeHandler() {}
 void Challenge::parkHandler() {}
 
 void Challenge::finishHandler() {
-    const float frequency = 2.0F;
-    const float period = (1.0F / frequency) * 1000.0F;
-
-    printf("FINIIIIISHH\n");
+    constexpr const uint16_t FREQUENCY = 2U;
+    constexpr const uint16_t MS_IN_S = 1000U;
+    constexpr const uint16_t HALF_PERIOD = MS_IN_S / FREQUENCY;
 
     Robot::get().getMovementManager().stop();
 
     Robot::get().getBidirectionalLed().setColor(BidirectionalLed::Color::RED);
-    Board::get().getWatchdogTimer().sleep(period,
+    Board::get().getWatchdogTimer().sleep(HALF_PERIOD,
                                           WatchdogTimer::SleepMode::IDLE);
     Robot::get().getBidirectionalLed().setColor(BidirectionalLed::Color::GREEN);
-    Board::get().getWatchdogTimer().sleep(period,
+    Board::get().getWatchdogTimer().sleep(HALF_PERIOD,
                                           WatchdogTimer::SleepMode::IDLE);
 }
 
