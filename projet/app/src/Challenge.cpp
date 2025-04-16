@@ -55,6 +55,8 @@ void Challenge::update(uint16_t deltaTimeMs) {
     if (done) {
         ++this->challengeStateTracker_;
 
+        printf("done with challenge\n");
+
         this->setState(State::NEXT_STATE);
     }
 
@@ -134,24 +136,15 @@ void Challenge::nextStateHandler() {
 
     switch (this->previousState_) {
         case State::FORK_CHALLENGE:
+            printf("fork donw\n");
             if (nextStateStep_ == 0) {
-                if (Robot::get()
-                        .getLineSensor()
-                        .getReadings()
-                        .getDarkLineCount()
-                    == 0) {
-                    configuration.state = LineFollowerState::TURNING_RIGHT;
-                } else {
-                    configuration.state = LineFollowerState::FORWARD;
-                    --nextStateStep_;
-                }
+                configuration.isSkippingStartingLine = true;
+                configuration.isAlignAfterTurn = true;
+                printf("turn right\n");
+                configuration.state = LineFollowerState::TURNING_RIGHT;
             } else {
-                if (Robot::get().getLineSensor().getReadings().isRightDark) {
-                    this->setState(State::HOUSE_CHALLENGE);
-                } else {
-                    configuration.state = LineFollowerState::FORWARD;
-                    --nextStateStep_;
-                }
+                printf("set state\n");
+                this->setState(State::HOUSE_CHALLENGE);
             }
             break;
         case State::HOUSE_CHALLENGE:

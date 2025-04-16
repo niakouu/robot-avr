@@ -27,6 +27,7 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     const uint8_t darkLineCount =
         Robot::get().getLineSensor().getReadings().getDarkLineCount();
 
+    printf("s:%d\n", static_cast<uint8_t>(this->currentState_));
     switch (this->currentState_) {
         case Point::BSound:
             if (this->counterMidiMs == 0) {
@@ -102,11 +103,8 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
             break;
         case Point::EXIT:
-            configuration.state = LineFollowerState::FORWARD;
-            if (darkLineCount == 0) {
-                configuration.state = LineFollowerState::LOST;
-                endingPointHandler(challenge);
-            }
+            configuration.state = LineFollowerState::LOST;
+            endingPointHandler(challenge);
             break;
         default:
             break;

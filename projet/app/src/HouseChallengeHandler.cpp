@@ -46,7 +46,7 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         case Point::G:
             configuration.state = LineFollowerState::TURNING_RIGHT;
             configuration.adjustTimeMs =
-                LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
+                LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
             configuration.isAutomatic = false;
             configuration.isAlignAfterTurn = true;
             configuration.isSkippingStartingLine = false;
@@ -81,11 +81,9 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             this->point_ = Point::I_FROM_H;
             break;
         case Point::I_FROM_H:
-            Robot::get().getMovementManager().kickstartMotors(
-                KickstartDirection::FORWARD, KickstartDirection::FORWARD);
             configuration.state = LineFollowerState::TURNING_RIGHT;
             configuration.isEventOnThree = false;
-            configuration.adjustTimeMs = 0;
+            configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
             configuration.isSkippingStartingLine = false;
             this->point_ = Point::E_FINAL;
             break;

@@ -40,13 +40,14 @@ public:
     bool isLost() const;
 
 private:
-    static const constexpr uint16_t DETECTION_TIME_MS = 200;
-    static const constexpr uint16_t ALIGN_TIME_MS = 200;
-    static const constexpr uint8_t ALIGN_MAX_ATTEMPTS = 10;
-
-    static const constexpr float PID_KP = 0.10F; // speed / 4 kind of
+    static const constexpr uint16_t TURN_ALIGN_TIME_MS = 800;
+    static const constexpr uint16_t ALIGN_TIME_MS = 25;
+    static const constexpr uint8_t ALIGN_MAX_ATTEMPTS = 100;
+    static const constexpr float TURN_SPEED_RATIO = 0.9F;
+    static const constexpr float ALIGN_SPEED = 0.6F;
+    static const constexpr float PID_KP = 0.10F;
     static const constexpr float PID_KI = 0.0F;
-    static const constexpr float PID_KD = 1.5F; // PID_KP * 15
+    static const constexpr float PID_KD = 7.5F;
 
     MovementManager<T, U>& movementManager_;
     LineSensor& lineSensor_;
@@ -67,9 +68,9 @@ private:
     bool isExitingLine_, wasLostAndIsSkippingError_, hasFoundGuide_;
     uint8_t alignAttemptsLeft_;
 
-    void forwardHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
+    void forwardHandler(LineSensor::Readings readings);
     void alignHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
-    void lostHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
+    void lostHandler();
     void turningHandler(LineSensor::Readings readings, uint16_t deltaTimeMs);
 };
 

@@ -12,8 +12,12 @@ template class LineFollower<uint8_t, TimerPrescalerAsynchronous>;
 template <typename T, typename U>
 LineFollower<T, U>::LineFollower(MovementManager<T, U>& movementManager,
                                  LineSensor& lineSensor, float speed)
-    : movementManager_(movementManager), lineSensor_(lineSensor), speed_(speed),
-      adjustTimeLeft_(0), configuration_{.state = LineFollowerState::LOST} {}
+    : movementManager_(movementManager), lineSensor_(lineSensor),
+      configuration_{.state = LineFollowerState::LOST}, switchedState_(true),
+      lastReadings_(), speed_(speed), lastError_(0), integralComponent_(0),
+      adjustTimeLeft_(0), alignTimeLeft_(0), isExitingLine_(false),
+      wasLostAndIsSkippingError_(false), hasFoundGuide_(false),
+      alignAttemptsLeft_(0) {}
 
 template <typename T, typename U>
 LineFollower<T, U>::~LineFollower() {
@@ -50,7 +54,7 @@ void LineFollower<T, U>::update(uint16_t deltaTimeMs) {
     LineFollowerState lastState = this->configuration_.state;
     switch (this->configuration_.state) {
         case LineFollowerState::FORWARD:
-            this->forwardHandler(readings, deltaTimeMs);
+            this->forwardHandler(readings);
             break;
         case LineFollowerState::ALIGN:
             this->alignHandler(readings, deltaTimeMs);
@@ -60,7 +64,7 @@ void LineFollower<T, U>::update(uint16_t deltaTimeMs) {
             this->turningHandler(readings, deltaTimeMs);
             break;
         case LineFollowerState::LOST:
-            this->lostHandler(readings, deltaTimeMs);
+            this->lostHandler();
             break;
         case LineFollowerState::STOP:
             this->movementManager_.stop();
@@ -78,8 +82,7 @@ bool LineFollower<T, U>::isLost() const {
 }
 
 template <typename T, typename U>
-void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
-                                        uint16_t deltaTimeMs) {
+void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings) {
 
     if (this->switchedState_) {
         this->integralComponent_ = 0;
@@ -109,13 +112,6 @@ void LineFollower<T, U>::forwardHandler(LineSensor::Readings readings,
         + (static_cast<float>(this->integralComponent_) * PID_KI)
         + (static_cast<float>(deltaError * PID_KD));
 
-    if (darkLines == 3) {
-        if (readings.isLeftDark)
-            rightOffset += 0.2;
-        else if (readings.isRightDark)
-            rightOffset -= 0.2;
-    }
-
     this->movementManager_.move(
         true, clamp(this->speed_ - rightOffset, 0.0F, this->speed_), true,
         clamp(this->speed_ + rightOffset, 0.0F, this->speed_));
@@ -125,7 +121,7 @@ template <typename T, typename U>
 void LineFollower<T, U>::alignHandler(LineSensor::Readings readings,
                                       uint16_t deltaTimeMs) {
     if (this->switchedState_) {
-        this->alignTimeLeft_ = ALIGN_TIME_MS;
+        this->alignTimeLeft_ = 0;
         this->alignAttemptsLeft_ = ALIGN_MAX_ATTEMPTS;
     }
 
@@ -147,23 +143,23 @@ void LineFollower<T, U>::alignHandler(LineSensor::Readings readings,
         if (this->alignTimeLeft_ == 0) {
             this->movementManager_.stop();
         }
-    } else if ((readings.isCenterDark && readings.getDarkLineCount() == 1) || --alignAttemptsLeft_ == 0) {
+    } else if ((readings.isCenterDark && readings.getDarkLineCount() == 1)
+               || --alignAttemptsLeft_ == 0) {
         this->configuration_.state = this->configuration_.isAutomatic
                                          ? LineFollowerState::FORWARD
                                          : LineFollowerState::LOST;
     } else {
         this->alignTimeLeft_ = ALIGN_TIME_MS;
         if (readings.getAverage() > 0) {
-            this->movementManager_.moveRight(this->speed_ * 0.9F, 1.0F);
+            this->movementManager_.moveRight(ALIGN_SPEED, 1.0F);
         } else {
-            this->movementManager_.moveLeft(this->speed_ * 0.9F, 1.0F);
+            this->movementManager_.moveLeft(ALIGN_SPEED, 1.0F);
         }
     }
 }
 
 template <typename T, typename U>
-void LineFollower<T, U>::lostHandler(LineSensor::Readings readings,
-                                     uint16_t deltaTimeMs) {
+void LineFollower<T, U>::lostHandler() {
     if (this->switchedState_) {
         this->movementManager_.stop();
     }
@@ -190,18 +186,13 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
             cappingSubtract(this->adjustTimeLeft_, deltaTimeMs);
 
         if (this->adjustTimeLeft_ == 0) {
-            const float turnSpeed = this->speed_ * 0.95F;
-
             if (this->configuration_.state == LineFollowerState::TURNING_LEFT) {
-                // this->movementManager_.kickstartMotors(
-                //     KickstartDirection::BACKWARD,
-                //     KickstartDirection::FORWARD, 10);
-                this->movementManager_.moveLeft(turnSpeed, 1.0F);
+                this->movementManager_.moveLeft(this->speed_ * TURN_SPEED_RATIO,
+                                                1.0F);
             } else {
-                // this->movementManager_.kickstartMotors(
-                //     KickstartDirection::FORWARD,
-                //     KickstartDirection::BACKWARD, 10);
-                this->movementManager_.moveRight(turnSpeed, 1.0F);
+                this->movementManager_.moveRight(this->speed_
+                                                     * TURN_SPEED_RATIO,
+                                                 1.0F);
             }
         }
     } else if (this->isExitingLine_) {
@@ -209,7 +200,14 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
     } else if (readings.getDarkLineCount() != 0 || this->hasFoundGuide_) {
         this->movementManager_.stop();
         if (!hasFoundGuide_) {
+            this->alignTimeLeft_ = TURN_ALIGN_TIME_MS;
             this->hasFoundGuide_ = true;
+            return;
+        }
+
+        this->alignTimeLeft_ =
+            cappingSubtract(this->alignTimeLeft_, deltaTimeMs);
+        if (this->alignTimeLeft_ != 0) {
             return;
         }
 
@@ -217,9 +215,12 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
             this->hasFoundGuide_ = false;
 
             if (this->configuration_.state == LineFollowerState::TURNING_LEFT)
-                this->movementManager_.moveRight(this->speed_ * 0.9F, 1.0F);
+                this->movementManager_.moveRight(this->speed_
+                                                     * TURN_SPEED_RATIO,
+                                                 1.0F);
             else
-                this->movementManager_.moveLeft(this->speed_ * 0.9F, 1.0F);
+                this->movementManager_.moveLeft(this->speed_ * TURN_SPEED_RATIO,
+                                                1.0F);
 
             return;
         }

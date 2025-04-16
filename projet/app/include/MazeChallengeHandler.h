@@ -17,7 +17,8 @@ private:
     static constexpr uint16_t TURN_TIME_MS = 250U;
     static constexpr uint8_t DISTANCE_TO_CENTER = 45U;
     static constexpr uint8_t DISTANCE_TO_DIAGONAL = 45U;
-    static constexpr uint8_t POLE_READING_COUNT = 10U;
+    static constexpr uint8_t POLE_READING_COUNT = 100U;
+    static constexpr uint16_t SWEEP_TIME_MS = 25U;
     static constexpr uint8_t FLASH_FREQ = 4U;
     static constexpr uint16_t FLASH_DURATION_MS = 2000U;
 
@@ -56,10 +57,11 @@ private:
     bool isIntermediateStep_ : 1;
     bool isCheckingInPosition_ : 1;
     bool isDone_ : 1;
+    uint16_t sweepTimeLeft_;
 
     Lane getFreeLane() const;
 
-    bool handleDetection(LineFollowerConfiguration& configuration);
+    bool handleDetection(LineFollowerConfiguration& configuration, uint16_t deltatimeMs, bool& isManual);
     void handleCheckNextLane(LineFollowerConfiguration& configuration, const PoleMap& previousPoleMap);
     void handleCurrentLaneIsFreeLane(LineFollowerConfiguration& configuration, uint16_t deltaTimeMs);
     void handleNextLaneIsFreeLane(LineFollowerConfiguration& configuration);

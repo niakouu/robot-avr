@@ -9,8 +9,8 @@ MazeChallengeHandler::MazeChallengeHandler()
       totalReadings_(POLE_READING_COUNT), finishedCalculatingPole_(false),
       poleMap_{false, false, false}, currentStage_(Stage::Stage1),
       orientation_(Orientation::Forward), lane_(Lane::Center),
-      isIntermediateStep_(false), isCheckingInPosition_(false), isDone_(false) {
-}
+      isIntermediateStep_(false), isCheckingInPosition_(false), isDone_(false),
+      sweepTimeLeft_(0) {}
 
 void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
@@ -27,6 +27,8 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         .isSkippingStartingLine = true,
         .adjustTimeMs =
             LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
+
+    bool isManual = false;
 
     if (this->currentStage_ != Stage::End) {
         const Lane freeLane = this->getFreeLane();
@@ -52,7 +54,8 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             bool finishedDetecting = true;
             const PoleMap previousPoleMap = this->poleMap_;
             if (this->orientation_ == Orientation::Forward)
-                finishedDetecting = handleDetection(configuration);
+                finishedDetecting =
+                    handleDetection(configuration, deltaTimeMs, isManual);
 
             if (finishedDetecting && this->getFreeLane() == Lane::Invalid)
                 this->handleCheckNextLane(configuration, previousPoleMap);
@@ -80,9 +83,10 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         }
     }
 
-    this->updateOrientation(configuration.state);
-
-    lineFollower.start(configuration);
+    if (!isManual) {
+        this->updateOrientation(configuration.state);
+        lineFollower.start(configuration);
+    }
 }
 
 bool MazeChallengeHandler::isDone() {
@@ -103,11 +107,34 @@ MazeChallengeHandler::Lane MazeChallengeHandler::getFreeLane() const {
 }
 
 bool MazeChallengeHandler::handleDetection(
-    LineFollowerConfiguration& configuration) {
-    if (Robot::get().getLineSensor().getReadings().getDarkLineCount() > 2) {
+    LineFollowerConfiguration& configuration, uint16_t deltatimeMs,
+    bool& isManual) {
+    isManual = false;
+    const LineSensor::Readings readings =
+        Robot::get().getLineSensor().getReadings();
+
+    MovementManager<uint8_t, TimerPrescalerSynchronous>& movementManager =
+        Robot::get().getMovementManager();
+
+    if (readings.getDarkLineCount() > 3) {
         configuration.state = LineFollowerState::ALIGN;
         configuration.isAutomatic = false;
         return false;
+    }
+
+    isManual = true;
+    if (this->sweepTimeLeft_ == 0) {
+        movementManager.stop();
+        this->sweepTimeLeft_ = SWEEP_TIME_MS;
+    } else {
+        this->sweepTimeLeft_ =
+            cappingSubtract(this->sweepTimeLeft_, deltatimeMs);
+
+        if (readings.getAverage() < 0) {
+            movementManager.moveLeft(0.8F, 1.0F);
+        } else {
+            movementManager.moveRight(0.8F, 1.0F);
+        }
     }
 
     if (!this->finishedCalculatingPole_) {
@@ -115,6 +142,7 @@ bool MazeChallengeHandler::handleDetection(
         return false;
     }
 
+    isManual = false;
     const bool isPolePresent = this->isPolePresent(DISTANCE_TO_CENTER);
 
     switch (this->lane_) {
@@ -138,6 +166,7 @@ bool MazeChallengeHandler::handleDetection(
     }
 
     this->resetDistanceValues();
+    movementManager.stop();
 
     return true;
 }
@@ -145,7 +174,8 @@ bool MazeChallengeHandler::handleDetection(
 void MazeChallengeHandler::handleCheckNextLane(
     LineFollowerConfiguration& configuration, const PoleMap& previousPoleMap) {
     configuration.isAutomatic = false;
-    configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS;
+    configuration.adjustTimeMs =
+        LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
 
     if (previousPoleMap.left || previousPoleMap.center
         || previousPoleMap.right) {
@@ -206,7 +236,7 @@ void MazeChallengeHandler::handleCurrentLaneIsFreeLane(
     }
 
     configuration.isEventOnThree = true;
-    configuration.isAutomatic = true;
+    configuration.isAutomatic = false;
     configuration.adjustTimeMs =
         LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
 
@@ -304,13 +334,6 @@ bool MazeChallengeHandler::handleDetectionDance(uint16_t deltaTimeMs) {
     constexpr uint16_t MS_IN_S = 1000U;
     constexpr uint16_t CYCLE_TIME_MS = (MS_IN_S / FLASH_FREQ) / 2;
 
-    // if (this->detectionDanceTimeLeftMs_ == 0) {
-    //     this->detectionDanceTimeLeftMs_ = FLASH_DURATION;
-    // } else {
-    //     this->detectionDanceTimeLeftMs_ =
-    //         cappingSubtract(this->detectionDanceTimeLeftMs_, deltaTimeMs);
-    // }
-
     for (uint8_t i = 0; i < FLASH_DURATION_MS / CYCLE_TIME_MS; ++i) {
         Board::get().getWatchdogTimer().sleep(CYCLE_TIME_MS,
                                               WatchdogTimer::SleepMode::IDLE);
@@ -320,5 +343,5 @@ bool MazeChallengeHandler::handleDetectionDance(uint16_t deltaTimeMs) {
                        : BidirectionalLed::Color::OFF);
     }
 
-    return true; // this->detectionDanceTimeLeftMs_ != 0;
+    return true;
 }

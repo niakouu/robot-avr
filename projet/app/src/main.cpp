@@ -11,7 +11,7 @@
 #include "debug.h"
 
 constexpr const uint16_t BAUD_RATE = 2400;
-constexpr const uint16_t UPDATE_DELTA_MS = 100;
+constexpr const uint16_t UPDATE_DELTA_MS = 25;
 
 ISR(WDT_vect) {
     Board::get().getWatchdogTimer().setSleepDone();
@@ -34,8 +34,6 @@ int main() {
     stdin = uart.getEmulatedFile();
 
     sei();
-
-    // adjustMode();
 
     while (true) {
         // printf("d:%d:%d\n", Robot::get().getDistanceSensor().getDistanceCm(), Board::get().getAdc().read(static_cast<uint8_t>(Pin::Id::P7)));
