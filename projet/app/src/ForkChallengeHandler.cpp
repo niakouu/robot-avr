@@ -40,7 +40,7 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             }
 
             this->counterMidiMs_ =
-                cappingSubtract(this->counterMidiMs_, deltaTimeMs);
+                ::saturatingSubtract(this->counterMidiMs_, deltaTimeMs);
 
             break;
         case Point::B:
@@ -76,7 +76,7 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             }
 
             this->counterMidiMs_ =
-                cappingSubtract(this->counterMidiMs_, deltaTimeMs);
+                ::saturatingSubtract(this->counterMidiMs_, deltaTimeMs);
 
             break;
         case Point::C:

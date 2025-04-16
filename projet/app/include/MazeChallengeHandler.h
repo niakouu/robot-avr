@@ -14,13 +14,14 @@ public:
     bool isDone() override;
 
 private:
-    static constexpr uint16_t TURN_TIME_MS = 250U;
-    static constexpr uint8_t DISTANCE_TO_CENTER = 45U;
-    static constexpr uint8_t DISTANCE_TO_DIAGONAL = 45U;
-    static constexpr uint8_t POLE_READING_COUNT = 100U;
-    static constexpr uint16_t SWEEP_TIME_MS = 25U;
-    static constexpr uint8_t FLASH_FREQ = 4U;
-    static constexpr uint16_t FLASH_DURATION_MS = 2000U;
+    static const constexpr uint16_t TURN_TIME_MS = 250U;
+    static const constexpr uint8_t DISTANCE_TO_CENTER = 45U;
+    static const constexpr uint8_t DISTANCE_TO_DIAGONAL = 45U;
+    static const constexpr uint8_t POLE_READING_COUNT = 100U;
+    static const constexpr uint16_t SWEEP_TIME_MS = 25U;
+    static const constexpr uint8_t FLASH_FREQ = 4U;
+    static const constexpr uint16_t FLASH_DURATION_MS = 2000U;
+    static const constexpr float SWEEP_SPEED = 0.8F; 
 
     uint16_t rotateTimeLeftMs_, averagePoleDistance_, detectionDanceTimeLeftMs_;
     uint8_t counter_, totalReadings_;

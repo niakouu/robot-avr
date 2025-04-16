@@ -10,7 +10,7 @@ Challenge::Challenge() noexcept
       lineFollower_(Robot::get().getMovementManager(),
                     Robot::get().getLineSensor(), SPEED),
       switchedState_(true), previousState_(State::INITIALIZATION),
-      stateHolder_{State::INITIALIZATION}, initializationSleepTimeLeft_(0) {}
+      initializationSleepTimeLeft_(0), stateHolder_{State::INITIALIZATION} {}
 
 Challenge& Challenge::get() {
     return Challenge::challenge_;
@@ -118,7 +118,7 @@ void Challenge::initializationWaitHandler(uint16_t deltaTimeMs) {
     }
 
     this->initializationSleepTimeLeft_ =
-        cappingSubtract(this->initializationSleepTimeLeft_, deltaTimeMs);
+        ::saturatingSubtract(this->initializationSleepTimeLeft_, deltaTimeMs);
     if (this->initializationSleepTimeLeft_ == 0) {
         this->setState(State::LOCATE);
     }

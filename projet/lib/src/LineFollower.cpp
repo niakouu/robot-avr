@@ -138,7 +138,7 @@ void LineFollower<T, U>::alignHandler(LineSensor::Readings readings,
 
     if (this->alignTimeLeft_ != 0) {
         this->alignTimeLeft_ =
-            cappingSubtract(this->alignTimeLeft_, deltaTimeMs);
+            ::saturatingSubtract(this->alignTimeLeft_, deltaTimeMs);
 
         if (this->alignTimeLeft_ == 0) {
             this->movementManager_.stop();
@@ -183,7 +183,7 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
     if (this->adjustTimeLeft_ != 0
         || (this->switchedState_ && this->configuration_.adjustTimeMs == 0)) {
         this->adjustTimeLeft_ =
-            cappingSubtract(this->adjustTimeLeft_, deltaTimeMs);
+            ::saturatingSubtract(this->adjustTimeLeft_, deltaTimeMs);
 
         if (this->adjustTimeLeft_ == 0) {
             if (this->configuration_.state == LineFollowerState::TURNING_LEFT) {
@@ -206,7 +206,7 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
         }
 
         this->alignTimeLeft_ =
-            cappingSubtract(this->alignTimeLeft_, deltaTimeMs);
+            ::saturatingSubtract(this->alignTimeLeft_, deltaTimeMs);
         if (this->alignTimeLeft_ != 0) {
             return;
         }

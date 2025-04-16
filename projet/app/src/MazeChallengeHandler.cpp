@@ -128,12 +128,12 @@ bool MazeChallengeHandler::handleDetection(
         this->sweepTimeLeft_ = SWEEP_TIME_MS;
     } else {
         this->sweepTimeLeft_ =
-            cappingSubtract(this->sweepTimeLeft_, deltatimeMs);
+            ::saturatingSubtract(this->sweepTimeLeft_, deltatimeMs);
 
         if (readings.getAverage() < 0) {
-            movementManager.moveLeft(0.8F, 1.0F);
+            movementManager.moveLeft(SWEEP_SPEED, 1.0F);
         } else {
-            movementManager.moveRight(0.8F, 1.0F);
+            movementManager.moveRight(SWEEP_SPEED, 1.0F);
         }
     }
 
