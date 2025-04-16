@@ -1,3 +1,13 @@
+//
+// Travail : Projet Final
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed Elyes Bradai
+// Description du main.cpp : 
+// Identification matérielles : 
+// Table des états :
 #include <avr/interrupt.h>
 #include <stdio.h>
 #include <util/delay.h>
