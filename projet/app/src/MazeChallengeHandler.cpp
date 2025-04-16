@@ -4,13 +4,12 @@
 #include "Robot.h"
 
 MazeChallengeHandler::MazeChallengeHandler()
-    : rotateTimeLeftMs_(TURN_TIME_MS), averagePoleDistance_(0),
-      detectionDanceTimeLeftMs_(0), counter_(0),
-      totalReadings_(POLE_READING_COUNT), finishedCalculatingPole_(false),
-      poleMap_{false, false, false}, currentStage_(Stage::STAGE_1),
-      orientation_(Orientation::FORWARD), lane_(Lane::CENTER),
-      isIntermediateStep_(false), isCheckingInPosition_(false), isDone_(false),
-      sweepTimeLeft_(0) {}
+    : rotateTimeLeftMs_(TURN_TIME_MS), counter_(0),
+      totalReadings_(POLE_READING_COUNT), minimumPoleDistance_(UINT8_MAX),
+      finishedCalculatingPole_(false), poleMap_{false, false, false},
+      currentStage_(Stage::STAGE_1), orientation_(Orientation::FORWARD),
+      lane_(Lane::CENTER), isIntermediateStep_(false),
+      isCheckingInPosition_(false), isDone_(false), sweepTimeLeft_(0) {}
 
 void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
@@ -239,7 +238,7 @@ void MazeChallengeHandler::handleCurrentLaneIsFreeLane(
     configuration.isAutomatic = false;
     configuration.adjustTimeMs =
         LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
-    
+
     if (this->orientation_ != Orientation::FORWARD)
         return;
 
@@ -316,23 +315,27 @@ void MazeChallengeHandler::updateOrientation(LineFollowerState nextState) {
 }
 
 bool MazeChallengeHandler::isPolePresent(uint8_t distance) const {
-    return this->averagePoleDistance_ <= distance;
+    return this->minimumPoleDistance_ <= distance;
 }
 
 void MazeChallengeHandler::calculatePoleDistance() {
     if (this->totalReadings_ != 0) {
         --this->totalReadings_;
-        this->averagePoleDistance_ +=
+
+        const uint8_t reading =
             Robot::get().getDistanceSensor().getDistanceCm();
+
+        if (reading < this->minimumPoleDistance_)
+            this->minimumPoleDistance_ = reading;
+
         return;
     }
 
-    this->averagePoleDistance_ /= POLE_READING_COUNT;
     this->finishedCalculatingPole_ = true;
 }
 
 void MazeChallengeHandler::resetDistanceValues() {
-    this->averagePoleDistance_ = 0;
+    this->minimumPoleDistance_ = UINT8_MAX;
     this->totalReadings_ = POLE_READING_COUNT;
     this->finishedCalculatingPole_ = false;
 }

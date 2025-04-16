@@ -33,6 +33,7 @@
 
 #include "Board.h"
 #include "Challenge.h"
+#include "Orchestrator.h"
 #include "DistanceSensor.h"
 #include "LineFollower.h"
 #include "Robot.h"
@@ -64,6 +65,7 @@ int main() {
     sei();
 
     while (true) {
+        Orchestrator::get().update(UPDATE_DELTA_MS);
         Challenge::get().update(UPDATE_DELTA_MS);
 
         Board::get().getWatchdogTimer().sleep(UPDATE_DELTA_MS,

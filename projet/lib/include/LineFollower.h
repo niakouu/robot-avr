@@ -89,7 +89,7 @@ private:
     static const constexpr uint16_t ALIGN_TIME_MS = 25;
     static const constexpr uint8_t ALIGN_MAX_ATTEMPTS = 100;
     static const constexpr float TURN_SPEED_RATIO = 0.9F;
-    static const constexpr float ALIGN_SPEED = 0.6F;
+    static const constexpr float ALIGN_SPEED = 0.65F;
     static const constexpr float PID_KP = 0.175F;
     static const constexpr float PID_KI = 0.0F;
     static const constexpr float PID_KD = 7.5F;

@@ -58,12 +58,12 @@ private:
     static constexpr uint8_t POLE_READING_COUNT = 10U;
     static constexpr uint8_t FLASH_FREQ = 4U;
     static constexpr uint16_t FLASH_DURATION_MS = 2000U;
-    static constexpr uint8_t POLE_DISTANCE = 15U;
+    static constexpr uint8_t POLE_DISTANCE = 35U;
 
     Point point_;
     bool isPolePresent_, isDone_;
 
-    uint16_t averagePoleDistance_;
+    uint8_t minimumPoleDistance_;
     uint8_t totalReadings_;
 
     static void flashLed(BidirectionalLed::Color color);

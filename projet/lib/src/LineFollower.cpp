@@ -189,6 +189,14 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
                                                      * TURN_SPEED_RATIO,
                                                  1.0F);
             }
+        } else {
+            if (readings.getAverage() <= -2) {
+                this->movementManager_.move(true, this->speed_ / 2, true, this->speed_);
+            } if (readings.getAverage() >= 2) {
+                this->movementManager_.move(true, this->speed_, true, this->speed_ / 2);
+            } else {
+                this->movementManager_.moveForward(this->speed_);
+            }
         }
     } else if (this->isExitingLine_) {
         this->isExitingLine_ = readings.getDarkLineCount() != 0;

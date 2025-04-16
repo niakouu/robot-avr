@@ -1,6 +1,7 @@
 #include "ForkChallengeHandler.h"
 
 #include "Challenge.h"
+#include "Orchestrator.h"
 #include "Robot.h"
 
 ForkChallengeHandler::ForkChallengeHandler()
@@ -28,8 +29,10 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
     switch (this->currentState_) {
         case Point::B_SOUND:
+            Orchestrator::get().pause();
             if (this->counterMidiMs_ == 0) {
                 Robot::get().getMidi().stop();
+                Orchestrator::get().play();
                 this->counterMidiMs_ = MIDI_TIME_MS;
                 currentState_ = Point::B;
                 return;
@@ -64,8 +67,10 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
             break;
         case Point::C_SOUND:
+            Orchestrator::get().pause();
             if (this->counterMidiMs_ == 0) {
                 Robot::get().getMidi().stop();
+                Orchestrator::get().play();
                 this->counterMidiMs_ = MIDI_TIME_MS;
                 currentState_ = Point::C;
                 return;

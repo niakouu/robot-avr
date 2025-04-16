@@ -2,6 +2,8 @@
 
 #include <string.h>
 
+#include "Orchestrator.h"
+
 Challenge Challenge::challenge_{};
 
 Challenge::Challenge() noexcept
@@ -117,6 +119,11 @@ void Challenge::initializationWaitHandler(uint16_t deltaTimeMs) {
         return;
     }
 
+    if (this->switchedState_) {
+        Orchestrator::get().loadSong(music::WINDOWS_BOOT, sizeof(music::WINDOWS_BOOT) / sizeof(*music::WINDOWS_BOOT));
+        Orchestrator::get().play();
+    }
+
     this->initializationSleepTimeLeft_ =
         ::saturatingSubtract(this->initializationSleepTimeLeft_, deltaTimeMs);
     if (this->initializationSleepTimeLeft_ == 0) {
@@ -158,7 +165,8 @@ void Challenge::nextStateHandler() {
             } else if (nextStateStep_ == 1) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
                 configuration.isAutomatic = this->challengeStateTracker_ != 3;
-                configuration.isAlignAfterTurn = this->challengeStateTracker_ == 3;
+                configuration.isAlignAfterTurn =
+                    this->challengeStateTracker_ == 3;
                 configuration.isEventOnThree = false;
             } else {
                 if (this->challengeStateTracker_ == 3)
@@ -197,6 +205,15 @@ void Challenge::finishHandler() {
     constexpr const uint16_t FREQUENCY = 2U;
     constexpr const uint16_t MS_IN_S = 1000U;
     constexpr const uint16_t HALF_PERIOD = MS_IN_S / FREQUENCY;
+
+    if (this->switchedState_) {
+        Orchestrator::get().loadSong(music::WINDOWS_SHUTDOWN, sizeof(music::WINDOWS_SHUTDOWN) / sizeof(*music::WINDOWS_SHUTDOWN));
+        Orchestrator::get().play();
+    }
+
+    if (!Orchestrator::get().isPaused()) {
+        return;
+    }
 
     Robot::get().getMovementManager().stop();
 

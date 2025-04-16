@@ -2,9 +2,11 @@
 
 #include "Challenge.h"
 
+constexpr uint16_t MS_IN_S = 1000U;
+
 HouseChallengeHandler::HouseChallengeHandler()
     : point_(Point::E_INITIAL), isPolePresent_(false), isDone_(false),
-      averagePoleDistance_(0), totalReadings_(POLE_READING_COUNT) {}
+      minimumPoleDistance_(UINT8_MAX), totalReadings_(POLE_READING_COUNT) {}
 
 void HouseChallengeHandler::flashLed(BidirectionalLed::Color color) {
     constexpr uint16_t MS_IN_S = 1000U;
@@ -55,14 +57,17 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         case Point::G_CHECK:
             if (this->totalReadings_ != 0) {
                 --this->totalReadings_;
-                this->averagePoleDistance_ +=
+
+                const uint8_t reading =
                     Robot::get().getDistanceSensor().getDistanceCm();
+
+                if (reading < this->minimumPoleDistance_)
+                    this->minimumPoleDistance_ = reading;
+
                 return;
             }
 
-            this->averagePoleDistance_ /= POLE_READING_COUNT;
-
-            if (this->averagePoleDistance_ < POLE_DISTANCE) {
+            if (this->minimumPoleDistance_ < POLE_DISTANCE) {
                 flashLed(BidirectionalLed::Color::RED);
 
                 configuration.state = LineFollowerState::TURNING_RIGHT;
