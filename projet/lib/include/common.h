@@ -1,3 +1,16 @@
+//
+// Travail : Projet Final
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du common.h :
+//        Fournit des utilitaires génériques et une implémentation partielle de
+//        la librairie standard C++.
+
 #ifndef _COMMON_H
 #define _COMMON_H
 

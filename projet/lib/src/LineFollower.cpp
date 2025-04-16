@@ -39,11 +39,6 @@ void LineFollower<T, U>::start(const LineFollowerConfiguration& configuration) {
 
     this->configuration_ = configuration;
 
-    // if (this->configuration_.state == LineFollowerState::FORWARD) {
-    //     this->movementManager_.kickstartMotors(KickstartDirection::FORWARD,
-    //                                            KickstartDirection::FORWARD);
-    // }
-
     this->switchedState_ = true;
 }
 

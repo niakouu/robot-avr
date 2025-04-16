@@ -14,6 +14,34 @@
 //
 // Table des états :
 //
+// Table des états :
+// ---------------------------------------------------------------------------
+// | État courant     | Condition(s) de transition           | État suivant  |
+// ---------------------------------------------------------------------------
+// | FORWARD          | 0, >= 4 lignes détectées             | LOST          |
+// |                  | isEventOnThree && 3 lignes détectées | LOST          |
+// |                  | Sinon                                | FORWARD       |
+// ---------------------------------------------------------------------------
+// | ALIGN            | Ligne centrée détectée               |               |
+// |                  |     isAutomatic                      | FORWARD       |
+// |                  |     !isAutomatic                     | LOST          |
+// |                  | Trop de tentatives échouées          | LOST          |
+// ---------------------------------------------------------------------------
+// | TURNING_LEFT     | Ligne détectée                       |               |
+// |                  |     isAlignAfterTurn                 | ALIGN         |
+// |                  |     !isAlignAfterTurn && isAutomatic | FORWARD       |
+// |                  |     Sinon                            | LOST          |
+// ---------------------------------------------------------------------------
+// | TURNING_RIGHT    | Ligne détectée                       |               |
+// |                  |     isAlignAfterTurn                 | ALIGN         |
+// |                  |     !isAlignAfterTurn && isAutomatic | FORWARD       |
+// |                  |     Sinon                            | LOST          |
+// ---------------------------------------------------------------------------
+// | LOST             | Aucun changement automatique         | LOST          |
+// ---------------------------------------------------------------------------
+// | STOP             | Arrêt demandé                        | STOP          |
+// ---------------------------------------------------------------------------
+
 
 #ifndef _LINE_FOLLOWER_H
 #define _LINE_FOLLOWER_H
