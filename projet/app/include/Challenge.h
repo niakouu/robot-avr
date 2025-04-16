@@ -1,3 +1,23 @@
+//
+// Travail : Projet Final
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du Challenge.h :
+//        Détiens le switch-case le plus important de notre programme qui
+//        s'occupe de changer d'un challenge à un autre à chaque update.
+//        Également, il s'occupe de suivre la ligne correctement durant le long
+//        du parcours. La classe est un singleton.
+//
+// Identification matérielles : Voir dans main.cpp
+//
+// Table des états :
+// 
+
 #ifndef _CHALLENGE_H
 #define _CHALLENGE_H
 
