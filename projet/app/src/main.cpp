@@ -24,8 +24,8 @@
 //      - C6: Led négative
 //      - C7: Led positive
 //      - D3: Le output du bouton-poussoir
-//      - D5: Midi ()
-//      - D7: Midi
+//      - D5: Le fils rouge du Midi
+//      - D7: Le fils noir du Midi
 
 #include <avr/interrupt.h>
 #include <stdio.h>

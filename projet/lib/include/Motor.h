@@ -1,3 +1,17 @@
+//
+// Travail : tp7
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du Motor.h :
+//        Réprésente une roue sur le robot. Quand on utilise la fonction move,
+//        il return le bon ratio de vitesse et choisi si la direction d'un input doit être 
+//
+
 #ifndef _MOTOR_H
 #define _MOTOR_H
 

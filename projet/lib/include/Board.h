@@ -1,3 +1,18 @@
+// 
+// Travail : tp7
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du Board.h :
+//        Détiens toutes les composantes qui sont sur le circuit imprimé et qui
+//        n'ont pas besoin d'être connectées à une broche. Board est une classe
+//        singleton.
+//
+
 #ifndef _BOARD_H
 #define _BOARD_H
 

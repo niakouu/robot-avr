@@ -1,3 +1,19 @@
+//
+// Travail : tp7
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du Led.h :
+//        Implémente, la logique de la LED sur le board. On peut choisir les
+//        ports du board pour la pin positive et la pin négative. Cette classe
+//        permet de changer de couleur rouge et vert, et d'executer le
+//        changement de ses deux couleurs pour créé la couleur amber.
+//
+
 #ifndef _LED_H
 #define _LED_H
 

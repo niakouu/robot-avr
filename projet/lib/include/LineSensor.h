@@ -1,3 +1,17 @@
+//
+// Travail : projet
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du LineSensor.h :
+//        Implémente, la logique du capteur de lignes. Son travail principal est
+//        de lire où quels points captent la couleur noir.
+//
+
 #ifndef _LINE_SENSOR_H
 #define _LINE_SENSOR_H
 
@@ -38,6 +52,7 @@ public:
 
     bool isDark(Direction direction) const;
     Readings getReadings() const;
+
 private:
     Pins linePins_;
 };

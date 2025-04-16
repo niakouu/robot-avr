@@ -1,3 +1,20 @@
+//
+// Travail : projet
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du LineFollower.h :
+//        La classe permet de suivre la ligne noire. Elle permet de tourner,
+//        aller droit ou stop le robot. La ligne check sa prochain action à
+//        chaque update.
+//
+// Table des états :
+//
+
 #ifndef _LINE_FOLLOWER_H
 #define _LINE_FOLLOWER_H
 

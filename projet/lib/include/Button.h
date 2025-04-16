@@ -1,3 +1,16 @@
+// 
+// Travail : tp7
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du Button.h :
+//        Implémente, la logique des buttons soit qu'il soit le button-poussoir ou l'interrupteur. 
+//
+
 #ifndef _BUTTON_H
 #define _BUTTON_H
 
@@ -11,8 +24,14 @@ public:
     Button(Interrupt interrupt, bool pressedIsHigh);
     ~Button();
 
+    /// @brief Determines if the button is currently pressed or not.
+    /// @return True if button is pressed, false otherwise.
     bool isPressed() const volatile;
+
+    /// @brief Determines if there was a press or a realese of button.
+    /// @return True if event, false otherwise.
     bool isEvent() const volatile;
+
     void consumeEvent() volatile;
     void restoreEvent() volatile;
     void setPressed() volatile;
