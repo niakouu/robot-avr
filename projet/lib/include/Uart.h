@@ -1,3 +1,17 @@
+//
+// Travail : Projet Final
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du debug.h :
+//        Fournit une implémentation générique des interfaces UART.
+//        Donne aussi acces a un fichier virtuel qui simule stdin/stdout afin
+//        de donner acces aux fonctions printf/scanf.
+
 #ifndef _UART_H
 #define _UART_H
 

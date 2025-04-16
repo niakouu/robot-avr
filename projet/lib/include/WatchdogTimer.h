@@ -1,3 +1,17 @@
+//
+// Travail : Projet Final
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du debug.h :
+//        Fournit une implémentation générique du timer watchdog, ainsi que des
+//        utilitaires de repos. Favorise le watchdog timer pour des repos qui
+//        rentre dans son intervalle, et _delay_ms lorsque c'est trop petit.
+
 #ifndef _WATCHDOG_TIMER_H
 #define _WATCHDOG_TIMER_H
 
@@ -34,7 +48,8 @@ private:
     volatile bool sleepDone_;
 
     /// @brief Sleep for a predefined duration and a power saving mode.
-    /// @param durationMode Select from `avr/wdt.h`: One of the `WDTO_*` constants.
+    /// @param durationMode Select from `avr/wdt.h`: One of the `WDTO_*`
+    /// constants.
     /// @param sleepMode Select from `avr/io.h`: One of the `SLEEP_MODE_*`
     /// constants.
     void rawSleep(const uint8_t durationMode, const SleepMode sleepMode);
