@@ -50,7 +50,6 @@ const Button& Robot::getExtraButton() const {
     return this->extraButton_;
 }
 
-
 const MovementManager<uint8_t, TimerPrescalerSynchronous>&
 Robot::getMovementManager() const {
     return this->movementManager_;
@@ -76,15 +75,9 @@ Midi& Robot::getMidi() {
     return this->midi_;
 }
 
- Button& Robot::getButton()  {
-    return this->board_.getButton();
-}
-
-
 Button& Robot::getExtraButton() {
     return this->extraButton_;
 }
-
 
 MovementManager<uint8_t, TimerPrescalerSynchronous>&
 Robot::getMovementManager() {

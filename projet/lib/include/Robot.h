@@ -30,7 +30,6 @@ public:
     LineSensor& getLineSensor();
     Midi& getMidi();
     Button& getExtraButton();
-    Button& getButton();
     MovementManager<uint8_t, TimerPrescalerSynchronous>& getMovementManager();
 
     static constexpr float OFFSET_LEFT = 1.0F;

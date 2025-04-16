@@ -66,7 +66,8 @@ namespace {
 
 template <typename T, typename U>
 Timer<T, U>::Timer(const Timer<T, U>::Registers& registers)
-    : registers_(registers), prescalerFlags_(0), counterExpired_(false) {
+    : registers_(registers), prescalerFlags_(0), compareOutputModeFlags_(0),
+      counterExpired_(false) {
     this->registers_.waveformA.updateDirection(Pin::Direction::OUT);
     this->registers_.waveformB.updateDirection(Pin::Direction::OUT);
 }
@@ -173,7 +174,7 @@ void Timer<T, U>::start() {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         this->counterExpired_ = false;
         *this->registers_.controlA &=
-            ~(_BV(COM0A0) | _BV(COM0A1) | _BV(COM0B1) | _BV(COM0B1));
+            ~(_BV(COM0A0) | _BV(COM0A1) | _BV(COM0B0) | _BV(COM0B1));
         *this->registers_.controlA |= this->compareOutputModeFlags_;
 
         *this->registers_.controlB &= ~(_BV(CS12) | _BV(CS11) | _BV(CS10));
