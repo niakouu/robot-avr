@@ -1,3 +1,38 @@
+//
+// Travail : Projet Final
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed Elyes Bradai
+// Description du ForkChallengeHandler.h : Après avoir détectée le point B, le robot s'arrête 
+//                                         et fait un son grave d'une seconde, puis le robot décide
+//                                         de tourner à droite ou à gauche selon les variables
+//                                         qui ont été initialisées précédemment puis suit la ligne
+//                                         jusqu'à arriver au point C. Au point C, le robot s'arrête 
+//                                         et fait un son grave d'une seconde, puis le robot décide
+//                                         de tourner à droite ou à gauche selon les variables
+//                                         qui ont été initialisées précédemment puis suit la ligne
+//                                         jusqu'à arriver au point D.
+// Identification matérielles : Voir main.cpp
+// Table des états : 
+// +----------------+---------+----------------+
+// | Current State  |  Lost   | Next State     |
+// +----------------+---------+----------------+
+// | B_SOUND        | X       | B              |
+// | B              | X       | B_TO_C         |
+// | B_TO_C         | 0       | B_TO_C         |
+// | B_TO_C         | 1       | C_SOUND        |
+// | C_SOUND        | X       | C              |
+// | C              | X       | C_TO_TURN      |
+// | C_TO_TURN      | 0       | C_TO_TURN      |
+// | C_TO_TURN      | 1       | TURN_TO_D      |
+// | TURN_TO_D      | 0       | TURN_TO_D      |
+// | TURN_TO_D      | 1       | EXIT           |
+// | EXIT           | X       | EXIT           |
+// +----------------+---------+----------------+
+
+
 #ifndef _FORK_CHALLENGE_HANDLER_H
 #define _FORK_CHALLENGE_HANDLER_H
 
