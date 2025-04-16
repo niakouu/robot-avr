@@ -1,3 +1,17 @@
+//
+// Travail : tp7
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du Photoresistance.h :
+//        Implémente, la logique de capteur de photoresistance et la classe
+//        l'intensité de la lumière (LOW, MEDIUM, HIGH) selon des threasholds.
+//
+
 #ifndef _PHOTORESISTANCE_H
 #define _PHOTORESISTANCE_H
 

@@ -1,3 +1,18 @@
+//
+// Travail : tp7
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du Timer.h :
+//        Implémentation générique des Timers sur le Atmega324PA. Les modes
+//        possibles sont le mode CTC et le mode PWM pour tout les types de
+//        timer. Le PWM de fréquence est seulement possible avec le Timer 1.
+//
+
 #ifndef _TIMER_H
 #define _TIMER_H
 

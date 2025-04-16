@@ -9,7 +9,8 @@
 //
 // Description du Motor.h :
 //        Réprésente une roue sur le robot. Quand on utilise la fonction move,
-//        il return le bon ratio de vitesse et choisi si la direction d'un input doit être 
+//        il return le bon ratio de vitesse et choisi si le pin direction doit
+//        être positive ou négative.
 //
 
 #ifndef _MOTOR_H

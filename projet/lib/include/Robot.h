@@ -1,3 +1,17 @@
+//
+// Travail : projet
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du Board.h :
+//        Détiens toutes les composantes qui font partie du robot. Robot est une
+//        classe singleton.
+//
+
 #ifndef _ROBOT_H
 #define _ROBOT_H
 
