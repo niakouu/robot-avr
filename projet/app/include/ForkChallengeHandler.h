@@ -14,15 +14,22 @@ public:
     bool isDone() override;
 
 private:
-    enum class Point : uint8_t { BSound, B, BToC, CSound, C, CToTurn,TurnToD, EXIT };
+    static const constexpr uint8_t LOW_PITCH_TONE = 45;
+    enum class Point : uint8_t {
+        B_SOUND,
+        B,
+        B_TO_C,
+        C_SOUND,
+        C,
+        C_TO_TURN,
+        TURN_TO_D,
+        EXIT
+    };
 
     Point currentState_;
     uint8_t counter_;
     bool isDone_;
-
-
-    void endingPointHandler(Challenge& challenge);
-    uint16_t counterMidiMs;
+    uint16_t counterMidiMs_;
 
     static constexpr const uint16_t MIDI_TIME_MS = 1000;
 };

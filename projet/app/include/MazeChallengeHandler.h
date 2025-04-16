@@ -32,18 +32,9 @@ private:
         bool right : 1;
     } poleMap_;
 
-    enum class Stage : uint8_t {
-        STAGE_1,
-        STAGE_2,
-        END
-    };
+    enum class Stage : uint8_t { STAGE_1, STAGE_2, END };
 
-    enum class Lane : uint8_t {
-        LEFT,
-        CENTER,
-        RIGHT,
-        INVALID
-    };
+    enum class Lane : uint8_t { LEFT, CENTER, RIGHT, INVALID };
 
     enum class Orientation : uint8_t {
         LEFT,
@@ -61,9 +52,12 @@ private:
 
     Lane getFreeLane() const;
 
-    bool handleDetection(LineFollowerConfiguration& configuration, uint16_t deltatimeMs, bool& isManual);
-    void handleCheckNextLane(LineFollowerConfiguration& configuration, const PoleMap& previousPoleMap);
-    void handleCurrentLaneIsFreeLane(LineFollowerConfiguration& configuration, uint16_t deltaTimeMs);
+    bool handleDetection(LineFollowerConfiguration& configuration,
+                         uint16_t deltatimeMs, bool& isManual);
+    void handleCheckNextLane(LineFollowerConfiguration& configuration,
+                             const PoleMap& previousPoleMap);
+    void handleCurrentLaneIsFreeLane(LineFollowerConfiguration& configuration,
+                                     uint16_t deltaTimeMs);
     void handleNextLaneIsFreeLane(LineFollowerConfiguration& configuration);
     void handleFarLaneIsFreeLane(LineFollowerConfiguration& configuration);
 

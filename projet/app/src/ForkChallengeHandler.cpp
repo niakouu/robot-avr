@@ -1,12 +1,11 @@
 #include "ForkChallengeHandler.h"
 
 #include "Challenge.h"
-#include "InitializationHandler.h"
 #include "Robot.h"
 
 ForkChallengeHandler::ForkChallengeHandler()
-    : currentState_(ForkChallengeHandler::Point::BSound), counter_(0),
-      isDone_(false), counterMidiMs(MIDI_TIME_MS) {}
+    : currentState_(ForkChallengeHandler::Point::B_SOUND), counter_(0),
+      isDone_(false), counterMidiMs_(MIDI_TIME_MS) {}
 
 void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     LineFollower<uint8_t, TimerPrescalerSynchronous>& lineFollower =
@@ -17,9 +16,9 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
     LineFollowerConfiguration configuration{
         .state = LineFollowerState::LOST,
-        .isAutomatic = true, // Continue toujours forward
+        .isAutomatic = true,
         .isAlignAfterTurn = false,
-        .isEventOnThree = false, // Lost aussi si 3 allum
+        .isEventOnThree = false,
         .isSkippingStartingLine = false,
         .adjustTimeMs =
             LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_SHORT_MS};
@@ -27,26 +26,25 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
     const uint8_t darkLineCount =
         Robot::get().getLineSensor().getReadings().getDarkLineCount();
 
-    printf("s:%d\n", static_cast<uint8_t>(this->currentState_));
     switch (this->currentState_) {
-        case Point::BSound:
-            if (this->counterMidiMs == 0) {
+        case Point::B_SOUND:
+            if (this->counterMidiMs_ == 0) {
                 Robot::get().getMidi().stop();
-                this->counterMidiMs = MIDI_TIME_MS;
+                this->counterMidiMs_ = MIDI_TIME_MS;
                 currentState_ = Point::B;
                 return;
             }
 
-            if (this->counterMidiMs == MIDI_TIME_MS) {
-                Robot::get().getMidi().playNote(45);
+            if (this->counterMidiMs_ == MIDI_TIME_MS) {
+                Robot::get().getMidi().playNote(LOW_PITCH_TONE);
             }
 
-            this->counterMidiMs =
-                cappingSubtract(this->counterMidiMs, deltaTimeMs);
+            this->counterMidiMs_ =
+                cappingSubtract(this->counterMidiMs_, deltaTimeMs);
 
             break;
         case Point::B:
-            currentState_ = Point::BToC;
+            currentState_ = Point::B_TO_C;
             configuration.isEventOnThree = true;
 
             if (Challenge::get().isTurnLeftFork(true)) {
@@ -57,28 +55,28 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
             break;
 
-        case Point::BToC:
+        case Point::B_TO_C:
             configuration.state = LineFollowerState::FORWARD;
             if (darkLineCount == 0) {
                 configuration.state = LineFollowerState::LOST;
-                currentState_ = Point::CSound;
+                currentState_ = Point::C_SOUND;
             }
 
             break;
-        case Point::CSound:
-            if (this->counterMidiMs == 0) {
+        case Point::C_SOUND:
+            if (this->counterMidiMs_ == 0) {
                 Robot::get().getMidi().stop();
-                this->counterMidiMs = MIDI_TIME_MS;
+                this->counterMidiMs_ = MIDI_TIME_MS;
                 currentState_ = Point::C;
                 return;
             }
 
-            if (this->counterMidiMs == MIDI_TIME_MS) {
-                Robot::get().getMidi().playNote(45);
+            if (this->counterMidiMs_ == MIDI_TIME_MS) {
+                Robot::get().getMidi().playNote(LOW_PITCH_TONE);
             }
 
-            this->counterMidiMs =
-                cappingSubtract(this->counterMidiMs, deltaTimeMs);
+            this->counterMidiMs_ =
+                cappingSubtract(this->counterMidiMs_, deltaTimeMs);
 
             break;
         case Point::C:
@@ -89,9 +87,9 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
             }
 
-            currentState_ = Point::CToTurn;
+            currentState_ = Point::C_TO_TURN;
             break;
-        case Point::CToTurn:
+        case Point::C_TO_TURN:
             configuration.isEventOnThree = false;
             if (Challenge::get().isTurnLeftFork(false)) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
@@ -104,7 +102,7 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
             break;
         case Point::EXIT:
             configuration.state = LineFollowerState::LOST;
-            endingPointHandler(challenge);
+            this->isDone_ = true;
 
             while (!(Robot::get().getExtraButton().isEvent()
                      && Robot::get().getExtraButton().isPressed()))
@@ -120,8 +118,4 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
 bool ForkChallengeHandler::isDone() {
     return this->isDone_;
-}
-
-void ForkChallengeHandler::endingPointHandler(Challenge& challenge) {
-    this->isDone_ = true;
 }

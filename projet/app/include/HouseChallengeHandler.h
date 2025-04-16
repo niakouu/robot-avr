@@ -4,17 +4,25 @@
 #include "ChallengeHandler.h"
 #include "Led.h"
 
-class HouseChallengeHandler : ChallengeHandler
-{
+class HouseChallengeHandler : ChallengeHandler {
 public:
     HouseChallengeHandler();
     ~HouseChallengeHandler() = default;
 
     void update(uint16_t deltaTimeMs, Challenge& challenge) override;
     bool isDone() override;
+
 private:
     enum class Point : uint8_t {
-        E_INITIAL, F, G, G_CHECK, H, I_FROM_G, I_FROM_H, E_FINAL, F_FINAL
+        E_INITIAL,
+        F,
+        G,
+        G_CHECK,
+        H,
+        I_FROM_G,
+        I_FROM_H,
+        E_FINAL,
+        F_FINAL
     };
 
     static constexpr uint8_t POLE_READING_COUNT = 10U;

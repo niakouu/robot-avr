@@ -4,10 +4,10 @@
 #include <stdint.h>
 
 #include "ChallengeHandler.h"
-#include "HouseChallengeHandler.h"
-#include "MazeChallengeHandler.h"
 #include "ForkChallengeHandler.h"
+#include "HouseChallengeHandler.h"
 #include "LineFollower.h"
+#include "MazeChallengeHandler.h"
 #include "Robot.h"
 
 class Challenge {
