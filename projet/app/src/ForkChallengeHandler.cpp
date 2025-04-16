@@ -105,6 +105,11 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         case Point::EXIT:
             configuration.state = LineFollowerState::LOST;
             endingPointHandler(challenge);
+
+            while (!(Robot::get().getExtraButton().isEvent()
+                     && Robot::get().getExtraButton().isPressed()))
+                ;
+            Robot::get().getExtraButton().consumeEvent();
             break;
         default:
             break;

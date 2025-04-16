@@ -7,8 +7,8 @@ MazeChallengeHandler::MazeChallengeHandler()
     : rotateTimeLeftMs_(TURN_TIME_MS), averagePoleDistance_(0),
       detectionDanceTimeLeftMs_(0), counter_(0),
       totalReadings_(POLE_READING_COUNT), finishedCalculatingPole_(false),
-      poleMap_{false, false, false}, currentStage_(Stage::Stage1),
-      orientation_(Orientation::Forward), lane_(Lane::Center),
+      poleMap_{false, false, false}, currentStage_(Stage::STAGE_1),
+      orientation_(Orientation::FORWARD), lane_(Lane::CENTER),
       isIntermediateStep_(false), isCheckingInPosition_(false), isDone_(false),
       sweepTimeLeft_(0) {}
 
@@ -30,7 +30,7 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
 
     bool isManual = false;
 
-    if (this->currentStage_ != Stage::End) {
+    if (this->currentStage_ != Stage::END) {
         const Lane freeLane = this->getFreeLane();
 
         if (this->lane_ == freeLane) {
@@ -38,43 +38,43 @@ void MazeChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         } else if (
             // We move one lane over
             // clang-format off
-            (this->lane_ == Lane::Center && (
-                freeLane == Lane::Left || freeLane == Lane::Right)) ||
-            (freeLane == Lane::Center && (
-                this->lane_ == Lane::Left || this->lane_ == Lane::Right))
+            (this->lane_ == Lane::CENTER && (
+                freeLane == Lane::LEFT || freeLane == Lane::RIGHT)) ||
+            (freeLane == Lane::CENTER && (
+                this->lane_ == Lane::LEFT || this->lane_ == Lane::RIGHT))
             // clang-format on
         ) {
             this->handleNextLaneIsFreeLane(configuration);
         } else if (
             // Far lane is free lane
-            (this->lane_ == Lane::Left && freeLane == Lane::Right)
-            || (this->lane_ == Lane::Right && freeLane == Lane::Left)) {
+            (this->lane_ == Lane::LEFT && freeLane == Lane::RIGHT)
+            || (this->lane_ == Lane::RIGHT && freeLane == Lane::LEFT)) {
             this->handleFarLaneIsFreeLane(configuration);
-        } else if (freeLane == Lane::Invalid) {
+        } else if (freeLane == Lane::INVALID) {
             bool finishedDetecting = true;
             const PoleMap previousPoleMap = this->poleMap_;
-            if (this->orientation_ == Orientation::Forward)
+            if (this->orientation_ == Orientation::FORWARD)
                 finishedDetecting =
                     handleDetection(configuration, deltaTimeMs, isManual);
 
-            if (finishedDetecting && this->getFreeLane() == Lane::Invalid)
+            if (finishedDetecting && this->getFreeLane() == Lane::INVALID)
                 this->handleCheckNextLane(configuration, previousPoleMap);
         }
     } else {
         configuration.isAutomatic = false;
-        configuration.state = this->orientation_ == Orientation::Forward
+        configuration.state = this->orientation_ == Orientation::FORWARD
                                   ? LineFollowerState::TURNING_RIGHT
                                   : LineFollowerState::FORWARD;
 
-        if (this->orientation_ == Orientation::Right) {
+        if (this->orientation_ == Orientation::RIGHT) {
             switch (this->lane_) {
-                case Lane::Left:
-                    this->lane_ = Lane::Center;
+                case Lane::LEFT:
+                    this->lane_ = Lane::CENTER;
                     break;
-                case Lane::Center:
-                    this->lane_ = Lane::Right;
+                case Lane::CENTER:
+                    this->lane_ = Lane::RIGHT;
                     break;
-                case Lane::Right:
+                case Lane::RIGHT:
                 default:
                     configuration.state = LineFollowerState::STOP;
                     this->isDone_ = true;
@@ -95,15 +95,15 @@ bool MazeChallengeHandler::isDone() {
 
 MazeChallengeHandler::Lane MazeChallengeHandler::getFreeLane() const {
     if (!this->poleMap_.left && this->poleMap_.center && this->poleMap_.right)
-        return Lane::Left;
+        return Lane::LEFT;
 
     if (this->poleMap_.left && !this->poleMap_.center && this->poleMap_.right)
-        return Lane::Center;
+        return Lane::CENTER;
 
     if (this->poleMap_.left && this->poleMap_.center && !this->poleMap_.right)
-        return Lane::Right;
+        return Lane::RIGHT;
 
-    return Lane::Invalid;
+    return Lane::INVALID;
 }
 
 bool MazeChallengeHandler::handleDetection(
@@ -146,17 +146,17 @@ bool MazeChallengeHandler::handleDetection(
     const bool isPolePresent = this->isPolePresent(DISTANCE_TO_CENTER);
 
     switch (this->lane_) {
-        case Lane::Left:
+        case Lane::LEFT:
             this->poleMap_.left |= isPolePresent;
             this->poleMap_.center |= !isPolePresent;
             this->poleMap_.right |= !isPolePresent;
             break;
-        case Lane::Center:
+        case Lane::CENTER:
             this->poleMap_.left |= !isPolePresent;
             this->poleMap_.center |= isPolePresent;
             this->poleMap_.right |= !isPolePresent;
             break;
-        case Lane::Right:
+        case Lane::RIGHT:
             this->poleMap_.left |= !isPolePresent;
             this->poleMap_.center |= !isPolePresent;
             this->poleMap_.right |= isPolePresent;
@@ -180,16 +180,16 @@ void MazeChallengeHandler::handleCheckNextLane(
     if (previousPoleMap.left || previousPoleMap.center
         || previousPoleMap.right) {
         configuration.adjustTimeMs =
-            this->orientation_ == Orientation::Forward
+            this->orientation_ == Orientation::FORWARD
                 ? 0
                 : LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
     }
 
     configuration.isSkippingStartingLine = true;
 
-    const bool shouldCheckRight = this->lane_ == Lane::Left;
+    const bool shouldCheckRight = this->lane_ == Lane::LEFT;
 
-    if (this->orientation_ == Orientation::Forward) {
+    if (this->orientation_ == Orientation::FORWARD) {
         configuration.isAutomatic = true;
         configuration.state = shouldCheckRight
                                   ? LineFollowerState::TURNING_RIGHT
@@ -201,12 +201,12 @@ void MazeChallengeHandler::handleCheckNextLane(
                                   : LineFollowerState::TURNING_RIGHT;
 
         switch (this->lane_) {
-            case Lane::Left:
-            case Lane::Right:
-                this->lane_ = Lane::Center;
+            case Lane::LEFT:
+            case Lane::RIGHT:
+                this->lane_ = Lane::CENTER;
                 break;
-            case Lane::Center:
-                this->lane_ = shouldCheckRight ? Lane::Right : Lane::Left;
+            case Lane::CENTER:
+                this->lane_ = shouldCheckRight ? Lane::RIGHT : Lane::LEFT;
                 break;
             default:
                 break;
@@ -217,20 +217,20 @@ void MazeChallengeHandler::handleCheckNextLane(
 void MazeChallengeHandler::handleCurrentLaneIsFreeLane(
     LineFollowerConfiguration& configuration, uint16_t deltaTimeMs) {
 
-    if (this->orientation_ == Orientation::Forward
+    if (this->orientation_ == Orientation::FORWARD
         && !this->isIntermediateStep_) {
         if (!this->handleDetectionDance(deltaTimeMs))
             return;
     }
 
     switch (this->orientation_) {
-        case Orientation::Forward:
+        case Orientation::FORWARD:
             configuration.state = LineFollowerState::FORWARD;
             break;
-        case Orientation::Left:
+        case Orientation::LEFT:
             configuration.state = LineFollowerState::TURNING_RIGHT;
             break;
-        case Orientation::Right:
+        case Orientation::RIGHT:
             configuration.state = LineFollowerState::TURNING_LEFT;
             break;
     }
@@ -242,10 +242,10 @@ void MazeChallengeHandler::handleCurrentLaneIsFreeLane(
 
     this->isIntermediateStep_ = !this->isIntermediateStep_;
     if (!this->isIntermediateStep_) {
-        if (this->currentStage_ == Stage::Stage1)
-            this->currentStage_ = Stage::Stage2;
-        else if (this->currentStage_ == Stage::Stage2)
-            this->currentStage_ = Stage::End;
+        if (this->currentStage_ == Stage::STAGE_1)
+            this->currentStage_ = Stage::STAGE_2;
+        else if (this->currentStage_ == Stage::STAGE_2)
+            this->currentStage_ = Stage::END;
 
         this->isIntermediateStep_ = false;
         this->poleMap_.left = false;
@@ -263,12 +263,12 @@ void MazeChallengeHandler::handleNextLaneIsFreeLane(
         LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
     configuration.isSkippingStartingLine = true;
     configuration.isEventOnThree =
-        this->currentStage_ == Stage::Stage1 && this->lane_ == Lane::Center;
+        this->currentStage_ == Stage::STAGE_1 && this->lane_ == Lane::CENTER;
 
-    const bool isOnRight = freeLane == Lane::Right || this->lane_ == Lane::Left;
+    const bool isOnRight = freeLane == Lane::RIGHT || this->lane_ == Lane::LEFT;
 
     if (this->orientation_
-        != (isOnRight ? Orientation::Right : Orientation::Left)) {
+        != (isOnRight ? Orientation::RIGHT : Orientation::LEFT)) {
         configuration.state = isOnRight ? LineFollowerState::TURNING_RIGHT
                                         : LineFollowerState::TURNING_LEFT;
     } else {
@@ -283,26 +283,26 @@ void MazeChallengeHandler::handleFarLaneIsFreeLane(
     configuration.adjustTimeMs = 0;
     configuration.isSkippingStartingLine = true;
 
-    configuration.state = this->lane_ == Lane::Left
+    configuration.state = this->lane_ == Lane::LEFT
                               ? LineFollowerState::TURNING_RIGHT
                               : LineFollowerState::TURNING_LEFT;
 
-    this->lane_ = Lane::Center;
+    this->lane_ = Lane::CENTER;
 }
 
 void MazeChallengeHandler::updateOrientation(LineFollowerState nextState) {
     if (nextState == LineFollowerState::TURNING_LEFT
         || nextState == LineFollowerState::TURNING_RIGHT) {
         switch (this->orientation_) {
-            case Orientation::Forward:
+            case Orientation::FORWARD:
                 this->orientation_ =
                     nextState == LineFollowerState::TURNING_RIGHT
-                        ? Orientation::Right
-                        : Orientation::Left;
+                        ? Orientation::RIGHT
+                        : Orientation::LEFT;
                 break;
-            case Orientation::Left:
-            case Orientation::Right:
-                this->orientation_ = Orientation::Forward;
+            case Orientation::LEFT:
+            case Orientation::RIGHT:
+                this->orientation_ = Orientation::FORWARD;
                 break;
         }
     }

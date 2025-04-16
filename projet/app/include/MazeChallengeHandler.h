@@ -33,22 +33,22 @@ private:
     } poleMap_;
 
     enum class Stage : uint8_t {
-        Stage1,
-        Stage2,
-        End
+        STAGE_1,
+        STAGE_2,
+        END
     };
 
     enum class Lane : uint8_t {
-        Left,
-        Center,
-        Right,
-        Invalid
+        LEFT,
+        CENTER,
+        RIGHT,
+        INVALID
     };
 
     enum class Orientation : uint8_t {
-        Left,
-        Forward,
-        Right,
+        LEFT,
+        FORWARD,
+        RIGHT,
     };
 
     Stage currentStage_ : 2;
@@ -74,66 +74,6 @@ private:
     void resetDistanceValues();
 
     bool handleDetectionDance(uint16_t deltaTimeMs);
-
-    const char* toString(MazeChallengeHandler::Stage stage) {
-        switch (stage) {
-            case MazeChallengeHandler::Stage::Stage1:
-                return "Stage1";
-            case MazeChallengeHandler::Stage::Stage2:
-                return "Stage2";
-            case MazeChallengeHandler::Stage::End:
-                return "End";
-            default:
-                return "UNKNOWN";
-        }
-    }
-    
-    const char* toString(LineFollowerState state) {
-        switch (state) {
-            case LineFollowerState::FORWARD:
-                return "FORWARD";
-            case LineFollowerState::ALIGN:
-                return "ALIGN";
-            case LineFollowerState::TURNING_LEFT:
-                return "TURNING_LEFT";
-            case LineFollowerState::TURNING_RIGHT:
-                return "TURNING_RIGHT";
-            case LineFollowerState::LOST:
-                return "LOST";
-            case LineFollowerState::STOP:
-                return "STOP";
-            default:
-                return "UNKNOWN";
-        }
-    }
-    
-    const char* toString(MazeChallengeHandler::Lane lane) {
-        switch (lane) {
-            case MazeChallengeHandler::Lane::Left:
-                return "Left";
-            case MazeChallengeHandler::Lane::Center:
-                return "Center";
-            case MazeChallengeHandler::Lane::Right:
-                return "Right";
-            case MazeChallengeHandler::Lane::Invalid:
-                return "Invalid";
-            default:
-                return "UNKNOWN";
-        }
-    }
-    
-    const char* toString(MazeChallengeHandler::Orientation orientation) {
-        switch (orientation) {
-            case MazeChallengeHandler::Orientation::Left:
-                return "Left";
-            case MazeChallengeHandler::Orientation::Forward:
-                return "Forward";
-            case MazeChallengeHandler::Orientation::Right:
-                return "Right";
-            default:
-                return "UNKNOWN";
-        }
-    }
 };
 
 #endif /* _MAZE_CHALLENGE_HANDLER_H */

@@ -18,12 +18,12 @@ public:
 
     enum class State : uint8_t {
         INITIALIZATION,
+        INITIALIZATION_WAIT,
         NEXT_STATE,
         LOCATE,
         FORK_CHALLENGE,
         HOUSE_CHALLENGE,
         MAZE_CHALLENGE,
-        PARK,
         FINISH
     };
 
@@ -38,11 +38,14 @@ public:
 private:
     static Challenge challenge_;
 
+    static constexpr const uint16_t INITIALIZATION_SLEEP_TIME = 2000U;
+
     bool isTurnLeftFork_[2];
     uint8_t challengeStateTracker_, buttonCounter_, nextStateStep_;
     LineFollower<uint8_t, TimerPrescalerSynchronous> lineFollower_;
     bool switchedState_;
     State previousState_;
+    uint16_t initializationSleepTimeLeft_;
 
     struct StateHolder {
         State state;
@@ -61,11 +64,10 @@ private:
         ~StateHolder();
     } stateHolder_;
 
-    void initiazliationHandler();
+    void initializationHandler();
+    void initializationWaitHandler(uint16_t deltaTimeMs);
     void nextStateHandler();
     void locateHandler();
-    void forkChallengeHandler();
-    void parkHandler();
     void finishHandler();
 
     void setState(State state);

@@ -38,6 +38,10 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         case Point::E_INITIAL:
             configuration.state = LineFollowerState::FORWARD;
             this->point_ = Point::F;
+            while (!(Robot::get().getExtraButton().isEvent()
+                     && Robot::get().getExtraButton().isPressed()))
+                ;
+            Robot::get().getExtraButton().consumeEvent();
             break;
         case Point::F:
             configuration.state = LineFollowerState::TURNING_RIGHT;
@@ -83,7 +87,8 @@ void HouseChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         case Point::I_FROM_H:
             configuration.state = LineFollowerState::TURNING_RIGHT;
             configuration.isEventOnThree = false;
-            configuration.adjustTimeMs = LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
+            configuration.adjustTimeMs =
+                LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
             configuration.isSkippingStartingLine = false;
             this->point_ = Point::E_FINAL;
             break;

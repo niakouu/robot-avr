@@ -22,7 +22,10 @@ void Challenge::update(uint16_t deltaTimeMs) {
 
     switch (stateHolder_.state) {
         case State::INITIALIZATION:
-            this->initiazliationHandler();
+            this->initializationHandler();
+            break;
+        case State::INITIALIZATION_WAIT:
+            this->initializationWaitHandler(deltaTimeMs);
             break;
         case State::NEXT_STATE:
             this->nextStateHandler();
@@ -42,9 +45,6 @@ void Challenge::update(uint16_t deltaTimeMs) {
             this->stateHolder_.handler.maze.update(deltaTimeMs, *this);
             done = this->stateHolder_.handler.maze.isDone();
             break;
-        case State::PARK:
-            parkHandler();
-            break;
         case State::FINISH:
             finishHandler();
             break;
@@ -54,8 +54,6 @@ void Challenge::update(uint16_t deltaTimeMs) {
 
     if (done) {
         ++this->challengeStateTracker_;
-
-        printf("done with challenge\n");
 
         this->setState(State::NEXT_STATE);
     }
@@ -78,7 +76,7 @@ bool Challenge::isTurnLeftFork(bool first) const {
     return this->isTurnLeftFork_[first ? 0 : 1];
 }
 
-void Challenge::initiazliationHandler() {
+void Challenge::initializationHandler() {
     Button& button = Board::get().getButton();
     Button& extraButton = Robot::get().getExtraButton();
     const BidirectionalLed& bidirectionalLed =
@@ -90,7 +88,7 @@ void Challenge::initiazliationHandler() {
 
     if (this->buttonCounter_ == 2) {
         bidirectionalLed.setColor(BidirectionalLed::Color::OFF);
-        this->setState(State::LOCATE);
+        this->setState(State::INITIALIZATION_WAIT);
         return;
     }
 
@@ -113,6 +111,18 @@ void Challenge::initiazliationHandler() {
     extraButton.consumeEvent();
 }
 
+void Challenge::initializationWaitHandler(uint16_t deltaTimeMs) {
+    if (this->switchedState_) {
+        this->initializationSleepTimeLeft_ = INITIALIZATION_SLEEP_TIME;
+        return;
+    }
+
+    this->initializationSleepTimeLeft_ = cappingSubtract(this->initializationSleepTimeLeft_, deltaTimeMs);
+    if (this->initializationSleepTimeLeft_ == 0) {
+        this->setState(State::LOCATE);
+    }
+}
+
 void Challenge::nextStateHandler() {
     if (this->switchedState_) {
         this->nextStateStep_ = 0;
@@ -130,20 +140,13 @@ void Challenge::nextStateHandler() {
         .adjustTimeMs =
             LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS};
 
-    printf("ns: %d dk: %d r: %d\n", nextStateStep_,
-           Robot::get().getLineSensor().getReadings().getDarkLineCount(),
-           Robot::get().getLineSensor().getReadings().isRightDark);
-
     switch (this->previousState_) {
         case State::FORK_CHALLENGE:
-            printf("fork donw\n");
             if (nextStateStep_ == 0) {
                 configuration.isSkippingStartingLine = true;
                 configuration.isAlignAfterTurn = true;
-                printf("turn right\n");
                 configuration.state = LineFollowerState::TURNING_RIGHT;
             } else {
-                printf("set state\n");
                 this->setState(State::HOUSE_CHALLENGE);
             }
             break;
@@ -187,10 +190,6 @@ void Challenge::locateHandler() {
                                           : State::MAZE_CHALLENGE);
     }
 }
-
-void Challenge::forkChallengeHandler() {}
-
-void Challenge::parkHandler() {}
 
 void Challenge::finishHandler() {
     constexpr const uint16_t FREQUENCY = 2U;
