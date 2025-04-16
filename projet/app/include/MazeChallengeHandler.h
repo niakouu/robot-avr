@@ -17,6 +17,19 @@
 //                                          du point A.
 // Identification matérielles : Voir main.cpp
 // Table des états : 
+// | État actuel  | Orientation | Ligne actuelle    | Entrée / Condition                        | Action / Prochaine étape                           | Étape suivante                |
+// |--------------|-------------|-------------------|-------------------------------------------|----------------------------------------------------|-------------------------------|
+// | STAGE_1      | FORWARD     | CENTER            | 1er croisement détecté                    | Démarre la détection de poteau                     | handleDetection()             |
+// | STAGE_1      | FORWARD     | LEFT/CENTER/RIGHT | Deux chemins bloqués, un libre            | Identifie la voie libre, se prépare à l’alignement | handleCurrentLaneIsFreeLane() |
+// | STAGE_1      | FORWARD     | freeLane          | !isIntermediateStep_                      | Clignotement DEL verte (4 Hz, 2 sec)               | handleDetectionDance()        |
+// | STAGE_1      | FORWARD     | freeLane          | isIntermediateStep_ devient true          | Avance vers ligne suivante                         | Avance à STAGE_2              |
+// | STAGE_1 ou 2 | FORWARD     | N’importe         | freeLane != lane_ (1 saut latéral requis) | Tourne vers freeLane                               | handleNextLaneIsFreeLane()    |
+// | STAGE_1 ou 2 | FORWARD     | N’importe         | freeLane opposé (ex: LEFT -> RIGHT)       | Tourne vers CENTER, puis re-détecte                | handleFarLaneIsFreeLane()     |
+// | STAGE_1 ou 2 | FORWARD     | INVALID           | Aucune voie libre détectée                | Réorientation vers prochaine voie                  | handleCheckNextLane()         |
+// | STAGE_2      | FORWARD     | freeLane          | Comme STAGE_1, après détection            | Traverse ligne vers A                              | currentStage_ = END           |
+// | END          | RIGHT       | LEFT/CENTER       | Navigation vers point A                   | Suit trajectoire finale, se repositionne           | Arrêt (isDone_ = true)        |
+// | END          | RIGHT       | RIGHT             | Dernière ligne atteinte                   | Stop complet                                       | LineFollowerState::STOP       |
+
 #ifndef _MAZE_CHALLENGE_HANDLER_H
 #define _MAZE_CHALLENGE_HANDLER_H
 
