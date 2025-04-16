@@ -14,7 +14,20 @@
 //                                         dirige vers le point H puis le point I. Le robot se dirige ensuite vers le point E, 
 //                                         puis F et se dirige vers le point J.
 // Identification matérielles : Voir main.cpp
-// Table des états : 
+// Table des états :
+// | Current State   | Condition                                          | Next State    |
+// |-----------------|----------------------------------------------------|---------------|
+// | E_INITIAL       | Line follower detects end of segment               | F             |
+// | F               | Line follower detects end of segment               | G             |
+// | G               | Line follower detects end of segment               | G_CHECK       |
+// | G_CHECK         | distance <= POLE_DISTANCE                          | I_FROM_G      |
+// | G_CHECK         | distance > POLE_DISTANCE                           | H             |
+// | H               | Line follower detects end of segment               | I_FROM_H      |
+// | I_FROM_H        | Line follower detects end of segment               | E_FINAL       |
+// | I_FROM_G        | Line follower detects end of segment               | E_FINAL       |
+// | E_FINAL         | Line follower detects end of segment               | F_FINAL       |
+// | F_FINAL         | Line follower detects end of segment               | F_FINAL       |
+
 #ifndef _HOUSE_CHALLENGE_HANDLER_H
 #define _HOUSE_CHALLENGE_HANDLER_H
 
