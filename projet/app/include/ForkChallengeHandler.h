@@ -5,7 +5,7 @@
 // Correcteur : Dorine Dantrun
 // ----------------------------------------------------------
 // Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed Elyes Bradai
-// Description du ForkChallengeHandler.h : Après avoir détectée le point B, le robot s'arrête 
+// Description du ForkChallengeHandler.h : Après avoir détecté le point B, le robot s'arrête 
 //                                         et fait un son grave d'une seconde, puis le robot décide
 //                                         de tourner à droite ou à gauche selon les variables
 //                                         qui ont été initialisées précédemment puis suit la ligne

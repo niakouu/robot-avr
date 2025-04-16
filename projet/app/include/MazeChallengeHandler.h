@@ -1,3 +1,22 @@
+//
+// Travail : Projet Final
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed Elyes Bradai
+// Description du MazeChallengeHandler.h :  Après avoir détecté la première intersection du Maze,
+//                                          le robot se dirige vers les points M, L, K tout en utilisant son capteur
+//                                          de distance pour détecter si le chemin est libre ou non. Dès qu’il identifie
+//                                          le seul point sans poteau, il s’arrête, s’aligner avec ce point, puis fait 
+//                                          clignoter sa DEL verte à une fréquence de 4 Hz pendant deux secondes. Ensuite, 
+//                                          il avance pour traverser cette première ligne de la grille. Le même processus est
+//                                          répété pour les points N, O, P. Si le robot détecte que deux chemins
+//                                          sont bloqués, il en déduit automatiquement que le troisième est libre.
+//                                          Après avoir franchi la grille, il continue son trajet en direction
+//                                          du point A.
+// Identification matérielles : Voir main.cpp
+// Table des états : 
 #ifndef _MAZE_CHALLENGE_HANDLER_H
 #define _MAZE_CHALLENGE_HANDLER_H
 
