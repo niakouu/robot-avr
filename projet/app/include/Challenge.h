@@ -16,7 +16,45 @@
 // Identification matérielles : Voir dans main.cpp
 //
 // Table des états :
-// 
+// +-----------------------+-------------------------------+------------------------+
+// | Current State         | Condition                     | Next State             |
+// +-----------------------+-------------------------------+------------------------+
+// | INITIALIZATION        | Button pressed (2x)           | INITIALIZATION_WAIT    |
+// | INITIALIZATION        | Else                          | INITIALIZATION         |
+// +-----------------------+-------------------------------+------------------------+
+// | INITIALIZATION_WAIT   | Delay elapsed (2s)            | LOCATE                 |
+// | INITIALIZATION_WAIT   | Else                          | INITIALIZATION_WAIT    |
+// +-----------------------+-------------------------------+------------------------+
+// | LOCATE                | isLost() && darkLineCount = 0 | FORK_CHALLENGE         |
+// | LOCATE                | isLost() && darkLineCount > 0 | MAZE_CHALLENGE         |
+// | LOCATE                | Else                          | LOCATE                 |
+// +-----------------------+-------------------------------+------------------------+
+// | FORK_CHALLENGE        | fork.isDone()                 | NEXT_STATE             |
+// | FORK_CHALLENGE        | Else                          | FORK_CHALLENGE         |
+// +-----------------------+-------------------------------+------------------------+
+// | HOUSE_CHALLENGE       | house.isDone()                | NEXT_STATE             |
+// | HOUSE_CHALLENGE       | Else                          | HOUSE_CHALLENGE        |
+// +-----------------------+-------------------------------+------------------------+
+// | MAZE_CHALLENGE        | maze.isDone()                 | NEXT_STATE             |
+// | MAZE_CHALLENGE        | Else                          | MAZE_CHALLENGE         |
+// +-----------------------+-------------------------------+------------------------+
+// | NEXT_STATE            | prev == FORK_CHALLENGE        |                        |
+// |                       |     step == 0                 | NEXT_STATE             |
+// |                       |     step == 1                 | HOUSE_CHALLENGE        |
+// | NEXT_STATE            | prev == HOUSE_CHALLENGE       |                        |
+// |                       |     step == 0, step == 1      | NEXT_STATE             |
+// |                       |     step == 3 && done == 3    | FINISH                 |
+// |                       |     step == 3 && done != 3    | MAZE_CHALLENGE         |
+// |                       | Else                          | NEXT_STATE             |
+// | NEXT_STATE            | prev == MAZE_CHALLENGE        |                        |
+// |                       |     step == 0, step == 1      | NEXT_STATE             |
+// |                       |     step == 3 && done == 3    | FINISH                 |
+// |                       |     step == 3 && done != 3    | FORK_CHALLENGE         |
+// |                       | Else                          | NEXT_STATE             |
+// +-----------------------+-------------------------------+------------------------+
+// | FINISH                | Periodic (every 0.5s)         | FINISH                 |
+// +-----------------------+-------------------------------+------------------------+
+
 
 #ifndef _CHALLENGE_H
 #define _CHALLENGE_H
