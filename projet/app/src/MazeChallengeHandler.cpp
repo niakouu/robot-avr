@@ -165,6 +165,17 @@ bool MazeChallengeHandler::handleDetection(
     }
 
     this->resetDistanceValues();
+    if (isPolePresent) {
+        if (this->lane_ == Lane::RIGHT
+            || (this->lane_ == Lane::CENTER && !poleMap_.left)) {
+            movementManager.moveLeft(SWEEP_SPEED, 1.0F);
+        } else {
+            movementManager.moveRight(SWEEP_SPEED, 1.0F);
+        }
+
+        Board::get().getWatchdogTimer().sleep(SWEEP_TIME_MS, WatchdogTimer::SleepMode::IDLE);
+    }
+
     movementManager.stop();
 
     return true;
@@ -175,6 +186,7 @@ void MazeChallengeHandler::handleCheckNextLane(
     configuration.isAutomatic = false;
     configuration.adjustTimeMs =
         LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
+    configuration.isAlignAfterTurn = true;
 
     if (previousPoleMap.left || previousPoleMap.center
         || previousPoleMap.right) {
@@ -194,7 +206,6 @@ void MazeChallengeHandler::handleCheckNextLane(
                                   ? LineFollowerState::TURNING_RIGHT
                                   : LineFollowerState::TURNING_LEFT;
     } else {
-        configuration.isAlignAfterTurn = true;
         configuration.state = shouldCheckRight
                                   ? LineFollowerState::TURNING_LEFT
                                   : LineFollowerState::TURNING_RIGHT;

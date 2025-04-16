@@ -67,7 +67,7 @@ struct LineFollowerConfiguration {
     uint16_t adjustTimeMs;
 
     static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_SHORT_MS = 800;
-    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_LONG_MS = 1400;
+    static const constexpr uint16_t TURN_WHEEL_ADJUST_TIME_LONG_MS = 1500;
 };
 
 template <typename T, typename U>

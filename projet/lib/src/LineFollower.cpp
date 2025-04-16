@@ -190,7 +190,7 @@ void LineFollower<T, U>::turningHandler(LineSensor::Readings readings,
                                                  1.0F);
             }
         } else {
-            if (readings.getAverage() <= -2) {
+            if (readings.getAverage() < -2) {
                 this->movementManager_.move(true, this->speed_ / 2, true, this->speed_);
             } if (readings.getAverage() >= 2) {
                 this->movementManager_.move(true, this->speed_, true, this->speed_ / 2);
