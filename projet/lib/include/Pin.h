@@ -1,3 +1,15 @@
+//
+// Travail : Projet Final
+// Section # : 4
+// Équipe # : 8290
+// Correcteur : Dorine Dantrun
+// ----------------------------------------------------------
+// Développeurs : Edelina Alieva, Kyle Bouchard, Ilyes Belhaddad et Mohamed
+// Elyes Bradai
+//
+// Description du Challenge.h :
+//        Implémentation sécuritaire et générique pour différents pins.
+
 #ifndef _PIN_H
 #define _PIN_H
 
