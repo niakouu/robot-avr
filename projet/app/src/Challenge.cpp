@@ -158,6 +158,7 @@ void Challenge::nextStateHandler() {
             } else if (nextStateStep_ == 1) {
                 configuration.state = LineFollowerState::TURNING_RIGHT;
                 configuration.isAutomatic = this->challengeStateTracker_ != 3;
+                configuration.isAlignAfterTurn = this->challengeStateTracker_ == 3;
                 configuration.isEventOnThree = false;
             } else {
                 if (this->challengeStateTracker_ == 3)

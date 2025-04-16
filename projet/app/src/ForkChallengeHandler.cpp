@@ -103,11 +103,6 @@ void ForkChallengeHandler::update(uint16_t deltaTimeMs, Challenge& challenge) {
         case Point::EXIT:
             configuration.state = LineFollowerState::LOST;
             this->isDone_ = true;
-
-            while (!(Robot::get().getExtraButton().isEvent()
-                     && Robot::get().getExtraButton().isPressed()))
-                ;
-            Robot::get().getExtraButton().consumeEvent();
             break;
         default:
             break;

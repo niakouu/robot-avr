@@ -239,6 +239,9 @@ void MazeChallengeHandler::handleCurrentLaneIsFreeLane(
     configuration.isAutomatic = false;
     configuration.adjustTimeMs =
         LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
+    
+    if (this->orientation_ != Orientation::FORWARD)
+        return;
 
     this->isIntermediateStep_ = !this->isIntermediateStep_;
     if (!this->isIntermediateStep_) {
@@ -259,8 +262,12 @@ void MazeChallengeHandler::handleNextLaneIsFreeLane(
     const Lane freeLane = this->getFreeLane();
 
     configuration.isAutomatic = false;
+    configuration.isAlignAfterTurn = true;
     configuration.adjustTimeMs =
         LineFollowerConfiguration::TURN_WHEEL_ADJUST_TIME_LONG_MS;
+    if (this->orientation_ == Orientation::FORWARD)
+        configuration.adjustTimeMs = 0;
+
     configuration.isSkippingStartingLine = true;
     configuration.isEventOnThree =
         this->currentStage_ == Stage::STAGE_1 && this->lane_ == Lane::CENTER;
